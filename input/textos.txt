@@ -1,0 +1,22 @@
+enciendete
+conectate
+desconectate
+apagate
+parate
+detente
+parar
+avanza
+avanza cuatro centimetros
+avanzar diez metros a tres centimetros por segundo
+avanzar a tres centimetros por segundo diez metros
+desplazate tres metros a cinco metros por segundo
+camina diez centimetros a tres kilometros por hora
+gira
+gira cinco grados
+girar tres grados a la derecha
+gira a la izquierda
+dime el estado de tu bateria
+dime cuanta bateria te queda
+indica el estado de tu bateria
+cuanta carga te queda
+cuanto te queda de bateria
