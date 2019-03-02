@@ -1,0 +1,1 @@
+﻿Esto es un ejemplo de representaciones vectoriales de palabras en el espacio semántico.
