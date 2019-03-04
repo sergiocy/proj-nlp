@@ -7,9 +7,7 @@ import argparse
 
 import nltk
 
-
 from controller.selector import *
-#from controller.selector import process_selection
 
 
 
@@ -19,6 +17,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--process', type=str, nargs='+')
     parser.add_argument('--file_origin', type=str, nargs='+')
+    parser.add_argument('--file_origin_folder', type=str, default='../input')
     args = parser.parse_args()
 
-    process_selection(args.process, args.file_origin)
+    print(args)
+
+    process_selection(args.file_origin_folder, args.process, args.file_origin)
