@@ -19,10 +19,10 @@ def set_input_object(file_origin):
 
     print('creating class for input-text')
     in_text1 = InputText(file_origin)
-    in_text1.get_file_name()
-    in_text1.get_input_text()
+    print(in_text1.get_file_name())
+    print(in_text1.get_input_text())
     in_text1.set_output_text(lcase = True, tokenize = True)
-    in_text1.get_output_text()
+    print(in_text1.get_output_text())
 
 
 

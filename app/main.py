@@ -17,9 +17,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--process', type=str, nargs='+')
     parser.add_argument('--file_origin', type=str, nargs='+')
-    parser.add_argument('--file_origin_folder', type=str, default='../input')
+
+    parser.add_argument('--file_folder', type=str, default='../input')
+    parser.add_argument('--log_folder', type=str, default='../log')
+    parser.add_argument('--config_folder', type=str, default='../config')
+    
     args = parser.parse_args()
 
     print(args)
 
-    process_selection(args.file_origin_folder, args.process, args.file_origin)
+    ####
+    #### TODO: set log-file
+
+    process_selection(args.file_folder
+                        , args.process
+                        , args.file_origin)

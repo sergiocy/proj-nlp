@@ -22,14 +22,14 @@ class InputText:
 
 
 
-    def get_file_name(self):
-        print(self.input_file_name)  
+    def get_file_name(self): 
+        return(self.input_file_name)
 
     def get_input_text(self):
-        print(self.input_text)
+        return(self.input_text)
 
     def get_output_text(self):
-        print(self.output_text)
+        return(self.output_text)
 
 
     def set_output_text(self, lcase = False, tokenize = False):
