@@ -1,0 +1,82 @@
+% start S
+# ###################
+# Grammar Productions
+# ###################
+# S expansion productions
+S[SEM=?sem] -> VP[SEM=?sem]
+S[SEM=?sem] -> VP[SEM=?sem] NP V
+
+VP[SEM=[ACCION=?acc, MAGNITUD=?mag, COMPLEMENTO=?comp, CARGA=?car]] -> V[ACCION=?acc]
+VP[SEM=[ACCION=?acc, MAGNITUD=?mag, COMPLEMENTO=?comp, CARGA=?car]] -> V[ACCION=?acc] NP[MAGNITUD=?mag]
+VP[SEM=[ACCION=?acc, MAGNITUD=?mag, COMPLEMENTO=?comp, CARGA=?car]] -> V[ACCION=?acc] NP[CARGA=?car]
+VP[SEM=[ACCION=?acc, MAGNITUD=?mag, COMPLEMENTO=?comp, CARGA=?car]] -> V[ACCION=?acc] PP[COMPLEMENTO=?comp]
+VP[SEM=[ACCION=?acc, MAGNITUD=?mag, COMPLEMENTO=?comp, CARGA=?car]] -> V[ACCION=?acc] NP[MAGNITUD=?mag] PP[COMPLEMENTO=?comp]
+VP[SEM=[ACCION=?acc, MAGNITUD=?mag, COMPLEMENTO=?comp, CARGA=?car]] -> V[ACCION=?acc] NP PP[CARGA=?car]
+VP[SEM=[ACCION=?acc, MAGNITUD=?mag, COMPLEMENTO=?comp, CARGA=?car]] -> V[ACCION=?acc] PP[COMPLEMENTO=?comp] NP[MAGNITUD=?mag]
+VP[SEM=[ACCION=?acc, MAGNITUD=?mag, COMPLEMENTO=?comp, CARGA=?car]] -> Det NP V[ACCION=?acc] PP[CARGA=?car]
+VP[SEM=[ACCION=?acc, MAGNITUD=?mag, COMPLEMENTO=?comp, CARGA=?car]] -> NP[CARGA=?car] NP V[ACCION=?acc]
+
+PP[COMPLEMENTO=?mag] -> Prep NP[MAGNITUD=?mag]
+PP[CARGA=?car] -> Prep NP[CARGA=?car]
+PP[CARGA=?car] -> Prep Nominal[CARGA=?car]
+
+NP[MAGNITUD=[VALOR=?cant, UNIDAD=?unid]] -> ADJ_NUMERAL[VALOR=?cant] Nominal[UNIDAD=?unid]
+NP[MAGNITUD=[VALOR=?cant, UNIDAD=?unid]] -> Det Nominal[VALOR=?cant, UNIDAD=?unid]
+NP[CARGA=?car] -> Det Nominal[CARGA=?car]
+NP -> Pron
+
+Nominal[UNIDAD=?unid] -> N[UNIDAD=?unid]
+Nominal[CARGA=?car] -> N[CARGA=?car]
+
+# ###################
+# Lexical Productions
+# ###################
+V[ACCION=avanzar] -> 'avanza' | 'adelantate' | 'avanzar' | 'adelantar' | 'adelantese' | 'desplazate' | 'desplacese' | 'desplazarse' | 'camina' | 'caminar'
+V[ACCION=conectar] -> 'enciendete' | 'conectate'
+V[ACCION=desconectar] -> 'desconectate' | 'apagate'
+V[ACCION=parar] -> 'parate' | 'detente' | 'parar'
+V[ACCION=girar] -> 'gira' | 'girar'
+V[ACCION=indicar] -> 'dime' | 'indica'
+V[ACCION=quedar] -> 'queda'
+
+N[UNIDAD=centimetros] -> 'centimetros' 
+N[UNIDAD=centimetros] -> 'centimetro' 
+N[UNIDAD=metros] -> 'metro'
+N[UNIDAD=metros] -> 'metros'
+N[UNIDAD=segundo] -> 'segundo'
+N[UNIDAD=grados] -> 'grados' | 'grado'
+N[UNIDAD=metros_segundo] -> 'metros por segundo' | 'metros cada segundo' | 'm/s'
+N[UNIDAD=centimetros_segundo] -> 'centimetros por segundo' | 'centimetros cada segundo' | 'cm/s'
+N[UNIDAD=kilometros_hora] -> 'kilometros por hora' | 'kilometros cada hora' | 'km/h'
+
+N[UNIDAD=izquierda] -> 'izquierda' | 'izquierdas'
+N[UNIDAD=derecha] -> 'derecha' | 'derechas'
+
+N -> 'estado'
+N[CARGA=bateria] -> 'bateria' | 'carga'
+
+ADJ_NUMERAL[VALOR=uno] -> 'un' | 'uno' | '1'
+ADJ_NUMERAL[VALOR=dos] -> 'dos' | '2'
+ADJ_NUMERAL[VALOR=tres] -> 'tres' | '3'
+ADJ_NUMERAL[VALOR=cuatro] -> 'cuatro' | '4'
+ADJ_NUMERAL[VALOR=cinco] -> 'cinco' | '5'
+ADJ_NUMERAL[VALOR=seis] -> 'seis' | '6'
+ADJ_NUMERAL[VALOR=siete] -> 'siete' | '7'
+ADJ_NUMERAL[VALOR=ocho] -> 'ocho' | '8'
+ADJ_NUMERAL[VALOR=nueve] -> 'nueve' | '9'
+ADJ_NUMERAL[VALOR=diez] -> 'diez' | '10'
+
+Prep -> 'a' | 'por' | 'de'
+Det -> 'la' | 'el' | 'tu' | 'cuanto' | 'cuanta'
+Pron -> 'te'
+
+
+
+
+
+
+
+
+
+
+
