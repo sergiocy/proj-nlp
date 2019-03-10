@@ -14,7 +14,6 @@ class InputText:
         try:
             self.input_file_name = file_name
             f = open (self.input_file_name, encoding = 'utf8')
-            #txt = f.read()
             self.input_text = f.read()
         except Exception as e:
             print(e)

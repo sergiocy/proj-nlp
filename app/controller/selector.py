@@ -3,26 +3,27 @@ import nltk
 from service.inputtext.InputText import InputText
 
 
-def process_selection(file_path, process, file_origin):
-    print(process[0] + ' - ' + file_origin[0])
-    file_origin = file_path + '/' + file_origin[0]
-    print(process[0] + ' - ' + file_origin)
+def process_selection(param_config):
+    print(param_config.get('process') + ' - ' + param_config.get('file_origin'))
+    file_origin = param_config.get('file_folder') + param_config.get('file_origin')
+    print(param_config.get('process') + ' - ' + param_config.get('file_origin'))
     
-    if process[0] == 'wordsemb':
-        set_input_object(file_origin)
+    if param_config.get('process') == 'wordsemb':
+        txt_input = set_input_object(param_config, file_origin)
+        print(txt_input)
         #call_wordsemb(file_origin)
 
 
 
-def set_input_object(file_origin):
+def set_input_object(param_config, file_origin):
     print('aqui hay que setear el objeto de entrada')
 
-    print('creating class for input-text')
     in_text1 = InputText(file_origin)
-    print(in_text1.get_file_name())
-    print(in_text1.get_input_text())
-    in_text1.set_output_text(lcase = True, tokenize = True)
-    print(in_text1.get_output_text())
+    in_text1.set_output_text(lcase = param_config.get('txt_lcase')
+                             , tokenize = param_config.get('txt_tokenize')
+                             )
+
+    return in_text1.get_output_text()
 
 
 

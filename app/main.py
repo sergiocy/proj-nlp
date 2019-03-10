@@ -1,5 +1,6 @@
 
 import argparse
+
 #import os
 #import traceback
 #import logging
@@ -8,28 +9,37 @@ import argparse
 import nltk
 
 from controller.selector import *
+from controller.InputArguments import InputArguments
 
+
+
+PATH_CONFIG = '../config/config.ini'
 
 
 
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--process', type=str, nargs='+')
-    parser.add_argument('--file_origin', type=str, nargs='+')
-
-    parser.add_argument('--file_folder', type=str, default='../input')
-    parser.add_argument('--log_folder', type=str, default='../log')
-    parser.add_argument('--config_folder', type=str, default='../config')
+    obj_config = InputArguments(PATH_CONFIG, type_config_json = False)
+    param_config = obj_config.get_input_arguments()
+    print(param_config)
     
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    #parser.add_argument('--process', type=str, nargs='+', default=param_config.get('process'))
+    parser.add_argument('--process', type=str, default=param_config.get('process'))
+    parser.add_argument('--file_origin', type=str, default=param_config.get('file_origin'))
+    
+    parser.add_argument('--file_folder', type=str, default=param_config.get('file_folder'))
+    parser.add_argument('--log_folder', type=str, default=param_config.get('log_folder'))
 
+    parser.add_argument('--txt_lcase', type=str, default=param_config.get('log_folder'))
+    parser.add_argument('--txt_tokenize', type=str, default=param_config.get('log_folder'))
+
+    args = parser.parse_args()
     print(args)
 
     ####
     #### TODO: set log-file
 
-    process_selection(args.file_folder
-                        , args.process
-                        , args.file_origin)
+
+    process_selection(param_config)
