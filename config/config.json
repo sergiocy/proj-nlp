@@ -1,0 +1,14 @@
+{
+	"APP_CONFIG": 
+	{
+		"PATH_FILE_FOLDER": "../input/",
+		"PATH_LOG_FOLDER": "../log/",					
+		"FILE_INPUT": "text2"
+	},
+	
+	"EXECUTION_CONFIG": 
+	{
+		"TYPE_PROCESS": "wordsemb"
+	}
+	
+}
