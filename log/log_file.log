@@ -1,0 +1,7 @@
+2019-03-10 21:56:49,870 - INFO - config file parameters: {'file_folder': '../input/', 'file_origin': 'text_embed.txt', 'log_folder': '../log/', 'log_file': 'log_file.log', 'process': 'wordsemb', 'txt_lcase': True, 'txt_tokenize': True}
+2019-03-10 21:56:49,870 - INFO - resetting parameters from command line: {'file_folder': '../input/', 'file_origin': 'text_embed.txt', 'log_folder': '../log/', 'log_file': 'log_file.log', 'process': 'wordsemb', 'txt_lcase': True, 'txt_tokenize': True}
+2019-03-10 21:56:49,871 - INFO - process selected: wordsemb
+2019-03-10 21:56:49,871 - INFO - file selected: ../input/text_embed.txt
+2019-03-10 21:56:49,871 - INFO - setting input text
+2019-03-10 21:56:49,879 - INFO - ['esto', 'es', 'una', 'prueba', 'con', 'una', 'frase', 'un', 'poco', 'mas', 'larga']
+2019-03-10 21:56:49,879 - INFO - calling wordsemb service
