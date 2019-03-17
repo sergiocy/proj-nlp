@@ -1,8 +1,3 @@
-"""
-Created on Wed Jan  2 22:28:48 2019
-
-@author: scordoba
-"""
 
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
@@ -14,7 +9,7 @@ import nltk
 import gensim
 import logging
 
-#from nltk.corpus import brown, movie_reviews, treebank
+from nltk.corpus import brown, movie_reviews, treebank
 
 
 def get_corpus_from_string_list():
@@ -52,8 +47,8 @@ def compute_magnitude_of_word(model_wv, word):
 if __name__ == '__main__':
     
     # ...we load a text from file...
-    newcorpus = get_corpus_from_file('corpus/text1.txt', 'utf8', '\n', ' ')
-    #newcorpus = get_corpus_from_string_list()
+    #newcorpus = get_corpus_from_file('C:/sc-sync/projects/proj-nlp/input/text1.txt', 'utf8', '\n', ' ')
+    newcorpus = ['Esto', 'es', 'una', 'frase', 'de', 'prueba.']
 
     model = gensim.models.Word2Vec(newcorpus, min_count=2)
     #print(model.wv.vocab)
@@ -63,7 +58,7 @@ if __name__ == '__main__':
     print(words)
     #print(model.wv.vocab)
     
-    print(model.wv['espacio'])
-    compute_magnitude_of_word(model, 'espacio')
+    print(model.wv['frase'])
+    compute_magnitude_of_word(model, 'frase')
 
 
