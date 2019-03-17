@@ -6,6 +6,8 @@
 
 import numpy as np
 import math
+import matplotlib
+import matplotlib.pyplot as plt
 #import nltk
 #import gensim
 from gensim.models import Word2Vec
@@ -49,10 +51,33 @@ def compute_magnitude_of_word(model_wv, word):
 
 
 
-def compute_average_vector_of_phrase(model_wv, phrase):  
+def compute_average_vector_of_phrase(model_wv, phrase, rep_dimension): 
+    sum_vector = np.zeros(shape=rep_dimension)
+    print(sum_vector)
+
     for w in phrase:
-        print(w)
+        #print(w)
         print(model.wv[w])
+        #print(type(model.wv[w]))
+        sum_vector = sum_vector + model.wv[w]
+        #print(sum_vector)
+
+    print('----------')
+    print(sum_vector)
+    avg_vector = sum_vector/len(phrase)
+    print(avg_vector)
+
+    return avg_vector
+
+
+
+def plot_2d_vector(vec):
+    #### to open plot; plt.show() works
+    matplotlib.rcParams['interactive'] == True
+
+    plt.plot(baseline_rep[0], baseline_rep[1])
+    plt.show()
+    #plt.savefig('figure.png')
 
 
 
@@ -71,7 +96,10 @@ if __name__ == '__main__':
     #sentences3 = ['esto', 'es', 'una', 'frase', 'esto', 'es', 'otra', 'frase', 'estamos', 'trabajando', 'en', 'representaciones', 'vectoriales']
     #sentences4 = [['esto es una frase'], ['esto es otra frase'], ['estamos trabajando en representaciones vectoriales']]
 
-    model, words_vocab = generating_model(sentences1, path_save_model='C:/sc-sync/projects/proj-nlp/config/model/model.bin')
+    dim_representation = 2
+    model, words_vocab = generating_model(sentences1
+                                            , path_save_model='C:/sc-sync/projects/proj-nlp/config/model/model.bin'
+                                            , rep_dimension=dim_representation)
     #new_model = Word2Vec.load('model.bin')
     print(model.wv['frase'])
 
@@ -80,6 +108,10 @@ if __name__ == '__main__':
     print('#############')
     new_phrase = ['una', 'frase', 'de', 'prueba']
     print(new_phrase)
-    compute_average_vector_of_phrase(model, new_phrase)
+    baseline_rep = compute_average_vector_of_phrase(model, new_phrase, dim_representation)
+    print('#############')
+    print(baseline_rep)
 
+    plot_2d_vector(baseline_rep)
+    
 
