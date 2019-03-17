@@ -15,7 +15,7 @@ def process_selection(param_config):
         logging.info('setting input text')
         txt_input = set_input_object(param_config)
         logging.info(txt_input)
-        call_wordsemb(param_config)
+        call_wordsemb(txt_input)
 
 
 def set_input_object(param_config):
@@ -27,15 +27,27 @@ def set_input_object(param_config):
     return in_text1.get_output_text()
 
 
-def call_wordsemb(param_config):
+####
+#### call to services
+def call_wordsemb(txt_input):
+    print(txt_input)
     try:
         print('calling wordsemb service')
         logging.info('calling wordsemb service')
     except Exception as e:
         print(e)
+
+
+def call_similarity():
+    print('calling similarity service')
+    logging.info('calling similarity service')
+
+
+def call_parser():
+    print('calling parser service')
+    logging.info('calling parser service')
+
     
-
-
 
 
 if __name__ == "__main__":
