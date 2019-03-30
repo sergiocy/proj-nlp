@@ -15,11 +15,12 @@ def process_selection(param_config):
         logging.info('setting input text')
         txt_input = set_input_object(param_config)
         logging.info(txt_input)
-        call_wordsemb(txt_input)
+        #call_wordsemb(txt_input)
 
 
 def set_input_object(param_config):
     in_text1 = InputText(param_config.get('file_folder') + param_config.get('file_origin'))
+    logging.info('input text: ' + in_text1.get_beggining_input_text())
     in_text1.set_output_text(lcase = param_config.get('txt_lcase')
                              , tokenize = param_config.get('txt_tokenize')
                              )

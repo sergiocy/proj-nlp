@@ -40,8 +40,8 @@ if __name__ == "__main__":
                         , format='%(asctime)s - %(levelname)s - %(message)s'
                         )
 
-    ####
-    #### set/overwrite in dictionary param_config the parameters getted by command line
+    #####
+    ##### set/overwrite in dictionary param_config the parameters getted by command line
     logging.info('config file parameters: ' + str(param_config))
 
     obj_config.set_input_args_from_cli(args)
@@ -49,6 +49,6 @@ if __name__ == "__main__":
 
     logging.info('resetting parameters from command line: ' + str(param_config))
 
-    ####
-    #### calling function to define and parametrize the process selected
+    #####
+    ##### calling function to define and parametrize the process selected
     process_selection(param_config)
