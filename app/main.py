@@ -5,7 +5,7 @@ import logging
 #import traceback
 #import time
 
-from controller.selector import *
+from controller.selector import process_selection
 from controller.InputArguments import InputArguments
 
 

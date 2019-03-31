@@ -7,7 +7,6 @@ from service.inputtext.InputText import InputText
 
 
 def process_selection(param_config):
-    print(param_config.get('process') + ' - ' + param_config.get('file_origin'))
     logging.info('process selected: ' + param_config.get('process'))
     logging.info('file selected: ' + param_config.get('file_folder') + param_config.get('file_origin'))
     
@@ -15,9 +14,11 @@ def process_selection(param_config):
         logging.info('setting input text')
         txt_input = set_input_object(param_config)
         logging.info(txt_input)
-        #call_wordsemb(txt_input)
+        call_wordsemb(txt_input)
 
 
+####
+#### set and clean input text
 def set_input_object(param_config):
     in_text1 = InputText(param_config.get('file_folder') + param_config.get('file_origin'))
     logging.info('input text: ' + in_text1.get_beggining_input_text())

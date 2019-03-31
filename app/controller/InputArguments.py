@@ -3,13 +3,6 @@ import json
 import configparser
 
 
-
-
-#### TODO ...maybe methods to validate input arguments...
-
-
-
-
 class InputArguments():
 
     #list_type_config = ['json', 'ini']
@@ -42,7 +35,9 @@ class InputArguments():
             , "file_origin": config['APP_CONFIG']['FILE_INPUT']
             , "log_folder": config['APP_CONFIG']['PATH_LOG_FOLDER']
             , "log_file": config['APP_CONFIG']['FILE_LOG']
+
             , "process": config['EXECUTION_CONFIG']['TYPE_PROCESS']
+            
             , "txt_lcase": self.set_boolean_param(config['INPUT_TEXT_PROCESSING']['LCASE'])
             , "txt_tokenize": self.set_boolean_param(config['INPUT_TEXT_PROCESSING']['TOKENIZE'])
             }
