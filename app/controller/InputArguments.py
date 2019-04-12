@@ -38,6 +38,7 @@ class InputArguments():
 
             , "process": config['EXECUTION_CONFIG']['TYPE_PROCESS']
             
+            , "file_csv": self.set_boolean_param(config['INPUT_TEXT_PROCESSING']['CSV'])
             , "txt_lcase": self.set_boolean_param(config['INPUT_TEXT_PROCESSING']['LCASE'])
             , "txt_tokenize": self.set_boolean_param(config['INPUT_TEXT_PROCESSING']['TOKENIZE'])
             }

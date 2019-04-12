@@ -2,7 +2,7 @@
 import logging
 
 import nltk
-from service.input_text.InputText import InputText
+from service.input_text.InputText import InputText, InputCsvText
 
 
 
@@ -20,13 +20,17 @@ def process_selection(param_config):
 ####
 #### set and clean input text
 def set_input_object(param_config):
-    in_text1 = InputText(param_config.get('file_folder') + param_config.get('file_origin'))
-    logging.info('input text: ' + in_text1.get_beggining_input_text())
-    in_text1.set_output_text(lcase = param_config.get('txt_lcase')
-                             , tokenize = param_config.get('txt_tokenize')
-                             )
+    if param_config.get('file_csv') == True:
+         in_text1 = InputCsvText(param_config.get('file_folder') + param_config.get('file_origin'))
 
-    return in_text1.get_output_text()
+    else:
+        in_text1 = InputText(param_config.get('file_folder') + param_config.get('file_origin'))
+        logging.info('input text: ' + in_text1.get_beggining_input_text())
+        in_text1.set_output_text(lcase = param_config.get('txt_lcase')
+                                , tokenize = param_config.get('txt_tokenize')
+                                )
+
+        output = in_text1.get_output_text()
 
 
 ####

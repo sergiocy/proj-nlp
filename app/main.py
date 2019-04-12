@@ -26,6 +26,7 @@ if __name__ == "__main__":
     parser.add_argument('--process', type=str, default=param_config.get('process'))
     parser.add_argument('--file_origin', type=str, default=param_config.get('file_origin'))
     parser.add_argument('--file_folder', type=str, default=param_config.get('file_folder'))
+    parser.add_argument('--file_csv', type=str, default=param_config.get('file_csv'))
     parser.add_argument('--log_folder', type=str, default=param_config.get('log_folder'))
     parser.add_argument('--log_file', type=str, default=param_config.get('log_file'))
     parser.add_argument('--txt_lcase', type=str, default=param_config.get('txt_lcase'))
