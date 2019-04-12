@@ -2,7 +2,7 @@
 import logging
 
 import nltk
-from service.inputtext.InputText import InputText
+from service.input_text.InputText import InputText
 
 
 
