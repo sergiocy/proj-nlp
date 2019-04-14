@@ -59,8 +59,10 @@ def get_number_synsets_overlapped(lst_sen1, lst_sen2):
     lst_flag_overlapped = []
     for w1 in lst_sen1:
         lst_w1_synsets = wn.synsets(w1)
+        #print(lst_w1_synsets)
         for w2 in lst_sen2:
             lst_w2_synsets = wn.synsets(w2)
+            #print(lst_w2_synsets)
             
             count_syn = [(1 if w1_syn in lst_w2_synsets else 0) for w1_syn in lst_w1_synsets] 
             
@@ -74,6 +76,7 @@ def get_number_synsets_overlapped(lst_sen1, lst_sen2):
     return lst_flag_overlapped, n_overlapped
 
 
+
     
 if __name__ == '__main__':
     lst1 = ['a', 'girl', 'is', 'brushing', 'her', 'hair']
@@ -82,6 +85,10 @@ if __name__ == '__main__':
     print(lst2)
     number = get_number_words_overlapped(lst1, lst2)
     print('number is {0}'.format(number))
+    
+    lst_flag_overlapped, n_overlapped = get_number_synsets_overlapped(lst1, lst2)
+    print(lst_flag_overlapped)
+    print(n_overlapped)
     
     
     

@@ -46,8 +46,10 @@ def clean_text(df, col, lcase=True, del_punct=True, tokenize=True):
 
 def get_corpus_and_ic(set_of_strings, file_corpus_output):
         
-    os.remove(file_corpus_output)
-    with open(file_corpus_output, "w", encoding='utf8') as file_corpus:
+    if os.path.exists(file_corpus_output):
+        os.remove(file_corpus_output)
+        
+    with open(file_corpus_output, "w+", encoding='utf8') as file_corpus:
         for token in set_of_strings:
             file_corpus.write(token.replace('\n', '') + '\n')
     
