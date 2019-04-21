@@ -5,53 +5,78 @@
 #from nltk.corpus import wordnet as wn
 import numpy as np
 import pandas as pd
+from nltk import pos_tag
 
-from input_text.input_processing import *
+from input_text.input_processing import format_content_file, clean_text, get_corpus_and_ic
 import vectorizer.liu_vectorizer as liu
-#import vectorizer.agirre_vectorizer as agirre
-from similarity.similarity_metric import *
+from similarity.similarity_metric import compute_similarity_cosin, get_number_words_overlapped, get_number_synsets_overlapped, compute_pearson_coef
+from graphics.histograms import graph_histogram_from_df_fields
 
 
 
 
 
-def prepare_input(file_csv, colnames_csv, col_text1, col_text2, file_corpus_output_ic):
+def prepare_input(file_csv, colnames_csv, col_text1, col_text2, field_filter_name=None, field_filter_value=None, lst_gram_tags_to_del = []):
 
-    df_test = format_content_file(file_csv, colnames)
+    #### GET CSV AS PANDAS DATAFRAME
+    df_test = format_content_file(file_csv, colnames_csv)
     
-    #### LOAD INFORMATION CONTENT FROM CORPUS
-    lst_sentences = list(np.append(df_test[col_text1], df_test[col_text2]))
-    #### ...we get the corpus used to compute IC in a file
-    full_corpus, corpus_ic = get_corpus_and_ic(set_of_strings=lst_sentences, file_corpus_output=file_corpus_output_ic)
+    
+    #### SUBSET OF ORIGINAL DATASET FILTERING BY A FIELD VALUE
+    #### ...we can filter dataset by some field (field_filter_name) value (field_filter_value) to take a subset
+    if field_filter_name is not None and field_filter_value is not None:
+        df_test = df_test[df_test[field_filter_name]==field_filter_value]   
     
     #### CLEAN AND TOKENIZE TEXT 
     df_test = clean_text(df_test, col_text1)
     df_test = clean_text(df_test, col_text2)
     
-    return df_test, corpus_ic
+    #### POSTAGGIN
+    df_test[col_text1 + '_pos'] = df_test.apply(lambda x: pos_tag(x[col_text1]), axis=1) 
+    df_test[col_text2 + '_pos'] = df_test.apply(lambda x: pos_tag(x[col_text2]), axis=1) 
+    #### FILTERING BY POSTAGGIN
+    df_test[col_text1 + '_pos_filtered'] = df_test.apply(lambda phrase_tokenized: list(filter(lambda x: x[1] not in lst_gram_tags_to_del, phrase_tokenized[col_text1 + '_pos'])), axis=1) 
+    df_test[col_text2 + '_pos_filtered'] = df_test.apply(lambda phrase_tokenized: list(filter(lambda x: x[1] not in lst_gram_tags_to_del, phrase_tokenized[col_text2 + '_pos'])), axis=1) 
+    df_test[col_text1 + '_filtered'] = df_test.apply(lambda phrase_tagged: [w[0] for w in phrase_tagged[col_text1 + '_pos_filtered']], axis=1) 
+    df_test[col_text2 + '_filtered'] = df_test.apply(lambda phrase_tagged: [w[0] for w in phrase_tagged[col_text2 + '_pos_filtered']], axis=1) 
+    
+    #### SENTENCES CLEANED AND FILTERED AS STRING
+    #### ...corpus getted from filtered (by grammar label) phrases
+    df_test[col_text1 + '_str'] = df_test.apply(lambda x: ' '.join(x[col_text1 + '_filtered']), axis=1) 
+    df_test[col_text2 + '_str'] = df_test.apply(lambda x: ' '.join(x[col_text2 + '_filtered']), axis=1) 
+    
+    return df_test
     
     
+
 
 def process_liu(sen1, sen2, ic, type_similarity = 'res'):
     print('LAUNCHING LIU PROCESS WITH SIMILARITY {0}'.format(type_similarity))
     print(sen1)
     vector1, vector2 = liu.get_vector_representation(sen1, sen2, type_score=type_similarity, corpus_ic=ic)
-    magn, cos, ang = compute_similarity_cosin(vector1, vector2)
+
+    #### restriction for 'jcn' similarity...
+    #### ...we consider only 1 (vector element = 1e+300) or 0 values (vector element < 1)
+    if type_similarity == 'jcn':
+        vector1 = np.asarray(vector1)
+        vector2 = np.asarray(vector2)
+        #vector1[np.where(vector1 == 1e+300)] = 1
+        #vector1[np.where(vector1 < 1)] = 0
+        vector1 = np.where(vector1 < 1, int(0), vector1)
+        vector1 = np.where(vector1 > 100000, int(1), vector1)
+        vector2 = np.where(vector2 < 1, int(0), vector2)
+        vector2 = np.where(vector2 > 100000, int(1), vector2)
+    
+    magn, cos, ang = compute_similarity_cosin(list(vector1), list(vector2))
     ang = (360*ang)/(2*3.1416)
-    
-    #print(vector1)
-    #print(vector2)
-    #print(magn)
-    #print(cos)
-    #print(ang)
-    
-    return vector1, vector2, magn, cos, ang
+            
+    return list(vector1), list(vector2), magn, cos, ang
+
 
 
 
 def process_agirre(sen1, sen2):
-    print('LAUNCHING AGIRRE PROCESS WITH SIMILARITY')
-    #vector1, vector2 = liu.get_vector_representation(sen1, sen2, type_score=type_similarity, corpus_ic=ic)
+    print('LAUNCHING AGIRRE PROCESS')
     
     n_overlapped = get_number_words_overlapped(sen1, sen2)
     agirre_metric = (2*n_overlapped)/(len(sen1)+len(sen2))
@@ -63,12 +88,12 @@ def process_agirre(sen1, sen2):
     
 
 
-def run_dataframe_sentences(df, field_text1, field_text2, ic, file_output_dataframe):
+
+def run_compute_similarities(df, field_text1, field_text2, ic, file_output_dataframe):
     print('RUNNING PROCESS...')
-        
-    #vector1, vector2, magn, cos, ang = process_liu(frase1[0], frase1[0], ic, type_similarity = 'path_similarity')
-    #print(cos)
-    #print( process_liu(frase1[0], frase1[0], ic, type_similarity = 'path_similarity')[0] )
+    
+    df['vector1'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'jcn')[0], axis=1)
+    df['vector2'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'jcn')[1], axis=1)
     
     df['liu_path'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'path_similarity')[3], axis=1) 
     df['liu_res'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'res')[3], axis=1) 
@@ -77,17 +102,41 @@ def run_dataframe_sentences(df, field_text1, field_text2, ic, file_output_datafr
     
     df['agirre_words'] = df.apply(lambda x: process_agirre(list(x[field_text1]), list(x[field_text2]))[0], axis=1) 
     df['agirre_synsets'] = df.apply(lambda x: process_agirre(list(x[field_text1]), list(x[field_text2]))[1], axis=1)
-    #df['agirre_words'], df['agirre_synsets'] = df.apply(lambda x: process_agirre(list(x[field_text1]), list(x[field_text2])), axis=1)
-    #df['agirre_words', 'agirre_synsets'] = df.apply(lambda x: list( process_agirre(list(x[field_text1]), list(x[field_text2])) ), axis=1)
-    #df[['agirre_words', 'agirre_synsets']] = zip(*df.map(process_agirre(list(df[field_text1]), list(df[field_text2]))))
-    #df['agirre_words', 'agirre_synsets'] = df.apply(lambda x: list(process_agirre(list(x[field_text1]), list(x[field_text2]))))
-    
-    #df['agirre_words'] = map(lambda x: list(process_agirre(list(x[field_text1]), list(x[field_text2]))[0] ), df[field_text1] )
-    #print(df)
     
     df.to_csv(file_output_dataframe, sep='~')
     
     return df
+
+
+
+
+def run_evaluate_results(df):
+    
+    #print(df)
+    
+    #df_aux = df['score']==2002
+    var1 = df['score']
+    
+    
+    var2 = df['liu_path']        
+    df_scores = pd.DataFrame([['liu_path', list(compute_pearson_coef(var1, var2)[0])[0], list(compute_pearson_coef(var1, var2)[0])[1]]], columns = ['type_score', 'pearson', 'p-value']) 
+    
+    var2 = df['liu_res']
+    df_scores = df_scores.append({'type_score':'liu_res', 'pearson':list(compute_pearson_coef(var1, var2)[0])[0], 'p-value':list(compute_pearson_coef(var1, var2)[0])[1]}, ignore_index=True)
+    
+    var2 = df['liu_lin']
+    df_scores = df_scores.append({'type_score':'liu_lin', 'pearson':list(compute_pearson_coef(var1, var2)[0])[0], 'p-value':list(compute_pearson_coef(var1, var2)[0])[1]}, ignore_index=True)
+    
+    var2 = df['liu_jcn']
+    df_scores = df_scores.append({'type_score':'liu_jcn', 'pearson':list(compute_pearson_coef(var1, var2)[0])[0], 'p-value':list(compute_pearson_coef(var1, var2)[0])[1]}, ignore_index=True)
+    
+    var2 = df['agirre_words']
+    df_scores = df_scores.append({'type_score':'agirre_words', 'pearson':list(compute_pearson_coef(var1, var2)[0])[0], 'p-value':list(compute_pearson_coef(var1, var2)[0])[1]}, ignore_index=True)
+    
+    var2 = df['agirre_synsets']
+    df_scores = df_scores.append({'type_score':'agirre_synsets', 'pearson':list(compute_pearson_coef(var1, var2)[0])[0], 'p-value':list(compute_pearson_coef(var1, var2)[0])[1]}, ignore_index=True)
+
+    print(df_scores)
     
                
        
@@ -95,42 +144,68 @@ def run_dataframe_sentences(df, field_text1, field_text2, ic, file_output_datafr
     
 
 if __name__ == '__main__':
-
-    #### LOAD AND CLEANING DATA    
+    
+    ###################################################
+    #### EXECUTION PARAMETERS
+    print('***** PARAMETERS *****')
     #file_dev = 'corpus/sts-dev.csv'
     #file_train = 'corpus/sts-train.csv'
     file_test = 'corpus/sts-test.csv' 
-    colnames = ['genre', 'filename', 'year', 'number', 'score', 'sentence1', 'sentence2']
+    colnames_csv = ['genre', 'filename', 'year', 'number', 'score', 'sentence1', 'sentence2']
+    colname_csv_text1 = 'sentence1'
+    colname_csv_text2 = 'sentence2'
+    colname_csv_field_subsetting = None #field_filter_name='genre'
+    colname_csv_value_subsetting = None #field_filter_value='main-captions'
+    lst_type_grammatical_words_to_del = [] # ['DT']
+    
+    colname_csv_text1_processed = 'sentence1_str'
+    colname_csv_text2_processed = 'sentence2_str'
+    colname_csv_text1_processed_tokenized = 'sentence1_filtered'
+    colname_csv_text2_processed_tokenized = 'sentence2_filtered'
     
     file_corpus_output = 'corpus/corpus_to_compute_ic.txt'
+    file_similarities_output = 'corpus/similarities.csv'
+
+
+    ###################################################
+    #### LOAD AND CLEANING DATA 
+    print('***** computing similarities *****')
+    df_text = prepare_input(file_test, colnames_csv, colname_csv_text1, colname_csv_text2, field_filter_name=colname_csv_field_subsetting, field_filter_value=colname_csv_value_subsetting, lst_gram_tags_to_del = lst_type_grammatical_words_to_del)
+    #### ...we get the corpus used to compute IC in a file using phrases filtered...
+    lst_sentences = list(np.append(df_text[colname_csv_text1_processed], df_text[colname_csv_text2_processed]))
+    corpus_for_ic, ic = get_corpus_and_ic(set_of_strings=lst_sentences, file_corpus_output=file_corpus_output)
+
+    print(df_text.head(10))
+    print('***********************************')
     
     
-    df_text, ic = prepare_input(file_test, colnames, 'sentence1', 'sentence2', file_corpus_output)
-       
-    ####
-    #### TESTING WORD SIMILARITY
-    #print(get_words_similarity('girl', 'hair', type_score = 'path_similarity', corpus_ic = corpus_ic))
+    ###################################################
+    #### COMPUTE SIMILARITIES AND GENERATE A RESULTS FILE
+    print('***** computing similarities *****')
     
-    ####select a few rows to developement
-    #df_text = df_text.iloc[0:5, :]
-    #print(df_text)
-          
-    #frase1 = df_text.loc['sentence1']
-    #frase2 = df_text.loc['sentence2']
-    #frase1 = ["consumer","would","still","have","to","get","a","descramble","security","card","from","their","cable","operator","to","plug","into","the","set"]
-    #frase2 = ["to","watch","pay","television","consumer","would","insert","into","the","set","a","security","card","provide","by","their","cable","service"]
-    #get_vector_words_appearence(frase1, frase2)
     
-    #### testing liu process
-    #process_liu(frase1, frase2, ic)
+    #### ...select a few rows to develope...
+    df_text = df_text.loc[0:10]
+    print(df_text)
     
-    file_results_output = 'corpus/results.csv'
-    df_results = run_dataframe_sentences(df_text, 'sentence1', 'sentence2', ic, file_results_output)
     
-    #### testing liu process
-    #process_agirre(frase1, frase2)
-    
+    df_results = run_compute_similarities(df_text, colname_csv_text1_processed_tokenized, colname_csv_text2_processed_tokenized, ic, file_similarities_output)    
     print(df_results)
+    
+    graph_histogram_from_df_fields(df_results, ['vector1', 'vector2'])
+    print('***********************************')
+    
+    ###################################################
+    #### COMPARE RESULTS
+    print('***** studying results *****')
+    #df_results = pd.read_csv(file_results_output, sep=';') 
+    
+    #### ...to develope, we try a subset...
+    #df_results = df_results.loc[0:3,]
+    ###df_results = df_results.iloc[72:75,]
+    ###print(df_results['liu_res'].unique())
+    #run_evaluate_results(df_results)
+    print('***********************************')
     
 
 

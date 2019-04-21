@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-
+import numpy as np
 from numpy import (array, dot, arccos, clip) 
 from numpy.linalg import norm 
 from nltk.corpus import wordnet as wn
+from scipy.stats.stats import pearsonr
 
 
 ####
@@ -15,7 +16,19 @@ def compute_similarity_cosin(vector1, vector2):
     c = dot(u,v)/norm(u)/norm(v) # -> cosine of the angle 
     angle = arccos(clip(c, -1, 1)) # if you really want the angle 
 
-    return d, c, angle   
+    return d, c, angle  
+
+
+####
+#### function to compute pearson coefficient between two variables
+#### input: two numpy-arrays
+def compute_pearson_coef(vector1, vector2):
+    
+    #### ...two ways to compute pearson coefficient...
+    pearson1 = pearsonr(vector1, vector2)
+    pearson2 = np.corrcoef(vector1, vector2)[0, 1]
+    
+    return pearson1, pearson2
 
 
 ####
@@ -89,6 +102,12 @@ if __name__ == '__main__':
     lst_flag_overlapped, n_overlapped = get_number_synsets_overlapped(lst1, lst2)
     print(lst_flag_overlapped)
     print(n_overlapped)
+    
+    
+    ######
+    vector1 = [1.0, 1.0, 1.0, 1.0, 1.0, 0.25, 0]
+    vector2 = [1.0, 1.0, 1.0, 1.0, 0.25, 1.0, 0]
+    print(compute_similarity_cosin(vector1, vector2))
     
     
     

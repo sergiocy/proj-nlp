@@ -10,6 +10,7 @@ import re
 
 
 
+#### FUNCTION TO GET SOME COLUMNS (index_end_column) OF A CSV FILE (file) AS PANDAS-DF (colnames)
 def format_content_file(file, colnames, index_end_column=7):
     f = open(file, encoding = 'utf8')
     lst_file = []
@@ -26,21 +27,14 @@ def format_content_file(file, colnames, index_end_column=7):
     return df
 
 
-def clean_text(df, col, lcase=True, del_punct=True, tokenize=True):
-    #df.loc[:,col]
-    #print(df[col])
-    
-    #####
-    ##### NOTAAAAAA: tratamiento del genitivo sajon
-    #####
-    
+def clean_text(df, col, lcase=True, del_punct=True, tokenize=True, del_saxon_genitive=True):
+   
     if lcase: df[col] = df[col].apply(lambda phrase: phrase.lower())
-    if del_punct: df[col] = df[col].apply(lambda phrase: re.sub(r'(;|,|\.|\?|!|")', '', phrase))
-        #df[col] = df[col].apply(lambda phrase: phrase.replace('.', ''))
+    if del_saxon_genitive: df[col] = df[col].apply(lambda phrase: re.sub(r'(\'s)', '', phrase))
+    if del_punct: df[col] = df[col].apply(lambda phrase: re.sub(r'(:|;|,|\.|\?|!|"|\'|`)', '', phrase))
     if tokenize: df[col] = df[col].apply(lambda phrase: word_tokenize(phrase))
-    
-    #print(df[col])
-    
+    #if del_saxon_genitive: df[col] = df[col].apply(lambda phrase: [w for w in phrase if w != '\'s'])
+            
     return df
 
 
@@ -51,7 +45,8 @@ def get_corpus_and_ic(set_of_strings, file_corpus_output):
         
     with open(file_corpus_output, "w+", encoding='utf8') as file_corpus:
         for token in set_of_strings:
-            file_corpus.write(token.replace('\n', '') + '\n')
+            #file_corpus.write(token.replace('\n', '') + '\n')
+            file_corpus.write(token + '\n')
     
     corpus = PlaintextCorpusReader(file_corpus_output.split('/')[0], file_corpus_output.split('/')[1])
     corpus_ic = wn.ic(corpus, False, 0.0)
