@@ -18,9 +18,9 @@ def graph_histogram_from_df_fields(df, fields=[]):
         
         lst_values.extend(lst_values_in_field)
         
-    print(lst_values)
-    print(min(lst_values))
-    print(max(lst_values))
+    #print(lst_values)
+    #print(min(lst_values))
+    #print(max(lst_values))
     
     
     # fixed bin size

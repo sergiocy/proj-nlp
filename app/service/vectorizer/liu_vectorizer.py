@@ -42,6 +42,15 @@ def get_vector_representation(lst_sen1, lst_sen2, type_score = 'path_similarity'
     #print(len(vec2))  
 
     return vec1, vec2    
-    
 
+
+
+
+if __name__=='__main__':
+    lst1 = ['if', 'you', 'havent', 'you', 'should']
+    lst2 = ['you', 'should', 'but', 'you', 'dont', 'have', 'to']  
+    
+    print(get_vector_representation(lst1, lst2, type_score = 'path_similarity', corpus_ic=None))
+
+    
 

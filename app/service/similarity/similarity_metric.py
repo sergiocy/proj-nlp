@@ -28,6 +28,8 @@ def compute_pearson_coef(vector1, vector2):
     pearson1 = pearsonr(vector1, vector2)
     pearson2 = np.corrcoef(vector1, vector2)[0, 1]
     
+    #print(pearson1)
+    #print(pearson2)
     return pearson1, pearson2
 
 
@@ -105,10 +107,13 @@ if __name__ == '__main__':
     
     
     ######
-    vector1 = [1.0, 1.0, 1.0, 1.0, 1.0, 0.25, 0]
-    vector2 = [1.0, 1.0, 1.0, 1.0, 0.25, 1.0, 0]
+    vector1 = [0, 0, 0, 0, 0, 0, 0, 0]
+    vector2 = [0, 0, 0, 0, 0, 0, 1.0, 1.0]
     print(compute_similarity_cosin(vector1, vector2))
     
+    lst1 = ['people', 'are', 'dancing', 'outside']
+    lst2 = ['a', 'group', 'of', 'people', 'are', 'dancing'] 
+    get_wordnet_words_similarity('havent', 'but', type_score = 'res', corpus_ic = None)
     
     
     

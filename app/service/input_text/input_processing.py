@@ -27,10 +27,11 @@ def format_content_file(file, colnames, index_end_column=7):
     return df
 
 
-def clean_text(df, col, lcase=True, del_punct=True, tokenize=True, del_saxon_genitive=True):
+def clean_text(df, col, lcase=True, del_punct=True, tokenize=True, del_saxon_genitive=True, not_contraction=True):
    
     if lcase: df[col] = df[col].apply(lambda phrase: phrase.lower())
     if del_saxon_genitive: df[col] = df[col].apply(lambda phrase: re.sub(r'(\'s)', '', phrase))
+    if not_contraction: df[col] = df[col].apply(lambda phrase: re.sub(r'(n\'t)', ' not', phrase))
     if del_punct: df[col] = df[col].apply(lambda phrase: re.sub(r'(:|;|,|\.|\?|!|"|\'|`)', '', phrase))
     if tokenize: df[col] = df[col].apply(lambda phrase: word_tokenize(phrase))
     #if del_saxon_genitive: df[col] = df[col].apply(lambda phrase: [w for w in phrase if w != '\'s'])
