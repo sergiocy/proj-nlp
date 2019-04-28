@@ -7,7 +7,9 @@ from similarity.similarity_metric import *
 ####
 #### FUNCTION TO GET VECTOR REPRESENTATIONS BASED ON WordNet SIMILARITY MEASURES (function get_words_similarity())
 def get_vector_representation(lst_sen1, lst_sen2, type_score = 'path_similarity', corpus_ic=None):
-    set_words = list(set(lst_sen1 + lst_sen2)) 
+    set_words = list(set(lst_sen1 + lst_sen2))
+    #### ...we order the set of words...
+    set_words = sorted(set_words)
     
     #print('###############')
     vec1 = []
@@ -41,7 +43,7 @@ def get_vector_representation(lst_sen1, lst_sen2, type_score = 'path_similarity'
     #print(vec2)
     #print(len(vec2))  
 
-    return vec1, vec2    
+    return vec1, vec2, set_words    
 
 
 

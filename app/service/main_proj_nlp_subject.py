@@ -16,7 +16,7 @@ from graphics.histograms import graph_histogram_from_df_fields
 
 
 
-def prepare_input(file_csv, colnames_csv, col_text1, col_text2, field_filter_name=None, field_filter_value=None, lst_gram_tags_to_del = []):
+def prepare_input(file_csv, colnames_csv, col_text1, col_text2, field_filter_name=None, field_filter_value=None, lst_gram_tags_to_del = [], corpus_ic_complete=False):
 
     #### GET CSV AS PANDAS DATAFRAME
     df_test = format_content_file(file_csv, colnames_csv)
@@ -24,8 +24,8 @@ def prepare_input(file_csv, colnames_csv, col_text1, col_text2, field_filter_nam
     
     #### SUBSET OF ORIGINAL DATASET FILTERING BY A FIELD VALUE
     #### ...we can filter dataset by some field (field_filter_name) value (field_filter_value) to take a subset
-    if field_filter_name is not None and field_filter_value is not None:
-        df_test = df_test[df_test[field_filter_name]==field_filter_value]   
+    #if field_filter_name is not None and field_filter_value is not None:
+    #    df_test = df_test[df_test[field_filter_name]==field_filter_value]   
     
     #### CLEAN AND TOKENIZE TEXT 
     df_test = clean_text(df_test, col_text1, lcase=True, del_punct=True, tokenize=True, del_saxon_genitive=True, not_contraction=True)
@@ -45,7 +45,25 @@ def prepare_input(file_csv, colnames_csv, col_text1, col_text2, field_filter_nam
     df_test[col_text1 + '_str'] = df_test.apply(lambda x: ' '.join(x[col_text1 + '_filtered']), axis=1) 
     df_test[col_text2 + '_str'] = df_test.apply(lambda x: ' '.join(x[col_text2 + '_filtered']), axis=1) 
     
-    return df_test
+    
+    
+    #### GET CORPUS TO COMPUTE IC (ALL TEXTS OR FILTERED TEXTS)    
+    if corpus_ic_complete == True:
+        df_corpus = df_test
+        
+        #### SUBSET OF ORIGINAL DATASET FILTERING BY A FIELD VALUE
+        #### ...we can filter dataset by some field (field_filter_name) value (field_filter_value) to take a subset
+        if field_filter_name is not None and field_filter_value is not None:
+            df_test = df_test[df_test[field_filter_name]==field_filter_value]
+            
+    else:
+        if field_filter_name is not None and field_filter_value is not None:
+            df_test = df_test[df_test[field_filter_name]==field_filter_value]
+        
+        df_corpus = df_test
+      
+    
+    return df_test, df_corpus
     
     
 
@@ -53,7 +71,7 @@ def prepare_input(file_csv, colnames_csv, col_text1, col_text2, field_filter_nam
 def process_liu(sen1, sen2, ic, type_similarity = 'res'):
     print('LAUNCHING LIU PROCESS WITH SIMILARITY {0}'.format(type_similarity))
     print(sen1)
-    vector1, vector2 = liu.get_vector_representation(sen1, sen2, type_score=type_similarity, corpus_ic=ic)
+    vector1, vector2, set_words = liu.get_vector_representation(sen1, sen2, type_score=type_similarity, corpus_ic=ic)
 
     #### restriction for 'jcn' similarity...
     #### ...we consider only 1 (vector element = 1e+300) or 0 values (vector element < 1)
@@ -70,7 +88,7 @@ def process_liu(sen1, sen2, ic, type_similarity = 'res'):
     magn, cos, ang = compute_similarity_cosin(list(vector1), list(vector2))
     ang = (360*ang)/(2*3.1416)
             
-    return list(vector1), list(vector2), magn, cos, ang
+    return list(vector1), list(vector2), magn, cos, ang, set_words
 
 
 
@@ -92,8 +110,16 @@ def process_agirre(sen1, sen2):
 def run_compute_similarities(df, field_text1, field_text2, ic, file_output_dataframe):
     print('RUNNING PROCESS...')
     
-    df['vector1'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'res')[0], axis=1)
-    df['vector2'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'res')[1], axis=1)
+    df['vectorial_components'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'path_similarity')[5], axis=1)
+
+    df['vector1_liu_path'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'path_similarity')[0], axis=1)
+    df['vector2_liu_path'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'path_similarity')[1], axis=1)
+    df['vector1_liu_res'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'res')[0], axis=1)
+    df['vector2_liu_res'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'res')[1], axis=1)
+    df['vector1_liu_lin'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'lin')[0], axis=1)
+    df['vector2_liu_lin'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'lin')[1], axis=1)
+    df['vector1_liu_jcn'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'jcn')[0], axis=1)
+    df['vector2_liu_jcn'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'jcn')[1], axis=1)
     
     df['liu_path'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'path_similarity')[3], axis=1) 
     df['liu_res'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'res')[3], axis=1) 
@@ -165,6 +191,8 @@ if __name__ == '__main__':
     ###################################################
     #### EXECUTION PARAMETERS
     print('***** PARAMETERS *****')
+    
+    #### NOT TOUCH!! PARAMETERS FOR GET INPUT FILE AS PANDAS-DATAFRAME
     #file_dev = 'corpus/sts-dev.csv'
     #file_train = 'corpus/sts-train.csv'
     file_test = 'corpus/stsdatasets/sts-test.csv' 
@@ -172,28 +200,44 @@ if __name__ == '__main__':
     colname_csv_text1 = 'sentence1'
     colname_csv_text2 = 'sentence2'
     
+    
+    ####### EXECUTION SETTINGS #####
+    ####### 
+    #### PARAMETERS TO SELECT A DATA SUBSET TO COMPUTE SIMILARITIES
     colname_csv_field_subsetting = None #field_filter_name='genre'
     colname_csv_value_subsetting = None #field_filter_value='main-captions'
-    lst_type_grammatical_words_to_del = ['DT', 'IN', 'CC'] # ['DT', 'IN'] ... ['CC'] conjunciones
+    #### PARAMETERS TO FILTER A SOME GRAMMATICAL TYPE WORDS (STOP-WORDS) 
+    lst_type_grammatical_words_to_del = ['DT']#['DT', 'IN', 'CC'] # ['DT', 'IN'] ... ['CC'] conjunciones
+    #### BOOLEAN VALUE TO COMPUTE IC WITH ALL TEXTS OR ONLY WITH SELECTED TEXTS TO COMPUTE SIMILARITIES
+    corpus_ic_complete = False
+    #######
+    ###############
     
+    
+    #### NOT TOUCH!! PARAMETERS TO SELECT DATAFRAME COLUMNS WITH TEXT AND TOKENIZED-TEXT
     colname_csv_text1_processed = 'sentence1_str'
     colname_csv_text2_processed = 'sentence2_str'
     colname_csv_text1_processed_tokenized = 'sentence1_filtered'
     colname_csv_text2_processed_tokenized = 'sentence2_filtered'
     
+    #### NOT TOUCH!! OUTPUT FILE NAMES
     file_corpus_output = 'corpus/corpus_to_compute_ic.txt'
     file_similarities_output = 'corpus/similarities.csv'
     file_results_output = 'corpus/results.csv'
 
 
+
+
     ###################################################
     #### LOAD AND CLEANING DATA 
     print('***** loading data *****')
-    df_text = prepare_input(file_test, colnames_csv, colname_csv_text1, colname_csv_text2, field_filter_name=colname_csv_field_subsetting, field_filter_value=colname_csv_value_subsetting, lst_gram_tags_to_del = lst_type_grammatical_words_to_del)
+    df_text, df_corpus_ic = prepare_input(file_test, colnames_csv, colname_csv_text1, colname_csv_text2, field_filter_name=colname_csv_field_subsetting, field_filter_value=colname_csv_value_subsetting, lst_gram_tags_to_del = lst_type_grammatical_words_to_del, corpus_ic_complete=corpus_ic_complete)
     #### ...we get the corpus used to compute IC in a file using phrases filtered...
-    lst_sentences = list(np.append(df_text[colname_csv_text1_processed], df_text[colname_csv_text2_processed]))
+    lst_sentences = list(np.append(df_corpus_ic[colname_csv_text1_processed], df_corpus_ic[colname_csv_text2_processed]))
     corpus_for_ic, ic = get_corpus_and_ic(set_of_strings=lst_sentences, file_corpus_output=file_corpus_output)
     print('***********************************')
+    
+    
     
     
     ###################################################
@@ -206,9 +250,14 @@ if __name__ == '__main__':
     #### ...we compute similarities for each pair of phrases in csv...
     df_results = run_compute_similarities(df_text, colname_csv_text1_processed_tokenized, colname_csv_text2_processed_tokenized, ic, file_similarities_output)    
     
+    print(df_text.shape)
+    print(df_corpus_ic.shape)
+    
     #### ...and we can plot an histogram  with elements in all vectors, to see how that components are distributed
     #graph_histogram_from_df_fields(df_results, ['vector1', 'vector2'])
     print('***********************************')
+    
+    
     
     ###################################################
     #### COMPARE RESULTS
@@ -222,6 +271,8 @@ if __name__ == '__main__':
     df_scores = run_evaluate_results(df_results, file_results_output)
     print(df_scores)
     print('***********************************')
+    
+
     
 
 

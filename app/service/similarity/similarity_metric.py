@@ -98,23 +98,24 @@ if __name__ == '__main__':
     lst2 = ['a', 'girl', 'is', 'styling', 'her', 'hair']
     print(lst1)
     print(lst2)
-    number = get_number_words_overlapped(lst1, lst2)
-    print('number is {0}'.format(number))
+    #number = get_number_words_overlapped(lst1, lst2)
+    #print('number is {0}'.format(number))
     
-    lst_flag_overlapped, n_overlapped = get_number_synsets_overlapped(lst1, lst2)
-    print(lst_flag_overlapped)
-    print(n_overlapped)
+    #lst_flag_overlapped, n_overlapped = get_number_synsets_overlapped(lst1, lst2)
+    #print(lst_flag_overlapped)
+    #print(n_overlapped)
     
     
     ######
     vector1 = [0, 0, 0, 0, 0, 0, 0, 0]
     vector2 = [0, 0, 0, 0, 0, 0, 1.0, 1.0]
-    print(compute_similarity_cosin(vector1, vector2))
+    #print(compute_similarity_cosin(vector1, vector2))
     
     lst1 = ['people', 'are', 'dancing', 'outside']
     lst2 = ['a', 'group', 'of', 'people', 'are', 'dancing'] 
-    get_wordnet_words_similarity('havent', 'but', type_score = 'res', corpus_ic = None)
-    
+    sim = get_wordnet_words_similarity('hair', 'brushing', type_score = 'path_similarity', corpus_ic = None)
+    print(sim)
+    print(max(sim))
     
     
     
