@@ -71,6 +71,7 @@ def prepare_input(file_csv, colnames_csv, col_text1, col_text2, field_filter_nam
 def process_liu(sen1, sen2, ic, type_similarity = 'res'):
     print('LAUNCHING LIU PROCESS WITH SIMILARITY {0}'.format(type_similarity))
     print(sen1)
+    print(sen2)
     vector1, vector2, set_words = liu.get_vector_representation(sen1, sen2, type_score=type_similarity, corpus_ic=ic)
 
     #### restriction for 'jcn' similarity...
@@ -109,7 +110,7 @@ def process_agirre(sen1, sen2):
 
 def run_compute_similarities(df, field_text1, field_text2, ic, file_output_dataframe):
     print('RUNNING PROCESS...')
-    
+    '''
     df['vectorial_components'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'path_similarity')[5], axis=1)
 
     df['vector1_liu_path'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'path_similarity')[0], axis=1)
@@ -120,7 +121,7 @@ def run_compute_similarities(df, field_text1, field_text2, ic, file_output_dataf
     df['vector2_liu_lin'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'lin')[1], axis=1)
     df['vector1_liu_jcn'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'jcn')[0], axis=1)
     df['vector2_liu_jcn'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'jcn')[1], axis=1)
-    
+    '''
     df['liu_path'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'path_similarity')[3], axis=1) 
     df['liu_res'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'res')[3], axis=1) 
     df['liu_lin'] = df.apply(lambda x: process_liu(list(x[field_text1]), list(x[field_text2]), ic, type_similarity = 'lin')[3], axis=1)
@@ -204,12 +205,12 @@ if __name__ == '__main__':
     ####### EXECUTION SETTINGS #####
     ####### 
     #### PARAMETERS TO SELECT A DATA SUBSET TO COMPUTE SIMILARITIES
-    colname_csv_field_subsetting = None #field_filter_name='genre'
-    colname_csv_value_subsetting = None #field_filter_value='main-captions'
+    colname_csv_field_subsetting = 'genre' #colname_csv_field_subsetting='genre'
+    colname_csv_value_subsetting = 'main-captions' #colname_csv_value_subsetting='main-captions', 'main-forums', 'main-news'
     #### PARAMETERS TO FILTER A SOME GRAMMATICAL TYPE WORDS (STOP-WORDS) 
-    lst_type_grammatical_words_to_del = ['DT']#['DT', 'IN', 'CC'] # ['DT', 'IN'] ... ['CC'] conjunciones
+    lst_type_grammatical_words_to_del = ['DT', 'IN']#['DT', 'IN', 'CC'] # ['DT', 'IN'] ... ['CC'] conjunciones
     #### BOOLEAN VALUE TO COMPUTE IC WITH ALL TEXTS OR ONLY WITH SELECTED TEXTS TO COMPUTE SIMILARITIES
-    corpus_ic_complete = False
+    corpus_ic_complete = True
     #######
     ###############
     
@@ -244,14 +245,15 @@ if __name__ == '__main__':
     #### COMPUTE SIMILARITIES AND GENERATE A RESULTS FILE
     print('***** computing similarities *****')
     #### ...we can select a few rows to develope...
-    #df_text = df_text.loc[0:10]
-    #df_text = df_text.iloc[73:77,]
+    #df_text = df_text.loc[0:5] #df_text = df_text.iloc[0:df_text.shape[0],] 
+    #df_text = df_text.iloc[(df_text.shape[0]-3):df_text.shape[0],]
     
     #### ...we compute similarities for each pair of phrases in csv...
     df_results = run_compute_similarities(df_text, colname_csv_text1_processed_tokenized, colname_csv_text2_processed_tokenized, ic, file_similarities_output)    
     
-    print(df_text.shape)
-    print(df_corpus_ic.shape)
+    print('***** dataset dimensions *****')
+    print('to compute similarities {0} registers have been used'.format(str(df_text.shape[0])))
+    print('to compute IC {0} registers have been used'.format(str(df_corpus_ic.shape[0])))
     
     #### ...and we can plot an histogram  with elements in all vectors, to see how that components are distributed
     #graph_histogram_from_df_fields(df_results, ['vector1', 'vector2'])
