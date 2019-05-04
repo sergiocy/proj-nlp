@@ -4,7 +4,7 @@
 from nltk.corpus import wordnet as wn
 
 
-# -*- coding: utf-8 -*-  
+
 
 
 def get_vector_words_appearence(sen1, sen2):
