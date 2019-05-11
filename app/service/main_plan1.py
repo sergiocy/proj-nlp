@@ -8,7 +8,7 @@ import numpy as np
 import math
 import pandas as pd
 #import nltk
-from gensim.models import Word2Vec
+#from gensim.models import Word2Vec
 import gensim
 
 #import tensorflow as tf

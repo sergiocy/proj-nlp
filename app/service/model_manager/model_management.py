@@ -17,7 +17,7 @@ import gensim
 
 ####
 #### function to train a word2vec model with 'gensim' package
-def generating_model(sentences, path_save_model=None, rep_dimension=5):
+def generating_w2v_model(sentences, path_save_model=None, rep_dimension=5):
     
     model_emb = Word2Vec(sentences, min_count=1, size=rep_dimension)
     print(model_emb)
