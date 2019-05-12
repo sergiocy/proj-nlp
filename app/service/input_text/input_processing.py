@@ -27,16 +27,43 @@ def format_content_file(file, colnames, index_end_column=7):
     return df
 
 
-def clean_text(df, col, lcase=True, del_punct=True, tokenize=True, del_saxon_genitive=True, not_contraction=True):
+def clean_text(df, col
+                , del_punct=True, lst_punt_to_del=[]
+                , lcase=True
+                , tokenize=True
+                , del_saxon_genitive=True
+                , not_contraction=True
+                , percentage=True
+                , exist_float_number=True):
    
-    if lcase: df[col] = df[col].apply(lambda phrase: phrase.lower())
-    if del_saxon_genitive: df[col] = df[col].apply(lambda phrase: re.sub(r'(\'s)', '', phrase))
-    if not_contraction: df[col] = df[col].apply(lambda phrase: re.sub(r'(n\'t)', ' not', phrase))
-    if del_punct: df[col] = df[col].apply(lambda phrase: re.sub(r'(:|;|,|\.|\?|!|"|\'|`)', '', phrase))
-    if tokenize: df[col] = df[col].apply(lambda phrase: word_tokenize(phrase))
-    #if del_saxon_genitive: df[col] = df[col].apply(lambda phrase: [w for w in phrase if w != '\'s'])
+    try:
+        if lcase: df[col] = df[col].apply(lambda phrase: str(phrase).lower())
+        if del_saxon_genitive: df[col] = df[col].apply(lambda phrase: re.sub(r'(\'s)', '', phrase))
+        if not_contraction: df[col] = df[col].apply(lambda phrase: re.sub(r'(n\'t)', ' not', phrase))
+        if percentage: df[col] = df[col].apply(lambda phrase: re.sub(r'%', ' percent', phrase))
+        if del_punct:
+            for punct in lst_punt_to_del:
+                if exist_float_number:
+                    if punct==',':
+                        df[col] = df[col].apply(lambda phrase: re.sub(r',[^0-9]', '', phrase))
+                    else:
+                        df[col] = df[col].apply(lambda phrase: re.sub(r'{0}'.format(str(punct)), '', phrase))
+                else:
+                    df[col] = df[col].apply(lambda phrase: re.sub(r'{0}'.format(str(punct)), '', phrase))
+        if tokenize: df[col] = df[col].apply(lambda phrase: word_tokenize(phrase))
+    except Exception:
+        print('ERROR')
             
     return df
+
+
+def get_set_of_tokens(lst_sentences):
+    set_words = []
+    for r in lst_sentences:
+        set_words.extend(list(r))
+    set_words = sorted(set(set_words))
+    
+    return set_words
 
 
 def get_corpus_and_ic(set_of_strings, file_corpus_output):

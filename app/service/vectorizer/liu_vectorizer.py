@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from similarity.similarity_metric import *
+from similarity.wordnet_similarity_metric import *
         
 
 ####
