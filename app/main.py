@@ -13,7 +13,6 @@ PATH_CONFIG = '../config/config.ini'
 
 
 
-
 if __name__ == "__main__":
 
     ####
