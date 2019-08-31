@@ -1,6 +1,0 @@
-2019-03-31 00:22:46,961 - INFO - config file parameters: {'file_folder': '../config/input/', 'file_origin': 'text_embed.txt', 'log_folder': '../log/', 'log_file': 'log_file.log', 'process': 'wordsemb', 'txt_lcase': True, 'txt_tokenize': True}
-2019-03-31 00:22:46,962 - INFO - resetting parameters from command line: {'file_folder': '../config/input/', 'file_origin': 'text_embed.txt', 'log_folder': '../log/', 'log_file': 'log_file.log', 'process': 'wordsemb', 'txt_lcase': True, 'txt_tokenize': True}
-2019-03-31 00:22:46,962 - INFO - process selected: wordsemb
-2019-03-31 00:22:46,962 - INFO - file selected: ../config/input/text_embed.txt
-2019-03-31 00:22:46,962 - INFO - setting input text
-2019-03-31 00:22:46,962 - INFO - input text: Esto es una prueba con una frase un poco mas larga
