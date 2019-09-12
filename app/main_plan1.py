@@ -1,5 +1,3 @@
-
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import logging
@@ -18,7 +16,10 @@ from bert_embedding import BertEmbedding
 
 #### imports personal modules
 from service.util.utils import create_logger
-from service.text.input_text.input_processing import clean_text, get_set_of_tokens
+from service.text.cleaner.clean_df_text import clean_text_column
+from service.text.cleaner.clean_text import clean_phrase
+#from service.text.reader.input_processing import get_set_of_tokens
+from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
 from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_token
 from service.computing.vector_computing import compute_mean_vector
 
@@ -26,48 +27,20 @@ from service.computing.vector_computing import compute_mean_vector
 
 PATH_LOG_FILE = '../log/log.log'
 PATH_W2V_MODEL = '../config/model/GoogleNews-vectors-negative300.bin'
-PATH_INPUT_DATA = '../config/input/wordsim353/combined.csv'
-PATH_INPUT_DATA_DEF = '../config/input/wordsim353/combined-definitions.csv'
-PATH_OUTPUT_BERT_DATA_DEF = '../config/output/combined-definitions'
+PATH_INPUT_DATA = '../data/input/wordsim353/combined.csv'
+PATH_INPUT_DATA_DEF = '../data/input/wordsim353/combined-definitions.csv'
+PATH_OUTPUT_BERT_DATA_DEF = '../data/output/combined-definitions'
 
 
 
 
 
-def read_inputs(new_colnames
-                , logger = None
-                , file_input = PATH_INPUT_DATA_DEF
-                , sep = ';'
-                , encoding = 'utf-8'):
-    ##################################################
-    #### READING FILE INPUT
-    #data_sim = pd.read_csv(PATH_INPUT_DATA, sep=',', encoding='utf-8')
-    #data_sim.columns = ['w1', 'w2', 'sim']
-    ##### ...we select a subset to develope...
-    #data_sim = data_sim.loc[0:10]
-    #print(data_sim)
 
-    data_def = pd.read_csv(file_input, sep=sep, encoding=encoding)
-    data_def.columns = new_colnames
-    #### ...we select a subset to develope...
-    #data_def = data_def.loc[0:2]
 
-    return data_def
+############################################
+#### BERT model
+def compute_bert(data_def, logger=None):
 
-def process_inputs(df):
-    ##################################################
-    #### PREPROCESSING DEFINITIONS
-    df['def_tokenized'] = df['def']
-    df = clean_text(df, 'def_tokenized', lst_punt_to_del=['\.', ':', ';', '\?', '!', '"', '\'', '`', '=', ',', '\(', '\)'])
-    df['def_cleaned'] = df['def_tokenized'].apply(lambda phrase: ' '.join(phrase))
-    print(df)
-    #print(get_set_of_tokens(list(data_def['def'])))
-
-    return df
-
-def compute_bert(data_def):
-    ############################################
-    #### BERT model
     print('######### BERT ############')
     w1 = data_def['w1'][0]
     def1 = data_def['def_cleaned'][0]
@@ -101,14 +74,48 @@ if __name__ == '__main__':
     logger.info(' - starting execution')
 
     #### READING FILES
-    logger.info(' - read file {0}'.format(PATH_INPUT_DATA_DEF))
-    data_def = read_inputs( logger = logger
-                            , file_input = PATH_INPUT_DATA_DEF
-                            , new_colnames = ['w1', 'def'])
-    logger.info(' - dataframe loaded; first rows...')
-    logger.info('\n{0}'.format(data_def.loc[0:2]))
+    data_def = read_csv_and_add_or_change_colnames( logger = logger
+                                                    , file_input = PATH_INPUT_DATA_DEF
+                                                    , new_colnames = ['w1', 'def']
+                                                    )
+    #data_sim = read_csv_and_add_or_change_colnames( logger = logger
+    #                                                , file_input = PATH_INPUT_DATA
+    #                                                , new_colnames = ['w1', 'w2', 'sim']
+    #                                                , sep = ','
+    #                                                )
 
-    #data_def = process_inputs(data_def)
+
+
+    #### CLEANING PHRASES IN CSV
+    #### NOTE: to improve cleaning 
+    data_def['def_tokenized'] = data_def['def']
+
+    #### ...developing with a few lines...
+    data_def = data_def.loc[0:10]
+    #### ...applying lambda function in data frame for each phrase
+    data_def['def_cleaned'] = data_def['def_tokenized'].apply(lambda phrase: clean_phrase(phrase))
+
+    #phrase = 'To Like something'
+    phrase = 'Like '
+    print(clean_phrase(phrase))
+
+
+    #data_def = clean_text_column(data_def, 'def_tokenized'
+    #                            , lst_punt_to_del = ['\.', ':', ';', '\?', '!', '"', '\'', '`', '=', ',', '\(', '\)']
+    #                            , del_punct=True
+    #                            , lcase=True
+    #                            , tokenize=True
+    #                            , del_saxon_genitive=True
+    #                            , not_contraction=True
+    #                            , percentage=True
+    #                            , exist_float_number=True
+    #                            , logger = logger)
+    #data_def['def_cleaned'] = data_def['def_tokenized'].apply(lambda phrase: ' '.join(phrase))
+    logger.info(' - pandas dataframe clean and tokenized; first rows...')
+    logger.info('\n{0}'.format(data_def.loc[0:10]))
+
+
+
     #### COMPUTING BERT-VECTORS
     #data_def = compute_bert(data_def)
     #data_def.to_pickle(PATH_OUTPUT_BERT_DATA_DEF)

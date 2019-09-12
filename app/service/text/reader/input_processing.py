@@ -5,7 +5,7 @@ from nltk.corpus import wordnet as wn
 from nltk.corpus import PlaintextCorpusReader
 import pandas as pd
 import os
-import re
+#import re
 
 
 
@@ -27,34 +27,6 @@ def format_content_file(file, colnames, index_end_column=7):
     return df
 
 
-def clean_text(df, col
-                , del_punct=True, lst_punt_to_del=[]
-                , lcase=True
-                , tokenize=True
-                , del_saxon_genitive=True
-                , not_contraction=True
-                , percentage=True
-                , exist_float_number=True):
-   
-    try:
-        if lcase: df[col] = df[col].apply(lambda phrase: str(phrase).lower())
-        if del_saxon_genitive: df[col] = df[col].apply(lambda phrase: re.sub(r'(\'s)', '', phrase))
-        if not_contraction: df[col] = df[col].apply(lambda phrase: re.sub(r'(n\'t)', ' not', phrase))
-        if percentage: df[col] = df[col].apply(lambda phrase: re.sub(r'%', ' percent', phrase))
-        if del_punct:
-            for punct in lst_punt_to_del:
-                if exist_float_number:
-                    if punct==',':
-                        df[col] = df[col].apply(lambda phrase: re.sub(r',[^0-9]', '', phrase))
-                    else:
-                        df[col] = df[col].apply(lambda phrase: re.sub(r'{0}'.format(str(punct)), '', phrase))
-                else:
-                    df[col] = df[col].apply(lambda phrase: re.sub(r'{0}'.format(str(punct)), '', phrase))
-        if tokenize: df[col] = df[col].apply(lambda phrase: word_tokenize(phrase))
-    except Exception:
-        print('ERROR')
-            
-    return df
 
 
 def get_set_of_tokens(lst_sentences):
