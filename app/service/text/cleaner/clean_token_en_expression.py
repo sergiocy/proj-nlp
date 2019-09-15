@@ -5,32 +5,34 @@ import re
 from nltk.tokenize import word_tokenize
 
 
+#### this function substitute "'s" by "is" (exp == is). 
+#### WARNING because also treat the saxon genitive
+def clean_en_expression_in_token(token_in, exp, logger=None):
 
-def clean_saxon_genitive(token_in, logger=None):
     
-    token = token_in
-
     try:
-        print('-----------------')
-        
+        token = token_in.strip()
+
+
+        if exp == '%':
+            token = ' percent ' if token == '%' else token
+            token = re.sub(r'%', ' percent ', token)
+
+        if exp == 'is':
+            token = ' is ' if token == "\'s" else token
+            token = re.sub(r'(\'s)', ' is ', token)
+
+        if exp == 'not':
+            token = ' not ' if token == "n\'t" else token
+            token = re.sub(r'(n\'t)', ' not ', token)
+
+
+        token = token.strip()
+
+
     except Exception:
         if logger is not None:
-            logger.exception("ERROR cleaning \',\' in token \'{0}\'".format(token_in))
-        raise Exception
-            
-    return token
-
-
-def clean_not_contraction(token_in, logger=None):
-    
-    token = token_in
-
-    try:
-        print('-----------------')
-        
-    except Exception:
-        if logger is not None:
-            logger.exception("ERROR cleaning \',\' in token \'{0}\'".format(token_in))
+            logger.exception("ERROR cleaning \'{0}\' in token \'{1}\'".format(punct_symbol, token_in))
         raise Exception
             
     return token

@@ -16,7 +16,7 @@ from bert_embedding import BertEmbedding
 
 #### imports personal modules
 from service.util.utils import create_logger
-from service.text.cleaner.clean_df_text import clean_text_column
+#from service.text.cleaner.clean_df_text import clean_text_column
 from service.text.cleaner.clean_text import clean_phrase
 #from service.text.reader.input_processing import get_set_of_tokens
 from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
@@ -87,31 +87,33 @@ if __name__ == '__main__':
 
 
     #### CLEANING PHRASES IN CSV
-    #### NOTE: to improve cleaning 
-    data_def['def_tokenized'] = data_def['def']
+    #### NOTE: to improve cleaning
+    data_def["def"].fillna("", inplace = True) 
+    data_def = data_def[data_def['def'] != '']
 
     #### ...developing with a few lines...
-    data_def = data_def.loc[0:10]
+    #data_def = data_def.loc[0:10]
     #### ...applying lambda function in data frame for each phrase
-    data_def['def_cleaned'] = data_def['def_tokenized'].apply(lambda phrase: clean_phrase(phrase))
+    data_def['def_cleaned'] = data_def['def'].apply(lambda phrase: clean_phrase(phrase
+                                                                                , language = 'en'
+                                                                                , lcase=True
+                                                                                , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
+                                                                                , tokenized=False
+                                                                                , logging_tokens_cleaning = False
+                                                                                , logger = logger))
+    #phrase = 'To Like something. For example, to learn very much (ML, AI). ALSo we want: learn Spark!!; maybe distrib. system??'
+    #phrase = 'Like '
+    #phrase = "I don't have so much time. Sergio'stime, is 100% valuable."
+    #print(clean_phrase(phrase
+    #                    , language = 'en'
+    #                    , lcase=True
+    #                    , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
+    #                    , lst_en_exp_to_del = ['%', 'not', 'is']
+    #                    , tokenized=True
+    #                    , logging_tokens_cleaning = True
+    #                    , logger = logger))
 
-    #phrase = 'To Like something'
-    phrase = 'Like '
-    print(clean_phrase(phrase))
-
-
-    #data_def = clean_text_column(data_def, 'def_tokenized'
-    #                            , lst_punt_to_del = ['\.', ':', ';', '\?', '!', '"', '\'', '`', '=', ',', '\(', '\)']
-    #                            , del_punct=True
-    #                            , lcase=True
-    #                            , tokenize=True
-    #                            , del_saxon_genitive=True
-    #                            , not_contraction=True
-    #                            , percentage=True
-    #                            , exist_float_number=True
-    #                            , logger = logger)
-    #data_def['def_cleaned'] = data_def['def_tokenized'].apply(lambda phrase: ' '.join(phrase))
-    logger.info(' - pandas dataframe clean and tokenized; first rows...')
+    logger.info(' - pandas dataframe clean (tokenized or not); first rows...')
     logger.info('\n{0}'.format(data_def.loc[0:10]))
 
 
