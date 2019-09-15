@@ -8,7 +8,9 @@ import math
         
 
 
-def compute_mean_vector(lst_np_arrays):
+#### FUNCTION TO COMPUTE AVERAGE VECTOR FROM A LIST OF NUMPY-ARRAYS
+####  ...these can represent the vectors associated to each word of a phrase or text-fragment
+def compute_vector_average(lst_np_arrays):
     print('computing mean')
     
 

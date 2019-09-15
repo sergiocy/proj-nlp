@@ -8,33 +8,46 @@ from bert_embedding import BertEmbedding
         
 
 ####
-#### FUNCTION TO GET A TOKEN AS STRING AND AN OBJECT "bert_embedding" from bert-embedding package
-#### and return a list of vectors 
-def get_bert_embedding_of_one_token(str_token, bert_embedding):
+#### FUNCTION TO GET A BERT-EMBEDDING OF A TOKEN FROM  "bert_embedding" (bert-embedding) package
+#### and return a list of numpy-arrays representing each word in input_token (a phrase as string) 
+def get_bert_embedding_of_one_token(str_token_in, logger=None):
 
-    #bert_embedding = BertEmbedding()
+    try:
 
-    lst_token = [str_token]
-    print('input token: {0}'.format(lst_token))
+        str_token = str_token_in
 
-    #### ....phrase to test...
-    #lst_token = ['something to encode']
+        bert_embedding = BertEmbedding()
+        lst_token = [str_token]
 
-    bert_w1 = bert_embedding(lst_token)
-    #print(bert_w1)
+        if logger is not None:
+            logger.info('input token: \'{0}\''.format(str_token_in))
 
-    #### ...el token...
-    bert_processed_token = bert_w1[0][0]
-    print('processed token by bert-embedding package: {0}'.format(bert_processed_token))
 
-    #### ...vectores...
-    vector_rep = bert_w1[0][1]
-    #print(vector_rep)
-    #print(len(vector_rep))
-    #print(type(vector_rep))
-    #print(type(vector_rep[0]))
+        bert_rep = bert_embedding(lst_token)
+        #print('###############################')
+        #print(bert_rep)
+        #print(bert_rep[0][1])
 
-    return vector_rep
+        #### ...el token...
+        bert_rep_token_in = bert_rep[0][0]
+        #print('processed token by bert-embedding package: {0}'.format(bert_processed_token))
+        if logger is not None:
+            logger.info('BERT input token: \'{0}\''.format(bert_rep_token_in))
+
+
+        #### ...vectores...
+        bert_rep_vector = bert_rep[0][1]
+        #print(bert_rep_vector)
+        #print(len(bert_rep_vector))
+        #print(type(bert_rep_vector))
+        #print(type(bert_rep_vector[0]))
+
+    except Exception:
+        if logger is not None:
+            logger.exception("ERROR getting BERT-embedding of token \'{0}\'".format(str_token_in))
+        raise Exception
+
+    return bert_rep_vector
 
 
 
