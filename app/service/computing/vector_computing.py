@@ -10,8 +10,41 @@ import math
 
 #### FUNCTION TO COMPUTE AVERAGE VECTOR FROM A LIST OF NUMPY-ARRAYS
 ####  ...these can represent the vectors associated to each word of a phrase or text-fragment
-def compute_vector_average(lst_np_arrays):
-    print('computing mean')
+#### ...if avg=False, sum is computed, if is True, average is computed...
+def compute_vector_average_or_sum(logger=None, lst_np_arrays=None, avg=False):
+    
+    try:
+        #if logger is not None:
+        #    logger.info('computing vector average')
+
+        #print('-------')
+        #print(len(lst_np_arrays))
+
+        #### ...we need to have two vectors almost...
+        if len(lst_np_arrays)>=2:
+            array_cum = np.add(lst_np_arrays[0], lst_np_arrays[1])
+        
+            if len(lst_np_arrays)>2:
+                for index_np_array in range(2, len(lst_np_arrays)):
+                    array_cum = np.add(array_cum, lst_np_arrays[index_np_array])
+
+            if avg==True:
+                lambda_fun = lambda elem: elem/len(lst_np_arrays)
+                array_cum = lambda_fun(array_cum)
+
+        else:
+            raise Exception
+
+
+        return array_cum
+
+
+    except Exception:
+        if logger is not None:
+            logger.exception("ERROR computing vector average")
+        raise Exception
+
+    
     
 
 

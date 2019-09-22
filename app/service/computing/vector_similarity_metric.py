@@ -10,8 +10,8 @@ from scipy.stats.stats import pearsonr
 ####
 #### similarity metric based on cosin between vector (for text vectorial representations)    
 def compute_similarity_cosin(vector1, vector2):
-    u = array(vector1) 
-    v = array(vector2) 
+    u = vector1 #array(vector1) 
+    v = vector2 #array(vector2) 
     d = dot(u, v)
     c = dot(u,v)/norm(u)/norm(v) # -> cosine of the angle 
     angle = arccos(clip(c, -1, 1)) # if you really want the angle 

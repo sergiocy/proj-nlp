@@ -2,7 +2,7 @@
 
 import logging
 import os
-#import numpy as np
+import numpy as np
 #import math
 import pandas as pd
 #from nltk.tokenize import word_tokenize
@@ -21,15 +21,18 @@ from service.text.cleaner.clean_text import clean_phrase
 #from service.text.reader.input_processing import get_set_of_tokens
 from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
 from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_token
-from service.computing.vector_computing import compute_mean_vector
+from service.computing.vector_computing import compute_vector_average_or_sum
+from service.computing.vector_similarity_metric import compute_similarity_cosin
+from service.computing.vector_similarity_metric import compute_pearson_coef
 
 
 
 PATH_LOG_FILE = '../log/log.log'
 PATH_W2V_MODEL = '../config/model/GoogleNews-vectors-negative300.bin'
-PATH_INPUT_DATA = '../data/input/wordsim353/combined.csv'
-PATH_INPUT_DATA_DEF = '../data/input/wordsim353/combined-definitions.csv'
+PATH_INPUT_DATA = '../../0-data/input/wordsim353/combined.csv'
+PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions.csv'
 PATH_OUTPUT_BERT_DATA_DEF = '../data/output/combined-definitions'
+PATH_OUTPUT_BERT_DATA_COMPLETE = '../data/output/combined-definitions-complete'
 
 
 
@@ -42,6 +45,8 @@ if __name__ == '__main__':
     os.remove(PATH_LOG_FILE)
     logger = create_logger(PATH_LOG_FILE)
     logger.info(' - starting execution')
+    
+
     '''
     ##################################
     ####
@@ -81,13 +86,71 @@ if __name__ == '__main__':
     '''
 
 
+    '''
     ##################################
-    #### READ BERT VECTOR AND COMPUTING SIMILARITIES BETWEEN word-definition
+    #### READ BERT VECTOR AND JOIN WITH SIMILARITIES DATASET 
     data_def = pd.read_pickle(PATH_OUTPUT_BERT_DATA_DEF)
-    data_def = data_def.loc[0:2]
+    
+    #### ...to dev, i get i few rows...
+    #data_def = data_def.loc[0:2]
 
-    print(data_def)
-    print(data_def.shape)
+    #### ...joining with pairs of words similarities...
+    #### ...load manual similarities file...
+    data_sim = read_csv_and_add_or_change_colnames( logger = logger
+                                                    , file_input = PATH_INPUT_DATA
+                                                    , new_colnames = ['w1', 'w2', 'sim']
+                                                    , sep = ','
+                                                    )
+
+    #### ...to dev, i get i few rows...
+    #data_sim = data_sim.loc[0:2]
+
+    data = pd.merge(data_sim, data_def, left_on='w1', right_on='w1', how='left')    
+    data.columns = ['w1', 'w2', 'sim', 'def1', 'def1_clean', 'w1_vectorized', 'def1_vectorized']
+    data = pd.merge(data, data_def, left_on='w2', right_on='w1', how='left') 
+    data = data.drop(['w1_y'], axis=1)
+    data.columns = ['w1', 'w2', 'sim', 'def1', 'def1_clean', 'w1_vectorized', 'def1_vectorized', 'def2', 'def2_clean', 'w2_vectorized', 'def2_vectorized']
+
+    
+    #print(data)
+    #print(data.shape)
+    #print(data.columns)
+    #print(data[['w1', 'w2', 'w1_vectorized', 'def2', 'def2_vectorized']])
+    #print(data_def[data_def['w1']=='cat'])
+
+    #### serializing dataframe as a pickle object
+    data.to_pickle(PATH_OUTPUT_BERT_DATA_COMPLETE)
+    '''
+    
+    
+    ##################################################
+    #### COMPUTING SIMILARITIES BETWEEN word1-word2 FROM BERT VECTORS
+    data = pd.read_pickle(PATH_OUTPUT_BERT_DATA_COMPLETE)
+    data = data.dropna()
+
+    #### ...to dev...
+    #data = data.loc[0:10]
+    print(data)
+    print(data.shape)
+    print(data.columns)
+    print('--------')
+    data['sim_w_w'] = data[['w1_vectorized', 'w2_vectorized']].apply(lambda r: compute_similarity_cosin(r['w1_vectorized'][0], r['w2_vectorized'][0])[1], axis=1)
+
+    print(data[['w1', 'w2', 'sim', 'sim_w_w']])
+    #print(data.shape)
+    #print(data.columns)
+
+    #### ...pearson correlation of cimilarities...
+    print(compute_pearson_coef(np.asarray(data['sim']), np.asarray(data['sim_w_w']))[1])
+
+    ##################################################
+    #### COMPUTING SIMILARITIES BETWEEN word-definition FROM BERT VECTORS
+    #data['def1_vector_sum'] = data['def1_vectorized'].apply(lambda lst_vectors: compute_vector_average_or_sum(logger=logger, lst_np_arrays=lst_vectors, avg=False))
+    #print(data)
+    #print(data.shape)
+    #print(data.columns)
+
+
 
 
 
@@ -105,14 +168,6 @@ if __name__ == '__main__':
     #print(wemb_love)
 
 
-
-    ##################################################
-    #### ...load manual similarities file...
-    #data_sim = read_csv_and_add_or_change_colnames( logger = logger
-    #                                                , file_input = PATH_INPUT_DATA
-    #                                                , new_colnames = ['w1', 'w2', 'sim']
-    #                                                , sep = ','
-    #                                                )
 
 
 
