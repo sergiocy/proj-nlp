@@ -33,6 +33,8 @@ PATH_INPUT_DATA = '../../0-data/input/wordsim353/combined.csv'
 PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions.csv'
 PATH_OUTPUT_BERT_DATA_DEF = '../data/output/combined-definitions'
 PATH_OUTPUT_BERT_DATA_COMPLETE = '../data/output/combined-definitions-complete'
+PATH_OUTPUT_BERT_WORD_VS_DEF_1 = '../data/output/word_vs_def_1'
+PATH_OUTPUT_BERT_WORD_VS_DEF_2 = '../data/output/word_vs_def_2'
 
 
 
@@ -123,6 +125,7 @@ if __name__ == '__main__':
     '''
     
     
+    '''
     ##################################################
     #### COMPUTING SIMILARITIES BETWEEN word1-word2 FROM BERT VECTORS
     data = pd.read_pickle(PATH_OUTPUT_BERT_DATA_COMPLETE)
@@ -143,12 +146,36 @@ if __name__ == '__main__':
     #### ...pearson correlation of cimilarities...
     print(compute_pearson_coef(np.asarray(data['sim']), np.asarray(data['sim_w_w']))[1])
 
+
     ##################################################
-    #### COMPUTING SIMILARITIES BETWEEN word-definition FROM BERT VECTORS
-    #data['def1_vector_sum'] = data['def1_vectorized'].apply(lambda lst_vectors: compute_vector_average_or_sum(logger=logger, lst_np_arrays=lst_vectors, avg=False))
-    #print(data)
-    #print(data.shape)
-    #print(data.columns)
+    #### COMPUTING AVG AND SUM VECTORS OF DEFINITIONS 
+    data['def1_vector_sum'] = data['def1_vectorized'].apply(lambda lst_vectors: compute_vector_average_or_sum(logger=logger, lst_np_arrays=lst_vectors, avg=False))
+    data['def1_vector_avg'] = data['def1_vectorized'].apply(lambda lst_vectors: compute_vector_average_or_sum(logger=logger, lst_np_arrays=lst_vectors, avg=True))
+    data['def2_vector_sum'] = data['def2_vectorized'].apply(lambda lst_vectors: compute_vector_average_or_sum(logger=logger, lst_np_arrays=lst_vectors, avg=False))
+    data['def2_vector_avg'] = data['def2_vectorized'].apply(lambda lst_vectors: compute_vector_average_or_sum(logger=logger, lst_np_arrays=lst_vectors, avg=True))
+    #print(data['def2_clean'].iloc[237:298])
+    #print(data[data['def2_vectorized'][0][0]==-3.28788131e-01])
+    print(data.shape)
+    print(data.columns)
+
+    #### serializing dataframe as a pickle object
+    data.to_pickle(PATH_OUTPUT_BERT_DATA_COMPLETE)
+    '''
+
+
+    ##################################################
+    #### COMPUTING AVG AND SUM VECTORS similarities
+    data = pd.read_pickle(PATH_OUTPUT_BERT_DATA_COMPLETE)
+    print(data.head())
+    print(data.shape)
+    print(data.columns)
+
+    #### ...word1...
+    data = data[['w1', 'w1_vectorized', 'def1_clean', 'def1_vector_sum', 'def1_vector_avg']].loc[0:5]
+
+    
+
+
 
 
 

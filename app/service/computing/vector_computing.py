@@ -17,9 +17,6 @@ def compute_vector_average_or_sum(logger=None, lst_np_arrays=None, avg=False):
         #if logger is not None:
         #    logger.info('computing vector average')
 
-        #print('-------')
-        #print(len(lst_np_arrays))
-
         #### ...we need to have two vectors almost...
         if len(lst_np_arrays)>=2:
             array_cum = np.add(lst_np_arrays[0], lst_np_arrays[1])
@@ -33,7 +30,10 @@ def compute_vector_average_or_sum(logger=None, lst_np_arrays=None, avg=False):
                 array_cum = lambda_fun(array_cum)
 
         else:
-            raise Exception
+            if len(lst_np_arrays)==1:
+                array_cum = lst_np_arrays[0]
+            else:
+                raise Exception
 
 
         return array_cum
@@ -42,6 +42,7 @@ def compute_vector_average_or_sum(logger=None, lst_np_arrays=None, avg=False):
     except Exception:
         if logger is not None:
             logger.exception("ERROR computing vector average")
+            logger.info("{0}".format(lst_np_arrays))
         raise Exception
 
     
