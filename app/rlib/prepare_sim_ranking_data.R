@@ -31,7 +31,7 @@ ranking <- sapply(1:length(sim_unique$word), function(iter_rows){
                                     return(podium)
                                                     })
 ranking <- as.data.frame(ranking)
-rownames(ranking) <- c("1st", "2nd", "3rd", "4th", "5th")
+rownames(ranking) <- c("first", "second", "third", "fourth", "fifth")
 colnames(ranking) <- sim_unique$word
 
 ranking <- t(ranking)
@@ -62,7 +62,7 @@ ranking_scores <- sapply(1:length(sim_unique$word), function(iter_rows){
     return(as.numeric(podium_scores))
 })
 ranking_scores <- as.data.frame(ranking_scores)
-rownames(ranking_scores) <- c("1st", "2nd", "3rd", "4th", "5th")
+rownames(ranking_scores) <- c("first", "second", "third", "fourth", "fifth")
 colnames(ranking_scores) <- sim_unique$word
 
 ranking_scores <- t(ranking_scores)
