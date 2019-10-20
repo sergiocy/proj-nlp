@@ -41,8 +41,6 @@ PATH_OUTPUT_BERT_WORD_VS_DEF_2 = '../data/output/word_vs_def_2'
 
 
 
-
-
 if __name__ == '__main__':
     os.remove(PATH_LOG_FILE)
     logger = create_logger(PATH_LOG_FILE)
