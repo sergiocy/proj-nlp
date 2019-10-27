@@ -29,12 +29,20 @@ dim(ranking[ranking$third == "1", ])
 dim(ranking[ranking$fourth == "1", ])
 dim(ranking[ranking$fifth == "1", ])
 
+#table()
+
 #### 35 rows with one "1"
 35/nrow(ranking)
 
+summary(ranking)
 
 
 
+####
+#### ...dataset coding cases > or < than median...
+median <- sapply(1:ncol(scores), function(c){ ifelse(scores[ , c] > median(scores[ , c]), 'h', 'l') })
+colnames(median) <- colnames(ranking)
+rownames(median) <- rownames(ranking)
 
 
 

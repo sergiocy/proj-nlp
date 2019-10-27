@@ -1,0 +1,99 @@
+---
+title: "word-BERT-rep VS def-BERT-rep (I)"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(data.table)
+```
+
+```{r, include=FALSE}
+
+####
+#### ...variables definition...
+FILE_RDS_W1_SIM_PROCESSED <- "C:/sc-sync/projects/proj-nlp/data/output/w1_sim_processed.rds"
+data <- readRDS(FILE_RDS_W1_SIM_PROCESSED)
+
+data$ranking <- as.data.frame(data$ranking)
+data$scores <- as.data.frame(data$scores)
+```
+
+## Objective
+
+Explore similarities between BERT-vector representatin ("vector representation" abbreviated as VR) of a word and BERT-vector representation for the word definition. We use average and sum of BERT-VR as baseline for a later comparison with another composition functions.
+
+
+## Exploring data
+
+We treat with two dataset: 
+
+* the first contains (as rows, where name-row is one word) the first 5 words (top 5) with definitions similariest to 
+* the second have the similarities in before dataset
+
+
+```{r datasets}
+head(data$ranking)
+dim(data$ranking)
+head(data$scores)
+dim(data$scores)
+```
+
+We review the distribution for each position in the ranking 
+
+```{r plot_dist_positions, echo=FALSE}
+hist(data$scores$second)
+```
+
+In the five position we can observe the same curve profile (peak in the right). It looks like similarities have a trend to highest similarity values. 
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r, echo = FALSE}
+plot(1:5,  
+c(nrow(data$ranking[data$ranking$first == "1", ])
+, nrow(data$ranking[data$ranking$second == "1", ])
+, nrow(data$ranking[data$ranking$third == "1", ])
+, nrow(data$ranking[data$ranking$fourth == "1", ])
+, nrow(data$ranking[data$ranking$fifth == "1", ]) ), main = "coincidences correct word-definition", xlab = "position", ylab ="coincidences")
+```
+
+Not so much definitions corresponding with word.
+
+We review the words that we have with more and less similarity (> or < than median in before histogram)
+
+
+```{r, echo = FALSE}
+####
+#### ...dataset coding cases > or < than median...
+data$median <- sapply(1:ncol(data$scores), function(c){ ifelse(data$scores[ , c] > median(data$scores[ , c]), 1, 0) })
+colnames(data$median) <- colnames(data$ranking)
+rownames(data$median) <- rownames(data$ranking)
+data$median <- as.data.table(data$median)
+head(data$median)
+class(data$median)
+```
+
+and we can observe that too much times the five first positions are in the same range (high or low)
+
+```{r}
+dim(data$median)
+
+freq_h <- which(c(apply(data$median, 1, sum) == 5))
+freq_l <- which(c(apply(data$median, 1, sum) == 0))
+
+dim(data$median[freq_h, ])
+dim(data$median[freq_l, ])
+
+#### using data.table
+class(data$median)
+
+```
+
+
+
+
+
+
+
+
