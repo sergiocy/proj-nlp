@@ -47,7 +47,7 @@ if __name__ == '__main__':
     logger.info(' - starting execution')
     
 
-    '''
+    
     ##################################
     ####
     #### READING FILES
@@ -56,6 +56,7 @@ if __name__ == '__main__':
                                                     , new_colnames = ['w1', 'def']
                                                     )
 
+    '''
     ####
     #### CLEANING PHRASES IN CSV
     data_def["def"].fillna("", inplace = True) 
@@ -161,6 +162,7 @@ if __name__ == '__main__':
     '''
 
 
+    '''
     ##################################################
     #### COMPUTING AVG AND SUM VECTORS similarities
     data = pd.read_pickle(PATH_OUTPUT_BERT_DATA_COMPLETE)
@@ -170,7 +172,7 @@ if __name__ == '__main__':
 
     #### ...word1...
     data = data[['w1', 'w1_vectorized', 'def1_clean', 'def1_vector_sum', 'def1_vector_avg']].loc[0:5]
-
+    '''
     
 
 
