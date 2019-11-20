@@ -2,6 +2,7 @@
 
 import logging
 import os
+import time
 import numpy as np
 #import math
 import pandas as pd
@@ -11,26 +12,27 @@ import pandas as pd
 #import tensorflow as tf
 #import tensorflow_hub as hub
 
-# import mxnet as mx #### ...to use GPU-utilities in 'bert_emnedding' package
+# import mxnet as mx #### ...to use GPU-utilities in 'bert_embedding' package
 #from bert_embedding import BertEmbedding
 
 #### imports personal modules
-from service.util.utils import create_logger
-#from service.text.cleaner.clean_df_text import clean_text_column
-from service.text.cleaner.clean_text import clean_phrase
-#from service.text.reader.input_processing import get_set_of_tokens
-from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
-from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_token
-from service.computing.vector_computing import compute_vector_average_or_sum
-from service.computing.vector_similarity_metric import compute_similarity_cosin
-from service.computing.vector_similarity_metric import compute_pearson_coef
+from lib.py.logging.create_logger import create_logger
+from controller.process.load_input_csv import read_csv
+
+#from service.text.cleaner.clean_text import clean_phrase
+#from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
+#from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_token
+#from service.computing.vector_computing import compute_vector_average_or_sum
+#from service.computing.vector_similarity_metric import compute_similarity_cosin
+#from service.computing.vector_similarity_metric import compute_pearson_coef
 
 
 
 PATH_LOG_FILE = '../log/log.log'
 PATH_W2V_MODEL = '../config/model/GoogleNews-vectors-negative300.bin'
 PATH_INPUT_DATA = '../../0-data/input/wordsim353/combined.csv'
-PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions.csv'
+#PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions.csv'
+PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions-context.csv'
 PATH_OUTPUT_BERT_DATA_DEF = '../data/output/combined-definitions'
 PATH_OUTPUT_BERT_DATA_COMPLETE = '../data/output/combined-definitions-complete'
 PATH_OUTPUT_BERT_WORD_VS_DEF_1 = '../data/output/word_vs_def_1'
@@ -39,27 +41,29 @@ PATH_OUTPUT_BERT_WORD_VS_DEF_2 = '../data/output/word_vs_def_2'
 
 
 
-
-
 if __name__ == '__main__':
+    start = time.time()
+
     os.remove(PATH_LOG_FILE)
     logger = create_logger(PATH_LOG_FILE)
     logger.info(' - starting execution')
-    
 
-    
+
+
     ##################################
     ####
     #### READING FILES
-    data_def = read_csv_and_add_or_change_colnames( logger = logger
-                                                    , file_input = PATH_INPUT_DATA_DEF
-                                                    , new_colnames = ['w1', 'def']
-                                                    )
+    data_def = read_csv( logger = logger
+                        , file_input = PATH_INPUT_DATA_DEF
+                        , new_colnames = ['w', 'def', 'context'])
+
+    data_def = data_def.loc[0:40]
+    print(data_def)
 
     '''
     ####
     #### CLEANING PHRASES IN CSV
-    data_def["def"].fillna("", inplace = True) 
+    data_def["def"].fillna("", inplace = True)
     data_def = data_def[data_def['def'] != '']
 
     #### ...developing with a few lines...
@@ -79,8 +83,8 @@ if __name__ == '__main__':
     ####
     #### COMPUTING BERT-VECTORS
     logger.info(' - BERT vectorizing...')
-    data_def['w1_vectorized'] = data_def['w1'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger)) 
-    data_def['def_vectorized'] = data_def['def_cleaned'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger)) 
+    data_def['w1_vectorized'] = data_def['w1'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger))
+    data_def['def_vectorized'] = data_def['def_cleaned'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger))
 
     #### serializing dataframe as a pickle object
     data_def.to_pickle(PATH_OUTPUT_BERT_DATA_DEF)
@@ -89,9 +93,9 @@ if __name__ == '__main__':
 
     '''
     ##################################
-    #### READ BERT VECTOR AND JOIN WITH SIMILARITIES DATASET 
+    #### READ BERT VECTOR AND JOIN WITH SIMILARITIES DATASET
     data_def = pd.read_pickle(PATH_OUTPUT_BERT_DATA_DEF)
-    
+
     #### ...to dev, i get i few rows...
     #data_def = data_def.loc[0:2]
 
@@ -106,13 +110,13 @@ if __name__ == '__main__':
     #### ...to dev, i get i few rows...
     #data_sim = data_sim.loc[0:2]
 
-    data = pd.merge(data_sim, data_def, left_on='w1', right_on='w1', how='left')    
+    data = pd.merge(data_sim, data_def, left_on='w1', right_on='w1', how='left')
     data.columns = ['w1', 'w2', 'sim', 'def1', 'def1_clean', 'w1_vectorized', 'def1_vectorized']
-    data = pd.merge(data, data_def, left_on='w2', right_on='w1', how='left') 
+    data = pd.merge(data, data_def, left_on='w2', right_on='w1', how='left')
     data = data.drop(['w1_y'], axis=1)
     data.columns = ['w1', 'w2', 'sim', 'def1', 'def1_clean', 'w1_vectorized', 'def1_vectorized', 'def2', 'def2_clean', 'w2_vectorized', 'def2_vectorized']
 
-    
+
     #print(data)
     #print(data.shape)
     #print(data.columns)
@@ -122,8 +126,8 @@ if __name__ == '__main__':
     #### serializing dataframe as a pickle object
     data.to_pickle(PATH_OUTPUT_BERT_DATA_COMPLETE)
     '''
-    
-    
+
+
     '''
     ##################################################
     #### COMPUTING SIMILARITIES BETWEEN word1-word2 FROM BERT VECTORS
@@ -147,7 +151,7 @@ if __name__ == '__main__':
 
 
     ##################################################
-    #### COMPUTING AVG AND SUM VECTORS OF DEFINITIONS 
+    #### COMPUTING AVG AND SUM VECTORS OF DEFINITIONS
     data['def1_vector_sum'] = data['def1_vectorized'].apply(lambda lst_vectors: compute_vector_average_or_sum(logger=logger, lst_np_arrays=lst_vectors, avg=False))
     data['def1_vector_avg'] = data['def1_vectorized'].apply(lambda lst_vectors: compute_vector_average_or_sum(logger=logger, lst_np_arrays=lst_vectors, avg=True))
     data['def2_vector_sum'] = data['def2_vectorized'].apply(lambda lst_vectors: compute_vector_average_or_sum(logger=logger, lst_np_arrays=lst_vectors, avg=False))
@@ -173,13 +177,15 @@ if __name__ == '__main__':
     #### ...word1...
     data = data[['w1', 'w1_vectorized', 'def1_clean', 'def1_vector_sum', 'def1_vector_avg']].loc[0:5]
     '''
-    
 
 
 
 
-
-
+    if logger is not None:
+        logger.info('Process finished after {}'.format(time.time() - start))
+        #logging.shutdown()
+    else:
+        print('Process finished after {}'.format(time.time() - start))
 
     ##################################################
     #### ...load Google Word2Vec model...
@@ -193,20 +199,3 @@ if __name__ == '__main__':
     #wemb_love = model.wv['love']
     #wemb_sex = model.wv['sex']
     #print(wemb_love)
-
-
-
-
-
-
-
-    
-    
-    
-    
-
-    
-
-
-    
- 
