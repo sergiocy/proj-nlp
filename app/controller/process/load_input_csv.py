@@ -35,6 +35,8 @@ def read_csv(logger = None
         if logger is not None:
             logger.info(' - csv loaded as pandas dataframe; first rows...')
             logger.info('\n{0}'.format(df.loc[0:4]))
+            logger.info(' - column names: {0}'.format(df.columns))
+            logger.info(' - dataframe dimensions: {0}'.format(df.shape))
 
     except Exception:
         if logger is not None:

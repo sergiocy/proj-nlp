@@ -18,8 +18,8 @@ import pandas as pd
 #### imports personal modules
 from lib.py.logging.create_logger import create_logger
 from controller.process.load_input_csv import read_csv
+from controller.process.clean_text import clean_phrase
 
-#from service.text.cleaner.clean_text import clean_phrase
 #from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
 #from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_token
 #from service.computing.vector_computing import compute_vector_average_or_sum
@@ -54,20 +54,18 @@ if __name__ == '__main__':
     ####
     #### READING FILES
     data_def = read_csv( logger = logger
-                        , file_input = PATH_INPUT_DATA_DEF
-                        , new_colnames = ['w', 'def', 'context'])
+                        , new_colnames = ['w', 'def', 'context']
+                        , file_input=PATH_INPUT_DATA_DEF
+                        )
 
-    data_def = data_def.loc[0:40]
-    print(data_def)
-
-    '''
     ####
     #### CLEANING PHRASES IN CSV
-    data_def["def"].fillna("", inplace = True)
-    data_def = data_def[data_def['def'] != '']
+    #data_def["def"].fillna("", inplace = True)
+    #data_def = data_def[data_def['def'] != '']
+
 
     #### ...developing with a few lines...
-    #data_def = data_def.loc[0:10]
+    data_def = data_def.loc[0:4]
     #### ...applying lambda function in data frame for each phrase
     data_def['def_cleaned'] = data_def['def'].apply(lambda phrase: clean_phrase(phrase
                                                                                 , language = 'en'
@@ -77,6 +75,7 @@ if __name__ == '__main__':
                                                                                 , logging_tokens_cleaning = False
                                                                                 , logger = logger))
 
+    '''
     logger.info(' - pandas dataframe clean (tokenized or not); first rows...')
     logger.info('\n{0}'.format(data_def.loc[0:10]))
 
