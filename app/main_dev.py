@@ -180,10 +180,8 @@ if __name__ == '__main__':
 
 
 
-
     if logger is not None:
         logger.info('Process finished after {}'.format(time.time() - start))
-        #logging.shutdown()
     else:
         print('Process finished after {}'.format(time.time() - start))
 
