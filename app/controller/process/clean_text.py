@@ -3,11 +3,8 @@
 import pandas as pd
 import re
 from nltk.tokenize import word_tokenize
-from .clean_token_punctuation import clean_punctuation_in_token
-from .clean_english_token_expression import clean_en_expression_in_token
 
-
-
+from service.text.cleaner.clean_english_token import clean_english_token
 
 
 
@@ -31,13 +28,13 @@ def clean_phrase(str_phrase_in
         phrase = word_tokenize(phrase)
 
         print(phrase)
-        '''
+
         if language == 'en':
             phrase = [clean_english_token(token
                                             , lcase=lcase
                                             , lst_punct_to_del = lst_punct_to_del
                                             , lst_en_exp_to_del = lst_en_exp_to_del
-                                            , logging_tokens_cleaning = logging_tokens_cleaning 
+                                            , logging_tokens_cleaning = False
                                             , logger=logger) for token in phrase]
 
             phrase = [token for token in phrase if token != '']
@@ -48,7 +45,7 @@ def clean_phrase(str_phrase_in
 
         if logger is not None:
             logger.info('\n -->> \'{0}\' -->> \'{1}\''.format(str_phrase_in, phrase))
-        '''
+
 
     except Exception:
         if logger is not None:
@@ -64,7 +61,7 @@ if __name__ == '__main__':
     phrase1 = 'To Like something'
     phrase2 = 'To Like something'
 
-    clean_phrase(phrase)
+    clean_phrase(phrase1)
 
 
 

@@ -19,9 +19,9 @@ import pandas as pd
 from lib.py.logging.create_logger import create_logger
 from controller.process.load_input_csv import read_csv
 from controller.process.clean_text import clean_phrase
+from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_token
 
 #from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
-#from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_token
 #from service.computing.vector_computing import compute_vector_average_or_sum
 #from service.computing.vector_similarity_metric import compute_similarity_cosin
 #from service.computing.vector_similarity_metric import compute_pearson_coef
@@ -54,20 +54,18 @@ if __name__ == '__main__':
     ####
     #### READING FILES
     data_def = read_csv( logger = logger
-                        , new_colnames = ['w', 'def', 'context']
+                        , new_colnames = ['w', 'def_dict', 'context']
                         , file_input=PATH_INPUT_DATA_DEF
                         )
 
-    ####
-    #### CLEANING PHRASES IN CSV
-    #data_def["def"].fillna("", inplace = True)
-    #data_def = data_def[data_def['def'] != '']
+    #### ...we insert id in dataframe...
+    data_def.insert(0, 'id', range(1, len(data_def)+1))
 
 
     #### ...developing with a few lines...
-    data_def = data_def.loc[0:4]
+    data_def = data_def.loc[0:1]
     #### ...applying lambda function in data frame for each phrase
-    data_def['def_cleaned'] = data_def['def'].apply(lambda phrase: clean_phrase(phrase
+    data_def['w'] = data_def['w'].apply(lambda phrase: clean_phrase(phrase
                                                                                 , language = 'en'
                                                                                 , lcase=True
                                                                                 , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
@@ -75,14 +73,37 @@ if __name__ == '__main__':
                                                                                 , logging_tokens_cleaning = False
                                                                                 , logger = logger))
 
-    '''
-    logger.info(' - pandas dataframe clean (tokenized or not); first rows...')
-    logger.info('\n{0}'.format(data_def.loc[0:10]))
+    data_def['def_dict'] = data_def['def_dict'].apply(lambda phrase: clean_phrase(phrase
+                                                                                , language = 'en'
+                                                                                , lcase=True
+                                                                                , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
+                                                                                , tokenized=False
+                                                                                , logging_tokens_cleaning = False
+                                                                                , logger = logger))
+
+    data_def['context'] = data_def['context'].apply(lambda phrase: clean_phrase(phrase
+                                                                                , language = 'en'
+                                                                                , lcase=True
+                                                                                , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
+                                                                                , tokenized=False
+                                                                                , logging_tokens_cleaning = False
+                                                                                , logger = logger))
+
+
+    logger.info(' - pandas dataframe cleaned; first rows...')
+    logger.info('\n{0}'.format(data_def.loc[0:4]))
+
 
     ####
     #### COMPUTING BERT-VECTORS
     logger.info(' - BERT vectorizing...')
-    data_def['w1_vectorized'] = data_def['w1'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger))
+    data_def['w_vect'] = data_def['w'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger))
+
+    #### ...structuring bert-rep as table...
+    rep_w = data_def[['id', 'w', 'w_vect']]
+    print(rep_w)
+
+    '''
     data_def['def_vectorized'] = data_def['def_cleaned'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger))
 
     #### serializing dataframe as a pickle object
