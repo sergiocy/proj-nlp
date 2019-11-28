@@ -20,6 +20,7 @@ from lib.py.logging.create_logger import create_logger
 from controller.process.load_input_csv import read_csv
 from controller.process.clean_text import clean_phrase
 from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_token
+from lib.py.datastructure.np_array_as_row_of_pd_df import np_array_as_row_of_pd_df
 
 #from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
 #from service.computing.vector_computing import compute_vector_average_or_sum
@@ -97,11 +98,24 @@ if __name__ == '__main__':
     ####
     #### COMPUTING BERT-VECTORS
     logger.info(' - BERT vectorizing...')
+    #### get embedding as list...
     data_def['w_vect'] = data_def['w'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger))
+    #### select the first element in the list (only element because is an only word)
+    data_def['w_vect'] = data_def['w_vect'].apply(lambda vector: vector[0])
+
 
     #### ...structuring bert-rep as table...
     rep_w = data_def[['id', 'w', 'w_vect']]
-    print(rep_w)
+    df_vec = pd.concat([np_array_as_row_of_pd_df(logger = None
+                                                    , np_array = rep_w['w_vect'][i]
+                                                    , pd_colnames_root = 'dim_') for i in range(len(rep_w.index))])
+    print(df_vec)
+    #print(type(data_def['w_vect'][0]))
+    #print(len(data_def['w_vect'][0]))
+    print(np.shape(data_def['w_vect'][0]))
+
+    #rep_w = pd.concat([rep_w[['id', 'w']], df_vec.reindex(rep_w.index)])
+    #print(rep_w)
 
     '''
     data_def['def_vectorized'] = data_def['def_cleaned'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger))
