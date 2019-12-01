@@ -19,7 +19,7 @@ import pandas as pd
 from lib.py.logging.create_logger import create_logger
 from lib.py.datastructure.np_array_as_row_of_pd_df import np_array_as_row_of_pd_df
 from controller.process.load_input_csv import read_csv
-from controller.process.clean_text import clean_phrase
+from controller.process.clean_phrase import clean_phrase
 from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_token
 
 #from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
@@ -30,7 +30,7 @@ from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_toke
 
 
 ####
-#### DATA INPUT
+#### CSV FILES - DATA INPUT
 PATH_LOG_FILE = '../log/log.log'
 PATH_W2V_MODEL = '../config/model/GoogleNews-vectors-negative300.bin'
 PATH_INPUT_DATA = '../../0-data/input/wordsim353/combined.csv'
@@ -38,7 +38,8 @@ PATH_INPUT_DATA = '../../0-data/input/wordsim353/combined.csv'
 PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions-context.csv'
 
 ####
-#### CHECKPOINTS PATHS...
+#### PICKLE FILES - DATASETS PROCESSED - CHECKPOINTS PATHS...
+PATH_CHECKPOINT_INPUT = '../data/exchange/ws353_input'
 PATH_CHECKPOINT_BERT_WORDS = '../data/exchange/ws353_bert_words'
 #PATH_CHECKPOINT_BERT_DEF_CAMBRIDGE = '../data/exchange/ws353_bert_def_cambridge'
 #PATH_CHECKPOINT_BERT_DEF_WORDNET = '../data/exchange/ws353_bert_def_wordnet'
@@ -104,6 +105,11 @@ if __name__ == '__main__':
 
     logger.info(' - pandas dataframe cleaned; first rows...')
     logger.info('\n{0}'.format(data_def.loc[0:4]))
+    ####
+    #### CHECKPOINT!! ...SERIALIZE INPUT DATASET AFTER LOAD AND CLEAN...
+    data_def.to_pickle(PATH_CHECKPOINT_INPUT)
+
+
 
 
     #################################################
@@ -120,9 +126,6 @@ if __name__ == '__main__':
     ####
     #### CHECKPOINT!! ...AFTER VECTORIZATION OF WORDS...
     #rep_w.to_pickle(PATH_CHECKPOINT_BERT_WORDS)
-    #######################################################################
-    ########################################################################
-
 
     df_vec = pd.concat([np_array_as_row_of_pd_df(logger = None
                                                     , np_array = rep_w['w_vect'][i]
