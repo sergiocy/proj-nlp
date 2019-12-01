@@ -4,6 +4,7 @@
 doc/*
 log/*
 data/*
+test/jupyter/*
 __pycache__/
 
 config/model/*.bin

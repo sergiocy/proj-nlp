@@ -17,10 +17,10 @@ import pandas as pd
 
 #### imports personal modules
 from lib.py.logging.create_logger import create_logger
+from lib.py.datastructure.np_array_as_row_of_pd_df import np_array_as_row_of_pd_df
 from controller.process.load_input_csv import read_csv
 from controller.process.clean_text import clean_phrase
 from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_token
-from lib.py.datastructure.np_array_as_row_of_pd_df import np_array_as_row_of_pd_df
 
 #from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
 #from service.computing.vector_computing import compute_vector_average_or_sum
@@ -29,11 +29,22 @@ from lib.py.datastructure.np_array_as_row_of_pd_df import np_array_as_row_of_pd_
 
 
 
+####
+#### DATA INPUT
 PATH_LOG_FILE = '../log/log.log'
 PATH_W2V_MODEL = '../config/model/GoogleNews-vectors-negative300.bin'
 PATH_INPUT_DATA = '../../0-data/input/wordsim353/combined.csv'
 #PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions.csv'
 PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions-context.csv'
+
+####
+#### CHECKPOINTS PATHS...
+PATH_CHECKPOINT_BERT_WORDS = '../data/exchange/ws353_bert_words'
+#PATH_CHECKPOINT_BERT_DEF_CAMBRIDGE = '../data/exchange/ws353_bert_def_cambridge'
+#PATH_CHECKPOINT_BERT_DEF_WORDNET = '../data/exchange/ws353_bert_def_wordnet'
+
+####
+#### DATA OUTPUT
 PATH_OUTPUT_BERT_DATA_DEF = '../data/output/combined-definitions'
 PATH_OUTPUT_BERT_DATA_COMPLETE = '../data/output/combined-definitions-complete'
 PATH_OUTPUT_BERT_WORD_VS_DEF_1 = '../data/output/word_vs_def_1'
@@ -64,7 +75,7 @@ if __name__ == '__main__':
 
 
     #### ...developing with a few lines...
-    data_def = data_def.loc[0:1]
+    data_def = data_def.loc[0:9]
     #### ...applying lambda function in data frame for each phrase
     data_def['w'] = data_def['w'].apply(lambda phrase: clean_phrase(phrase
                                                                                 , language = 'en'
@@ -95,27 +106,37 @@ if __name__ == '__main__':
     logger.info('\n{0}'.format(data_def.loc[0:4]))
 
 
-    ####
-    #### COMPUTING BERT-VECTORS
+    #################################################
+    #### COMPUTING BERT-VECTORS OF SINGLE WORDS
     logger.info(' - BERT vectorizing...')
     #### get embedding as list...
     data_def['w_vect'] = data_def['w'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger))
     #### select the first element in the list (only element because is an only word)
     data_def['w_vect'] = data_def['w_vect'].apply(lambda vector: vector[0])
 
-
+    #### DATASET PREPARATION OF SINGLE WORDS
     #### ...structuring bert-rep as table...
     rep_w = data_def[['id', 'w', 'w_vect']]
+    ####
+    #### CHECKPOINT!! ...AFTER VECTORIZATION OF WORDS...
+    #rep_w.to_pickle(PATH_CHECKPOINT_BERT_WORDS)
+    #######################################################################
+    ########################################################################
+
+
     df_vec = pd.concat([np_array_as_row_of_pd_df(logger = None
                                                     , np_array = rep_w['w_vect'][i]
                                                     , pd_colnames_root = 'dim_') for i in range(len(rep_w.index))])
-    print(df_vec)
-    #print(type(data_def['w_vect'][0]))
-    #print(len(data_def['w_vect'][0]))
-    print(np.shape(data_def['w_vect'][0]))
-
-    #rep_w = pd.concat([rep_w[['id', 'w']], df_vec.reindex(rep_w.index)])
-    #print(rep_w)
+    df_vec.index = rep_w.index
+    rep_w = pd.concat([rep_w[['id', 'w']], df_vec], axis = 1)
+    ####
+    #### CHECKPOINT!! ...AFTER VECTORIZATION OF WORDS...
+    rep_w.to_pickle(PATH_CHECKPOINT_BERT_WORDS)
+    #rep_w = pd.read_pickle(PATH_CHECKPOINT_BERT_WORDS)
+    #print(rep_w.head(10))
+    #print(rep_w.shape)
+    #######################################################################
+    ########################################################################
 
     '''
     data_def['def_vectorized'] = data_def['def_cleaned'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger))
