@@ -20,7 +20,8 @@ from lib.py.logging.create_logger import create_logger
 from lib.py.datastructure.np_array_as_row_of_pd_df import np_array_as_row_of_pd_df
 from controller.process.load_input_csv import read_csv
 from controller.process.clean_phrase import clean_phrase
-from service.vectorization.bert_vectorizer import get_bert_embedding_of_one_token
+from service.vectorization.get_bert_embedding_of_one_token import *
+from service.vectorization.get_bert_embedding_of_several_words_as_pd_df import *
 
 #from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
 #from service.computing.vector_computing import compute_vector_average_or_sum
@@ -41,7 +42,8 @@ PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions-contex
 #### PICKLE FILES - DATASETS PROCESSED - CHECKPOINTS PATHS...
 PATH_CHECKPOINT_INPUT = '../data/exchange/ws353_input'
 PATH_CHECKPOINT_BERT_WORDS = '../data/exchange/ws353_bert_words'
-#PATH_CHECKPOINT_BERT_DEF_CAMBRIDGE = '../data/exchange/ws353_bert_def_cambridge'
+PATH_CHECKPOINT_BERT_WORDS_CONTEXT = '../data/exchange/ws353_bert_words_context'
+PATH_CHECKPOINT_BERT_WORDS_DEF_DICT = '../data/exchange/ws353_bert_def_cambridge'
 #PATH_CHECKPOINT_BERT_DEF_WORDNET = '../data/exchange/ws353_bert_def_wordnet'
 
 ####
@@ -105,6 +107,7 @@ if __name__ == '__main__':
 
     logger.info(' - pandas dataframe cleaned; first rows...')
     logger.info('\n{0}'.format(data_def.loc[0:4]))
+
     ####
     #### CHECKPOINT!! ...SERIALIZE INPUT DATASET AFTER LOAD AND CLEAN...
     data_def.to_pickle(PATH_CHECKPOINT_INPUT)
@@ -141,12 +144,48 @@ if __name__ == '__main__':
     #######################################################################
     ########################################################################
 
-    '''
-    data_def['def_vectorized'] = data_def['def_cleaned'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger))
 
-    #### serializing dataframe as a pickle object
-    data_def.to_pickle(PATH_OUTPUT_BERT_DATA_DEF)
-    '''
+    #################################################
+    #### COMPUTING BERT-VECTORS OF WORDS IN CONTEXT (PHRASES WITH CONTENTED WORD)
+    lst_embed_context = []
+    for iter in data_def.index:
+        #### ...get embeddings for each word in a phrase as dataframe
+        df_embeddings_context = get_bert_embedding_of_several_words_as_pd_df(logger = logger
+                                                                            , phrase_in = data_def['context'][iter]
+                                                                            , root_colnames = 'dim_context_'
+                                                                            , dim_vector_rep = 768)
+        #### ...insert id and word...
+        df_embeddings_context.insert(0, 'w', [data_def['w'][iter] for i in range(len(df_embeddings_context))])
+        df_embeddings_context.insert(0, 'id', [data_def['id'][iter] for i in range(len(df_embeddings_context))])
+
+        lst_embed_context.append(df_embeddings_context)
+
+    rep_context = pd.concat(lst_embed_context)
+    rep_context.to_pickle(PATH_CHECKPOINT_BERT_WORDS_CONTEXT)
+    #######################################################################
+    ########################################################################
+
+
+
+    #################################################
+    #### COMPUTING BERT-VECTORS OF WORDS IN CONTEXT (PHRASES WITH CONTENTED WORD)
+    lst_embed_def_dictionary = []
+    for iter in data_def.index:
+        #### ...get embeddings for each word in a phrase as dataframe
+        df_embeddings_def = get_bert_embedding_of_several_words_as_pd_df(logger = logger
+                                                                            , phrase_in = data_def['def_dict'][iter]
+                                                                            , root_colnames = 'dim_def_dict_'
+                                                                            , dim_vector_rep = 768)
+        #### ...insert id and word...
+        df_embeddings_def.insert(0, 'w', [data_def['w'][iter] for i in range(len(df_embeddings_def))])
+        df_embeddings_def.insert(0, 'id', [data_def['id'][iter] for i in range(len(df_embeddings_def))])
+
+        lst_embed_def_dictionary.append(df_embeddings_def)
+
+    rep_def_dict = pd.concat(lst_embed_def_dictionary)
+    rep_def_dict.to_pickle(PATH_CHECKPOINT_BERT_WORDS_DEF_DICT)
+    #######################################################################
+    ########################################################################
 
 
     '''
