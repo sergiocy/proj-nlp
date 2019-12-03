@@ -196,20 +196,18 @@ if __name__ == '__main__':
                                 , sep = ';'
                                 , encoding = 'utf-8'
                                 , header = 0)
-    data_def_wn['w'] = data_def_wn['w'].apply(lambda phrase: clean_phrase(phrase
+
+    columns_to_clean = ['w', 'def_wn']
+
+    for col in columns_to_clean:
+        data_def_wn[col] = data_def_wn[col].apply(lambda phrase: clean_phrase(phrase
                                                                                 , language = 'en'
                                                                                 , lcase=True
                                                                                 , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
                                                                                 , tokenized=False
                                                                                 , logging_tokens_cleaning = False
                                                                                 , logger = logger))
-    data_def_wn['def_wn'] = data_def_wn['def_wn'].apply(lambda phrase: clean_phrase(phrase
-                                                                                , language = 'en'
-                                                                                , lcase=True
-                                                                                , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
-                                                                                , tokenized=False
-                                                                                , logging_tokens_cleaning = False
-                                                                                , logger = logger))
+
     ####
     #### ...we select a subset of data...
     data_def_wn = data_def_wn.loc[0:9]
@@ -218,8 +216,6 @@ if __name__ == '__main__':
 
     lst_embed_def_wn = []
     for iter in data_def_wn.index:
-        print(iter)
-
         #### ...get embeddings for each word in a phrase as dataframe
         df_embeddings_def = get_bert_embedding_of_several_words_as_pd_df(logger = logger
                                                                             , phrase_in = data_def_wn['def_wn'][iter]
