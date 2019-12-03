@@ -37,6 +37,7 @@ PATH_W2V_MODEL = '../config/model/GoogleNews-vectors-negative300.bin'
 PATH_INPUT_DATA = '../../0-data/input/wordsim353/combined.csv'
 #PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions.csv'
 PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions-context.csv'
+PATH_INPUT_DATA_DEF_WN = '../../0-data/input/wordsim353/corpus_men_definitions_csv.csv'
 
 ####
 #### PICKLE FILES - DATASETS PROCESSED - CHECKPOINTS PATHS...
@@ -44,7 +45,7 @@ PATH_CHECKPOINT_INPUT = '../data/exchange/ws353_input'
 PATH_CHECKPOINT_BERT_WORDS = '../data/exchange/ws353_bert_words'
 PATH_CHECKPOINT_BERT_WORDS_CONTEXT = '../data/exchange/ws353_bert_words_context'
 PATH_CHECKPOINT_BERT_WORDS_DEF_DICT = '../data/exchange/ws353_bert_def_cambridge'
-#PATH_CHECKPOINT_BERT_DEF_WORDNET = '../data/exchange/ws353_bert_def_wordnet'
+PATH_CHECKPOINT_BERT_DEF_WORDNET = '../data/exchange/ws353_men_bert_def_wordnet'
 
 ####
 #### DATA OUTPUT
@@ -114,7 +115,7 @@ if __name__ == '__main__':
 
 
 
-
+    '''
     #################################################
     #### COMPUTING BERT-VECTORS OF SINGLE WORDS
     logger.info(' - BERT vectorizing...')
@@ -186,6 +187,59 @@ if __name__ == '__main__':
     rep_def_dict.to_pickle(PATH_CHECKPOINT_BERT_WORDS_DEF_DICT)
     #######################################################################
     ########################################################################
+    '''
+
+
+    #################################################
+    #### COMPUTING BERT-VECTORS OF WORDS-DEFINITION FROM WORDNET
+    data_def_wn = pd.read_csv(PATH_INPUT_DATA_DEF_WN
+                                , sep = ';'
+                                , encoding = 'utf-8'
+                                , header = 0)
+    data_def_wn['w'] = data_def_wn['w'].apply(lambda phrase: clean_phrase(phrase
+                                                                                , language = 'en'
+                                                                                , lcase=True
+                                                                                , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
+                                                                                , tokenized=False
+                                                                                , logging_tokens_cleaning = False
+                                                                                , logger = logger))
+    data_def_wn['def_wn'] = data_def_wn['def_wn'].apply(lambda phrase: clean_phrase(phrase
+                                                                                , language = 'en'
+                                                                                , lcase=True
+                                                                                , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
+                                                                                , tokenized=False
+                                                                                , logging_tokens_cleaning = False
+                                                                                , logger = logger))
+    ####
+    #### ...we select a subset of data...
+    data_def_wn = data_def_wn.loc[0:9]
+    print(data_def_wn)
+    print(data_def_wn.columns)
+
+    lst_embed_def_wn = []
+    for iter in data_def_wn.index:
+        print(iter)
+
+        #### ...get embeddings for each word in a phrase as dataframe
+        df_embeddings_def = get_bert_embedding_of_several_words_as_pd_df(logger = logger
+                                                                            , phrase_in = data_def_wn['def_wn'][iter]
+                                                                            , root_colnames = 'dim_def_wn_'
+                                                                            , dim_vector_rep = 768)
+        #### ...insert id and word...
+        df_embeddings_def.insert(0, 'w', [data_def_wn['w'][iter] for i in range(len(df_embeddings_def))])
+        df_embeddings_def.insert(0, 'id', [data_def_wn['id'][iter] for i in range(len(df_embeddings_def))])
+
+        lst_embed_def_wn.append(df_embeddings_def)
+
+    rep_def_wn = pd.concat(lst_embed_def_wn)
+    rep_def_wn.to_pickle(PATH_CHECKPOINT_BERT_DEF_WORDNET)
+
+    rep_def_wn = pd.read_pickle(PATH_CHECKPOINT_BERT_DEF_WORDNET)
+    print(rep_def_wn.head(10))
+    print(rep_def_wn.shape)
+    #########################################################
+    #########################################################
+
 
 
     '''
