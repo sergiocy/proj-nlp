@@ -9,6 +9,7 @@ __pycache__/
 
 config/model/*.bin
 config/model/bert/*.*
+config/model/*
 
 #### jupyter
 */**/.ipynb_checkpoints/
