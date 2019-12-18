@@ -4,7 +4,7 @@ import pandas as pd
 import re
 from nltk.tokenize import word_tokenize
 
-from service.text.cleaner.clean_english_token import clean_english_token
+from lib.py.nlp.cleaner.clean_english_token import clean_english_token
 
 
 

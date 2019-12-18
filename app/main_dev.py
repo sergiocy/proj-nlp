@@ -18,8 +18,8 @@ import pandas as pd
 #### imports personal modules
 from lib.py.logging.create_logger import create_logger
 from lib.py.datastructure.np_array_as_row_of_pd_df import np_array_as_row_of_pd_df
-from controller.process.load_input_csv import read_csv
-from controller.process.clean_phrase import clean_phrase
+from controller.process.load_input_text_csv import load_input_text_csv
+#from controller.process.clean_phrase import clean_phrase
 from service.vectorization.get_bert_embedding_of_one_token import *
 from service.vectorization.get_bert_embedding_of_several_words_as_pd_df import *
 
@@ -69,49 +69,28 @@ if __name__ == '__main__':
     ##################################
     ####
     #### READING FILES
-    data_def = read_csv( logger = logger
-                        , new_colnames = ['w', 'def_dict', 'context']
-                        , file_input=PATH_INPUT_DATA_DEF
-                        )
-
-    #### ...we insert id in dataframe...
-    data_def.insert(0, 'id', range(1, len(data_def)+1))
-
-
-    #### ...developing with a few lines...
-    data_def = data_def.loc[0:9]
-    #### ...applying lambda function in data frame for each phrase
-    data_def['w'] = data_def['w'].apply(lambda phrase: clean_phrase(phrase
-                                                                                , language = 'en'
-                                                                                , lcase=True
-                                                                                , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
-                                                                                , tokenized=False
-                                                                                , logging_tokens_cleaning = False
-                                                                                , logger = logger))
-
-    data_def['def_dict'] = data_def['def_dict'].apply(lambda phrase: clean_phrase(phrase
-                                                                                , language = 'en'
-                                                                                , lcase=True
-                                                                                , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
-                                                                                , tokenized=False
-                                                                                , logging_tokens_cleaning = False
-                                                                                , logger = logger))
-
-    data_def['context'] = data_def['context'].apply(lambda phrase: clean_phrase(phrase
-                                                                                , language = 'en'
-                                                                                , lcase=True
-                                                                                , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
-                                                                                , tokenized=False
-                                                                                , logging_tokens_cleaning = False
-                                                                                , logger = logger))
+    data_def = load_input_text_csv(logger = logger
+                            , new_colnames = ['w', 'def_dict', 'context']
+                            , file_input = PATH_INPUT_DATA_DEF
+                            , has_header = True
+                            , sep = ';'
+                            , encoding = 'utf-8'
+                            , has_complete_rows = True
+                            , cols_to_clean = ['w', 'def_dict', 'context']
+                            , language = 'en'
+                            , lcase = True
+                            , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
+                            , tokenized_text = False
+                            , logging_tokens_cleaning = False)
 
 
     logger.info(' - pandas dataframe cleaned; first rows...')
     logger.info('\n{0}'.format(data_def.loc[0:4]))
+    print(data_def)
 
     ####
     #### CHECKPOINT!! ...SERIALIZE INPUT DATASET AFTER LOAD AND CLEAN...
-    data_def.to_pickle(PATH_CHECKPOINT_INPUT)
+    #data_def.to_pickle(PATH_CHECKPOINT_INPUT)
 
 
 
@@ -187,7 +166,7 @@ if __name__ == '__main__':
     rep_def_dict.to_pickle(PATH_CHECKPOINT_BERT_WORDS_DEF_DICT)
     #######################################################################
     ########################################################################
-    '''
+
 
 
     #################################################
@@ -235,7 +214,7 @@ if __name__ == '__main__':
     print(rep_def_wn.shape)
     #########################################################
     #########################################################
-
+    '''
 
 
     '''
