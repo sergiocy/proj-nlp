@@ -5,8 +5,6 @@ doc/*
 log/*
 data/*
 test/jupyter/*
-__pycache__/
-
 config/model/*.bin
 config/model/bert/*.*
 config/model/*
@@ -20,6 +18,7 @@ config/model/*
 
 #### python
 */**/__pycache__/
+__pycache__/
 
 #### pyspark
 */spark-warehouse/
