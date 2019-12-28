@@ -17,10 +17,10 @@ import pandas as pd
 
 #### imports personal modules
 from lib.py.logging.create_logger import create_logger
-from lib.py.datastructure.np_array_as_row_of_pd_df import np_array_as_row_of_pd_df
+#from lib.py.datastructure.np_array_as_row_of_pd_df import np_array_as_row_of_pd_df
 from controller.process.load_input_text_csv import load_input_text_csv
 #from controller.process.clean_phrase import clean_phrase
-from service.vectorization.get_bert_embedding_of_one_token import *
+#from service.vectorization.get_bert_embedding_of_one_token import *
 from service.vectorization.get_bert_embedding_of_several_words_as_pd_df import *
 
 #from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
@@ -67,7 +67,6 @@ if __name__ == '__main__':
 
 
     ##################################
-    ####
     #### READING FILES
     data_def = load_input_text_csv(logger = logger
                             , new_colnames = ['w', 'def_dict', 'context']
@@ -82,51 +81,51 @@ if __name__ == '__main__':
                             , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
                             , tokenized_text = False
                             , logging_tokens_cleaning = False)
-
+    #### ...we add id for each row...
+    data_def.insert(0, 'id', range(1, len(data_def) + 1))
 
     logger.info(' - pandas dataframe cleaned; first rows...')
     logger.info('\n{0}'.format(data_def.loc[0:4]))
-    print(data_def)
-
     ####
     #### CHECKPOINT!! ...SERIALIZE INPUT DATASET AFTER LOAD AND CLEAN...
-    #data_def.to_pickle(PATH_CHECKPOINT_INPUT)
+    data_def.to_pickle(PATH_CHECKPOINT_INPUT)
 
 
 
-    '''
+
     #################################################
     #### COMPUTING BERT-VECTORS OF SINGLE WORDS
-    logger.info(' - BERT vectorizing...')
-    #### get embedding as list...
-    data_def['w_vect'] = data_def['w'].apply(lambda phrase: get_bert_embedding_of_one_token(phrase, logger=logger))
-    #### select the first element in the list (only element because is an only word)
-    data_def['w_vect'] = data_def['w_vect'].apply(lambda vector: vector[0])
 
-    #### DATASET PREPARATION OF SINGLE WORDS
-    #### ...structuring bert-rep as table...
-    rep_w = data_def[['id', 'w', 'w_vect']]
-    ####
-    #### CHECKPOINT!! ...AFTER VECTORIZATION OF WORDS...
-    #rep_w.to_pickle(PATH_CHECKPOINT_BERT_WORDS)
+    #data_def = pd.read_pickle(PATH_CHECKPOINT_INPUT)
+    #data_def = data_def.iloc[0:4]
 
-    df_vec = pd.concat([np_array_as_row_of_pd_df(logger = None
-                                                    , np_array = rep_w['w_vect'][i]
-                                                    , pd_colnames_root = 'dim_') for i in range(len(rep_w.index))])
-    df_vec.index = rep_w.index
-    rep_w = pd.concat([rep_w[['id', 'w']], df_vec], axis = 1)
-    ####
-    #### CHECKPOINT!! ...AFTER VECTORIZATION OF WORDS...
-    rep_w.to_pickle(PATH_CHECKPOINT_BERT_WORDS)
-    #rep_w = pd.read_pickle(PATH_CHECKPOINT_BERT_WORDS)
-    #print(rep_w.head(10))
-    #print(rep_w.shape)
+    lst_embed_words = []
+    for iter in data_def.index:
+        #### ...get embeddings for each word in a phrase as dataframe
+        df_embeddings_word = get_bert_embedding_of_several_words_as_pd_df(logger = logger
+                                                                        , phrase_in = data_def['w'][iter]
+                                                                        , root_colnames = 'dim_w_'
+                                                                        , dim_vector_rep = 768)
+        #### ...insert id and word...
+        df_embeddings_word.insert(0, 'w', [data_def['w'][iter] for i in range(len(df_embeddings_word))])
+        df_embeddings_word.insert(0, 'id', [data_def['id'][iter] for i in range(len(df_embeddings_word))])
+        #print(df_embeddings_word)
+
+        lst_embed_words.append(df_embeddings_word)
+
+    rep_words = pd.concat(lst_embed_words)
+    rep_words.to_pickle(PATH_CHECKPOINT_BERT_WORDS)
+    
+    print(rep_words)
     #######################################################################
     ########################################################################
 
 
+    '''
     #################################################
     #### COMPUTING BERT-VECTORS OF WORDS IN CONTEXT (PHRASES WITH CONTENTED WORD)
+    #data_def = data_def.iloc[0:4]
+
     lst_embed_context = []
     for iter in data_def.index:
         #### ...get embeddings for each word in a phrase as dataframe
@@ -142,13 +141,16 @@ if __name__ == '__main__':
 
     rep_context = pd.concat(lst_embed_context)
     rep_context.to_pickle(PATH_CHECKPOINT_BERT_WORDS_CONTEXT)
+
+    #print(rep_context)
     #######################################################################
     ########################################################################
+    '''
 
 
-
+    '''
     #################################################
-    #### COMPUTING BERT-VECTORS OF WORDS IN CONTEXT (PHRASES WITH CONTENTED WORD)
+    #### COMPUTING BERT-VECTORS OF WORD DEFINITIONS
     lst_embed_def_dictionary = []
     for iter in data_def.index:
         #### ...get embeddings for each word in a phrase as dataframe
@@ -166,9 +168,10 @@ if __name__ == '__main__':
     rep_def_dict.to_pickle(PATH_CHECKPOINT_BERT_WORDS_DEF_DICT)
     #######################################################################
     ########################################################################
+    '''
 
 
-
+    '''
     #################################################
     #### COMPUTING BERT-VECTORS OF WORDS-DEFINITION FROM WORDNET
     data_def_wn = pd.read_csv(PATH_INPUT_DATA_DEF_WN

@@ -4,12 +4,12 @@
 # import mxnet as mx #### ...to use GPU-utilities in 'bert_emnedding' package
 from bert_embedding import BertEmbedding
 
-  
-        
+
+
 
 ####
 #### FUNCTION TO GET A BERT-EMBEDDING OF A TOKEN FROM  "bert_embedding" (bert-embedding) package
-#### and return a list of numpy-arrays representing each word in input_token (a phrase as string) 
+#### and return a list of numpy-arrays representing each word in input_token (a phrase as string)
 def get_bert_embedding_of_one_token(str_token_in, logger=None):
 
     try:
@@ -45,6 +45,7 @@ def get_bert_embedding_of_one_token(str_token_in, logger=None):
     except Exception:
         if logger is not None:
             logger.exception("ERROR getting BERT-embedding of token \'{0}\'".format(str_token_in))
+        #raise(SIGKILL)
         raise Exception
 
     return bert_rep_vector
@@ -57,8 +58,6 @@ def get_bert_embedding_of_one_token(str_token_in, logger=None):
 
 if __name__=='__main__':
     lst1 = ['if', 'you', 'havent', 'you', 'should']
-    lst2 = ['you', 'should', 'but', 'you', 'dont', 'have', 'to']  
-    
+    lst2 = ['you', 'should', 'but', 'you', 'dont', 'have', 'to']
 
-    
-
+    print(get_bert_embedding_of_one_token('inmate', logger=None))
