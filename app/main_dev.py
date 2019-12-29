@@ -4,9 +4,7 @@ import logging
 import os
 import time
 import numpy as np
-#import math
 import pandas as pd
-#from nltk.tokenize import word_tokenize
 #from gensim.models import Word2Vec
 #import gensim
 #import tensorflow as tf
@@ -17,11 +15,10 @@ import pandas as pd
 
 #### imports personal modules
 from lib.py.logging.create_logger import create_logger
-#from lib.py.datastructure.np_array_as_row_of_pd_df import np_array_as_row_of_pd_df
-from controller.process.load_input_text_csv import load_input_text_csv
-#from controller.process.clean_phrase import clean_phrase
-#from service.vectorization.get_bert_embedding_of_one_token import *
-from service.vectorization.get_bert_embedding_of_several_words_as_pd_df import *
+
+from controller.generator.load_input_text_csv import load_input_text_csv
+from controller.generator.get_embedding_as_df import get_embedding_as_df
+#from service.vectorization.get_bert_embedding_of_several_words_as_pd_df import *
 
 #from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
 #from service.computing.vector_computing import compute_vector_average_or_sum
@@ -92,7 +89,7 @@ if __name__ == '__main__':
 
 
 
-
+    '''
     #################################################
     #### COMPUTING BERT-VECTORS OF SINGLE WORDS
 
@@ -115,13 +112,13 @@ if __name__ == '__main__':
 
     rep_words = pd.concat(lst_embed_words)
     rep_words.to_pickle(PATH_CHECKPOINT_BERT_WORDS)
-    
+
     print(rep_words)
     #######################################################################
     ########################################################################
-
-
     '''
+
+
     #################################################
     #### COMPUTING BERT-VECTORS OF WORDS IN CONTEXT (PHRASES WITH CONTENTED WORD)
     #data_def = data_def.iloc[0:4]
@@ -137,6 +134,8 @@ if __name__ == '__main__':
         df_embeddings_context.insert(0, 'w', [data_def['w'][iter] for i in range(len(df_embeddings_context))])
         df_embeddings_context.insert(0, 'id', [data_def['id'][iter] for i in range(len(df_embeddings_context))])
 
+        print(df_embeddings_context.iloc[:, 0:4])
+
         lst_embed_context.append(df_embeddings_context)
 
     rep_context = pd.concat(lst_embed_context)
@@ -145,7 +144,7 @@ if __name__ == '__main__':
     #print(rep_context)
     #######################################################################
     ########################################################################
-    '''
+
 
 
     '''
