@@ -26,17 +26,19 @@ def get_embedding_as_df(logger = None
             #### ...iteration on each cell in the selected column to process...s
             for iter in df_input.index:
 
+                ####
                 #### ...get embeddings for each word in a phrase as dataframe
-                if type_model == 'BERT'
+                if type_model == 'BERT':
                     df_embeddings = get_bert_embedding_of_several_words_as_pd_df(logger = logger
                                                                                 , phrase_in = df_input[column_to_computing][iter]
                                                                                 , root_colnames = root_name_vect_cols
                                                                                 , dim_vector_rep = dim_embeddings)
                 #### ...insert columns to save in output...
-                for c in columns_to_save:
+                #### we iter on inversed list to conserve the order of fields introduced
+                for c in reversed(columns_to_save):
                     df_embeddings.insert(0, c, [df_input[c][iter] for i in range(len(df_embeddings))])
 
-                if logger is not None and verbose = True:
+                if logger is not None and verbose == True:
                     logger.info(df_embeddings)
 
                 lst_embeddings.append(df_embeddings)

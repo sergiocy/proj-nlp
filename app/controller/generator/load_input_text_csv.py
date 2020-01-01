@@ -18,7 +18,10 @@ def load_input_text_csv(logger = None
                         , lcase = True
                         , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
                         , tokenized_text = False
-                        , logging_tokens_cleaning = False):
+                        , logging_tokens_cleaning = False
+                        , insert_id_column = False
+                        , inserted_id_column_name = 'id'
+                        , file_save_pickle = None):
 
     try:
         if logger is not None:
@@ -55,6 +58,15 @@ def load_input_text_csv(logger = None
                                                                 , tokenized = tokenized_text
                                                                 , logging_tokens_cleaning = logging_tokens_cleaning
                                                                 , logger = logger))
+
+
+        if insert_id_column:
+            df.insert(0, inserted_id_column_name, range(1, len(df) + 1))
+
+
+        #### ...saving results as file...
+        if file_save_pickle is not None:
+            df.to_pickle(file_save_pickle)
 
 
         if logger is not None:

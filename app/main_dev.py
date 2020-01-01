@@ -36,13 +36,18 @@ PATH_INPUT_DATA = '../../0-data/input/wordsim353/combined.csv'
 PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions-context.csv'
 PATH_INPUT_DATA_DEF_WN = '../../0-data/input/wordsim353/corpus_men_definitions_csv.csv'
 
+
 ####
 #### PICKLE FILES - DATASETS PROCESSED - CHECKPOINTS PATHS...
 PATH_CHECKPOINT_INPUT = '../data/exchange/ws353_input'
+PATH_CHECKPOINT_INPUT_WORDNET = '../data/exchange/ws353_input_men_wordnet'
+
 PATH_CHECKPOINT_BERT_WORDS = '../data/exchange/ws353_bert_words'
 PATH_CHECKPOINT_BERT_WORDS_CONTEXT = '../data/exchange/ws353_bert_words_context'
 PATH_CHECKPOINT_BERT_WORDS_DEF_DICT = '../data/exchange/ws353_bert_def_cambridge'
-PATH_CHECKPOINT_BERT_DEF_WORDNET = '../data/exchange/ws353_men_bert_def_wordnet'
+PATH_CHECKPOINT_BERT_WORDS_DEF_WN = '../data/exchange/ws353_bert_def_wn'
+
+
 
 ####
 #### DATA OUTPUT
@@ -62,7 +67,7 @@ if __name__ == '__main__':
     logger.info(' - starting execution')
 
 
-
+    '''
     ##################################
     #### READING FILES
     data_def = load_input_text_csv(logger = logger
@@ -85,9 +90,8 @@ if __name__ == '__main__':
     logger.info('\n{0}'.format(data_def.loc[0:4]))
     ####
     #### CHECKPOINT!! ...SERIALIZE INPUT DATASET AFTER LOAD AND CLEAN...
-    data_def.to_pickle(PATH_CHECKPOINT_INPUT)
-
-
+    #data_def.to_pickle(PATH_CHECKPOINT_INPUT)
+    '''
 
     '''
     #################################################
@@ -118,7 +122,7 @@ if __name__ == '__main__':
     ########################################################################
     '''
 
-
+    '''
     #################################################
     #### COMPUTING BERT-VECTORS OF WORDS IN CONTEXT (PHRASES WITH CONTENTED WORD)
     #data_def = data_def.iloc[0:4]
@@ -144,30 +148,31 @@ if __name__ == '__main__':
     #print(rep_context)
     #######################################################################
     ########################################################################
-
+    '''
 
 
     '''
     #################################################
     #### COMPUTING BERT-VECTORS OF WORD DEFINITIONS
-    lst_embed_def_dictionary = []
-    for iter in data_def.index:
-        #### ...get embeddings for each word in a phrase as dataframe
-        df_embeddings_def = get_bert_embedding_of_several_words_as_pd_df(logger = logger
-                                                                            , phrase_in = data_def['def_dict'][iter]
-                                                                            , root_colnames = 'dim_def_dict_'
-                                                                            , dim_vector_rep = 768)
-        #### ...insert id and word...
-        df_embeddings_def.insert(0, 'w', [data_def['w'][iter] for i in range(len(df_embeddings_def))])
-        df_embeddings_def.insert(0, 'id', [data_def['id'][iter] for i in range(len(df_embeddings_def))])
+    #data_def = data_def.iloc[0:4]
+    #print(data_def)
+    rep_def_dict = get_embedding_as_df(logger = logger
+                            , verbose = True
+                            , df_input = data_def
+                            , column_to_computing = 'def_dict'
+                            , columns_to_save = ['id', 'w']
+                            , root_name_vect_cols = 'dim_def'
+                            , dim_embeddings = 768
+                            , embeddings_model = None
+                            , type_model = 'BERT'
+                            , file_save_pickle = PATH_CHECKPOINT_BERT_WORDS_DEF_DICT)
 
-        lst_embed_def_dictionary.append(df_embeddings_def)
 
-    rep_def_dict = pd.concat(lst_embed_def_dictionary)
-    rep_def_dict.to_pickle(PATH_CHECKPOINT_BERT_WORDS_DEF_DICT)
     #######################################################################
     ########################################################################
     '''
+
+
 
 
     '''
@@ -211,12 +216,52 @@ if __name__ == '__main__':
     rep_def_wn = pd.concat(lst_embed_def_wn)
     rep_def_wn.to_pickle(PATH_CHECKPOINT_BERT_DEF_WORDNET)
 
-    rep_def_wn = pd.read_pickle(PATH_CHECKPOINT_BERT_DEF_WORDNET)
-    print(rep_def_wn.head(10))
-    print(rep_def_wn.shape)
-    #########################################################
-    #########################################################
     '''
+
+    data_def = load_input_text_csv(logger = logger
+                            , new_colnames = ['id', 'w', 'def_wn', 'syntactic']
+                            , file_input = PATH_INPUT_DATA_DEF_WN
+                            , has_header = True
+                            , sep = ';'
+                            , encoding = 'utf-8'
+                            , has_complete_rows = True
+                            , cols_to_clean = ['w', 'def_wn']
+                            , language = 'en'
+                            , lcase = True
+                            , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
+                            , tokenized_text = False
+                            , logging_tokens_cleaning = False
+                            , insert_id_column = False
+                            #, inserted_id_column_name = 'id0'
+                            , file_save_pickle = PATH_CHECKPOINT_INPUT_WORDNET)
+    #### ...we add id for each row...
+    logger.info(' - pandas dataframe cleaned; first rows...')
+    logger.info('\n{0}'.format(data_def.loc[0:4]))
+    #data_def = pd.read_pickle(PATH_CHECKPOINT_INPUT_WORDNET)
+
+
+    #data_def = data_def.iloc[0:4]
+    #print(data_def)
+
+    rep_def_wn = get_embedding_as_df(logger = logger
+                            , verbose = True
+                            , df_input = data_def
+                            , column_to_computing = 'def_wn'
+                            , columns_to_save = ['id', 'w']
+                            , root_name_vect_cols = 'dim_def_wn_'
+                            , dim_embeddings = 768
+                            , embeddings_model = None
+                            , type_model = 'BERT'
+                            , file_save_pickle = PATH_CHECKPOINT_BERT_WORDS_DEF_WN)
+
+
+
+    #rep_def_wn = pd.read_pickle(PATH_CHECKPOINT_BERT_DEF_WORDNET)
+    #print(rep_def_wn.head(10))
+    #print(rep_def_wn.shape)
+    #########################################################
+    #########################################################
+
 
 
     '''
