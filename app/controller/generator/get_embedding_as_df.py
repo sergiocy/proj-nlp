@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import traceback
 import pandas as pd
 
 from service.vectorization.get_bert_embedding_of_several_words_as_pd_df import *
+from service.vectorization.get_w2v_embedding_of_several_words_as_pd_df import *
 
 ####
 #### FUNCTION TO GET A DATASET (df_input) AND PROCESS TEXT IN ONE OF ITS COLUMNS
@@ -14,8 +16,9 @@ def get_embedding_as_df(logger = None
                         , columns_to_save = []
                         , root_name_vect_cols = 'dim_'
                         , dim_embeddings = 768
-                        , embeddings_model = None
+                        , path_embeddings_model = None
                         , type_model = 'BERT'
+                        , python_pkg = 'bert-embeddings'
                         , file_save_pickle = None):
 
     try:
@@ -26,13 +29,28 @@ def get_embedding_as_df(logger = None
             #### ...iteration on each cell in the selected column to process...s
             for iter in df_input.index:
 
+
                 ####
                 #### ...get embeddings for each word in a phrase as dataframe
                 if type_model == 'BERT':
-                    df_embeddings = get_bert_embedding_of_several_words_as_pd_df(logger = logger
+                    if python_pkg == 'bert-embeddings':
+                        df_embeddings = get_bert_embedding_of_several_words_as_pd_df(logger = logger
                                                                                 , phrase_in = df_input[column_to_computing][iter]
                                                                                 , root_colnames = root_name_vect_cols
                                                                                 , dim_vector_rep = dim_embeddings)
+
+
+                if type_model == 'W2V':
+                    if python_pkg == 'gensim':
+                        df_embeddings = get_w2v_embedding_of_several_words_as_pd_df(logger = logger
+                                                                                , phrase_in = df_input[column_to_computing][iter]
+                                                                                , root_colnames = root_name_vect_cols
+                                                                                , dim_vector_rep = dim_embeddings
+                                                                                , path_embeddings_model = path_embeddings_model)
+
+                        df_rep = pd.DataFrame()
+
+            '''
                 #### ...insert columns to save in output...
                 #### we iter on inversed list to conserve the order of fields introduced
                 for c in reversed(columns_to_save):
@@ -52,9 +70,10 @@ def get_embedding_as_df(logger = None
             #### ...saving results as file...
             if file_save_pickle is not None:
                 df_rep.to_pickle(file_save_pickle)
-
+            '''
 
         else:
+            traceback()
             raise Exception
 
     except Exception:

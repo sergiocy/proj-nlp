@@ -47,7 +47,6 @@ def load_input_text_csv(logger = None
 
         #### ...cleaning columns selected with text...
         for col in cols_to_clean:
-
             ####
             #### TODO: arguments as list to can parametrize each column independently
             ####

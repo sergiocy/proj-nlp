@@ -5,8 +5,7 @@ import os
 import time
 import numpy as np
 import pandas as pd
-#from gensim.models import Word2Vec
-#import gensim
+
 #import tensorflow as tf
 #import tensorflow_hub as hub
 
@@ -30,7 +29,7 @@ from controller.generator.get_embedding_as_df import get_embedding_as_df
 ####
 #### CSV FILES - DATA INPUT
 PATH_LOG_FILE = '../log/log.log'
-PATH_W2V_MODEL = '../config/model/GoogleNews-vectors-negative300.bin'
+PATH_W2V_MODEL = '../../0-model/w2v/GoogleNews-vectors-negative300.bin'
 PATH_INPUT_DATA = '../../0-data/input/wordsim353/combined.csv'
 #PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions.csv'
 PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions-context.csv'
@@ -59,15 +58,9 @@ PATH_OUTPUT_BERT_WORD_VS_DEF_2 = '../data/output/word_vs_def_2'
 
 
 
-if __name__ == '__main__':
-    start = time.time()
 
-    os.remove(PATH_LOG_FILE)
-    logger = create_logger(PATH_LOG_FILE)
-    logger.info(' - starting execution')
+def compute_embeddings_ws353():
 
-
-    '''
     ##################################
     #### READING FILES
     data_def = load_input_text_csv(logger = logger
@@ -91,9 +84,8 @@ if __name__ == '__main__':
     ####
     #### CHECKPOINT!! ...SERIALIZE INPUT DATASET AFTER LOAD AND CLEAN...
     #data_def.to_pickle(PATH_CHECKPOINT_INPUT)
-    '''
 
-    '''
+
     #################################################
     #### COMPUTING BERT-VECTORS OF SINGLE WORDS
 
@@ -120,9 +112,8 @@ if __name__ == '__main__':
     print(rep_words)
     #######################################################################
     ########################################################################
-    '''
 
-    '''
+
     #################################################
     #### COMPUTING BERT-VECTORS OF WORDS IN CONTEXT (PHRASES WITH CONTENTED WORD)
     #data_def = data_def.iloc[0:4]
@@ -148,10 +139,8 @@ if __name__ == '__main__':
     #print(rep_context)
     #######################################################################
     ########################################################################
-    '''
 
 
-    '''
     #################################################
     #### COMPUTING BERT-VECTORS OF WORD DEFINITIONS
     #data_def = data_def.iloc[0:4]
@@ -170,54 +159,15 @@ if __name__ == '__main__':
 
     #######################################################################
     ########################################################################
-    '''
 
 
 
 
-    '''
+
+def compute_embeddings_men():
+
     #################################################
     #### COMPUTING BERT-VECTORS OF WORDS-DEFINITION FROM WORDNET
-    data_def_wn = pd.read_csv(PATH_INPUT_DATA_DEF_WN
-                                , sep = ';'
-                                , encoding = 'utf-8'
-                                , header = 0)
-
-    columns_to_clean = ['w', 'def_wn']
-
-    for col in columns_to_clean:
-        data_def_wn[col] = data_def_wn[col].apply(lambda phrase: clean_phrase(phrase
-                                                                                , language = 'en'
-                                                                                , lcase=True
-                                                                                , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
-                                                                                , tokenized=False
-                                                                                , logging_tokens_cleaning = False
-                                                                                , logger = logger))
-
-    ####
-    #### ...we select a subset of data...
-    data_def_wn = data_def_wn.loc[0:9]
-    print(data_def_wn)
-    print(data_def_wn.columns)
-
-    lst_embed_def_wn = []
-    for iter in data_def_wn.index:
-        #### ...get embeddings for each word in a phrase as dataframe
-        df_embeddings_def = get_bert_embedding_of_several_words_as_pd_df(logger = logger
-                                                                            , phrase_in = data_def_wn['def_wn'][iter]
-                                                                            , root_colnames = 'dim_def_wn_'
-                                                                            , dim_vector_rep = 768)
-        #### ...insert id and word...
-        df_embeddings_def.insert(0, 'w', [data_def_wn['w'][iter] for i in range(len(df_embeddings_def))])
-        df_embeddings_def.insert(0, 'id', [data_def_wn['id'][iter] for i in range(len(df_embeddings_def))])
-
-        lst_embed_def_wn.append(df_embeddings_def)
-
-    rep_def_wn = pd.concat(lst_embed_def_wn)
-    rep_def_wn.to_pickle(PATH_CHECKPOINT_BERT_DEF_WORDNET)
-
-    '''
-
     data_def = load_input_text_csv(logger = logger
                             , new_colnames = ['id', 'w', 'def_wn', 'syntactic']
                             , file_input = PATH_INPUT_DATA_DEF_WN
@@ -261,6 +211,18 @@ if __name__ == '__main__':
     #print(rep_def_wn.shape)
     #########################################################
     #########################################################
+
+
+
+
+
+if __name__ == '__main__':
+    start = time.time()
+
+    os.remove(PATH_LOG_FILE)
+    logger = create_logger(PATH_LOG_FILE)
+    logger.info(' - starting execution')
+
 
 
 
@@ -353,20 +315,46 @@ if __name__ == '__main__':
 
 
 
+    #################################################
+    #### ...read file...
+    data_def = load_input_text_csv(logger = logger
+                            , new_colnames = ['w', 'def_dict', 'context']
+                            , file_input = PATH_INPUT_DATA_DEF
+                            , has_header = True
+                            , sep = ';'
+                            , encoding = 'utf-8'
+                            , has_complete_rows = True
+                            , cols_to_clean = ['w', 'def_dict', 'context']
+                            , language = 'en'
+                            , lcase = True
+                            , lst_punct_to_del = ['\.', ',', '\(', '\)', ':', ';', '\?', '!', '"', '`']
+                            , tokenized_text = False
+                            , logging_tokens_cleaning = False
+                            , insert_id_column = True
+                            , inserted_id_column_name = 'id'
+                            , file_save_pickle = None)
+
+    logger.info(' - pandas dataframe cleaned; first rows...')
+    logger.info('\n{0}'.format(data_def.loc[0:4]))
+
+
+    rep_w2v = get_embedding_as_df(logger = None
+                            , verbose = False
+                            , df_input = data_def.iloc[0:1]
+                            , column_to_computing = 'w'
+                            , columns_to_save = []
+                            , root_name_vect_cols = 'dim_'
+                            , dim_embeddings = 300
+                            , path_embeddings_model = PATH_W2V_MODEL
+                            , type_model = 'W2V'
+                            , python_pkg = 'gensim'
+                            , file_save_pickle = None)
+
+
+
+
+
     if logger is not None:
         logger.info('Process finished after {}'.format(time.time() - start))
     else:
         print('Process finished after {}'.format(time.time() - start))
-
-    ##################################################
-    #### ...load Google Word2Vec model...
-    #model = gensim.models.KeyedVectors.load_word2vec_format(PATH_W2V_MODEL, binary=True)
-
-    #print(data)
-    #word1 = data['Word 1']
-    #print(word1)
-
-    # TEST WITH TWO WORDS
-    #wemb_love = model.wv['love']
-    #wemb_sex = model.wv['sex']
-    #print(wemb_love)
