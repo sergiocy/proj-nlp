@@ -340,7 +340,7 @@ if __name__ == '__main__':
 
     rep_w2v = get_embedding_as_df(logger = None
                             , verbose = False
-                            , df_input = data_def.iloc[0:1]
+                            , df_input = data_def.iloc[0:4]
                             , column_to_computing = 'w'
                             , columns_to_save = []
                             , root_name_vect_cols = 'dim_'

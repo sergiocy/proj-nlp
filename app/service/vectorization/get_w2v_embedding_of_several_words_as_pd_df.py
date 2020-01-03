@@ -7,24 +7,31 @@ from bert_embedding import BertEmbedding
 import gensim
 #from gensim.models import Word2Vec
 
+from lib.py.datastructure.np_array_as_row_of_pd_df import *
+
 
 def get_w2v_embedding_of_several_words_as_pd_df(logger = None
                                                 , phrase_in = None
                                                 , root_colnames = 'dim_'
                                                 , dim_vector_rep = 300
-                                                , path_embeddings_model = None):
+                                                , embeddings_model = None):
     try:
-        if path_embeddings_model is not None:
+        if embeddings_model is not None:
+            
             lst_phrase = [phrase_in]
             colnames = ['{0}{1}'.format(root_colnames, i) for i in range(1, dim_vector_rep + 1)]
 
             if logger is not None:
                 logger.info(' - computing W2V representation for input token: \'{0}\''.format(phrase_in))
 
-            #### ...load Google Word2Vec model...
-            model = gensim.models.KeyedVectors.load_word2vec_format(path_embeddings_model, binary=True)
-            print(model['love'])
-            rep_vect = model.wv['love']
+            lst_embed_dfs = [np_array_as_row_of_pd_df(logger = None
+                                        , np_array = embeddings_model.wv[w]
+                                        , pd_colnames_root = 'dim_')  for w in lst_phrase]
+
+            rep_vect = pd.concat(lst_embed_dfs)
+
+            #print(embeddings_model['love'])
+            #rep_vect = embeddings_model.wv['love']
             #wemb_sex = model.wv['sex']
             print(rep_vect)
             print(type(rep_vect))

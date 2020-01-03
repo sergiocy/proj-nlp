@@ -26,29 +26,29 @@ def get_embedding_as_df(logger = None
 
             lst_embeddings = []
 
-            #### ...iteration on each cell in the selected column to process...s
-            for iter in df_input.index:
-
-
-                ####
-                #### ...get embeddings for each word in a phrase as dataframe
-                if type_model == 'BERT':
-                    if python_pkg == 'bert-embeddings':
+            ####
+            #### ...get embeddings for each word in a phrase as dataframe
+            if type_model == 'BERT':
+                if python_pkg == 'bert-embeddings':
+                    #### ...iteration on each cell in the selected column to process...s
+                    for iter in df_input.index:
                         df_embeddings = get_bert_embedding_of_several_words_as_pd_df(logger = logger
-                                                                                , phrase_in = df_input[column_to_computing][iter]
-                                                                                , root_colnames = root_name_vect_cols
-                                                                                , dim_vector_rep = dim_embeddings)
+                                                                            , phrase_in = df_input[column_to_computing][iter]
+                                                                            , root_colnames = root_name_vect_cols
+                                                                            , dim_vector_rep = dim_embeddings)
 
 
-                if type_model == 'W2V':
-                    if python_pkg == 'gensim':
+            if type_model == 'W2V':
+                if python_pkg == 'gensim':
+                    model = gensim.models.KeyedVectors.load_word2vec_format(path_embeddings_model, binary=True)
+                    for iter in df_input.index:
                         df_embeddings = get_w2v_embedding_of_several_words_as_pd_df(logger = logger
-                                                                                , phrase_in = df_input[column_to_computing][iter]
-                                                                                , root_colnames = root_name_vect_cols
-                                                                                , dim_vector_rep = dim_embeddings
-                                                                                , path_embeddings_model = path_embeddings_model)
+                                                                            , phrase_in = df_input[column_to_computing][iter]
+                                                                            , root_colnames = root_name_vect_cols
+                                                                            , dim_vector_rep = dim_embeddings
+                                                                            , embeddings_model = model)
 
-                        df_rep = pd.DataFrame()
+                    df_rep = pd.DataFrame()
 
             '''
                 #### ...insert columns to save in output...
