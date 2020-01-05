@@ -17,7 +17,7 @@ def get_w2v_embedding_of_several_words_as_pd_df(logger = None
                                                 , embeddings_model = None):
     try:
         if embeddings_model is not None:
-            
+
             lst_phrase = [phrase_in]
             colnames = ['{0}{1}'.format(root_colnames, i) for i in range(1, dim_vector_rep + 1)]
 
@@ -30,12 +30,15 @@ def get_w2v_embedding_of_several_words_as_pd_df(logger = None
 
             rep_vect = pd.concat(lst_embed_dfs)
 
+            print("----------------------------------------")
+            print(lst_embed_dfs)
+
             #print(embeddings_model['love'])
             #rep_vect = embeddings_model.wv['love']
             #wemb_sex = model.wv['sex']
-            print(rep_vect)
-            print(type(rep_vect))
-            print(len(rep_vect))
+            #print(rep_vect)
+            #print(type(rep_vect))
+            #print(len(rep_vect))
 
         else:
             raise Exception

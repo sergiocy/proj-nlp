@@ -37,6 +37,22 @@ def get_embedding_as_df(logger = None
                                                                             , root_colnames = root_name_vect_cols
                                                                             , dim_vector_rep = dim_embeddings)
 
+                        #### ...insert columns to save in output...
+                        #### we iter on inversed list to conserve the order of fields introduced
+                        for c in reversed(columns_to_save):
+                            df_embeddings.insert(0, c, [df_input[c][iter] for i in range(len(df_embeddings))])
+
+                        if logger is not None and verbose == True:
+                            logger.info(df_embeddings)
+
+                        lst_embeddings.append(df_embeddings)
+
+                        #### ...to clean the flow and memory treatment...
+                        del df_embeddings
+
+                    df_rep = pd.concat(lst_embeddings)
+
+
 
             if type_model == 'W2V':
                 if python_pkg == 'gensim':
@@ -48,7 +64,24 @@ def get_embedding_as_df(logger = None
                                                                             , dim_vector_rep = dim_embeddings
                                                                             , embeddings_model = model)
 
-                    df_rep = pd.DataFrame()
+                        #### ...insert columns to save in output...
+                        #### we iter on inversed list to conserve the order of fields introduced
+                        for c in reversed(columns_to_save):
+                            df_embeddings.insert(0, c, [df_input[c][iter] for i in range(len(df_embeddings))])
+
+                        if logger is not None and verbose == True:
+                            logger.info(df_embeddings)
+
+                        lst_embeddings.append(df_embeddings)
+
+                        #### ...to clean the flow and memory treatment...
+                        del df_embeddings
+
+                    df_rep = pd.concat(lst_embeddings)
+
+                    #df_rep = pd.DataFrame()
+                    print(df_rep)
+
 
             '''
                 #### ...insert columns to save in output...
@@ -65,12 +98,15 @@ def get_embedding_as_df(logger = None
                 del df_embeddings
 
             df_rep = pd.concat(lst_embeddings)
+            '''
 
 
             #### ...saving results as file...
             if file_save_pickle is not None:
                 df_rep.to_pickle(file_save_pickle)
-            '''
+                if logger is not None:
+                    logger.info(" - data saved in file pickle {0}".format(file_save_pickle))
+
 
         else:
             traceback()

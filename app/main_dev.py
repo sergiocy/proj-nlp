@@ -46,6 +46,8 @@ PATH_CHECKPOINT_BERT_WORDS_CONTEXT = '../data/exchange/ws353_bert_words_context'
 PATH_CHECKPOINT_BERT_WORDS_DEF_DICT = '../data/exchange/ws353_bert_def_cambridge'
 PATH_CHECKPOINT_BERT_WORDS_DEF_WN = '../data/exchange/ws353_bert_def_wn'
 
+PATH_CHECKPOINT_W2V_WORDS = '../data/exchange/ws353_w2v_words'
+
 
 
 ####
@@ -340,15 +342,15 @@ if __name__ == '__main__':
 
     rep_w2v = get_embedding_as_df(logger = None
                             , verbose = False
-                            , df_input = data_def.iloc[0:4]
+                            , df_input = data_def
                             , column_to_computing = 'w'
-                            , columns_to_save = []
+                            , columns_to_save = ['id', 'w']
                             , root_name_vect_cols = 'dim_'
                             , dim_embeddings = 300
                             , path_embeddings_model = PATH_W2V_MODEL
                             , type_model = 'W2V'
                             , python_pkg = 'gensim'
-                            , file_save_pickle = None)
+                            , file_save_pickle = PATH_CHECKPOINT_W2V_WORDS)
 
 
 
