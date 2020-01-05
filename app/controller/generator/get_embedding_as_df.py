@@ -75,6 +75,8 @@ def get_embedding_as_df(logger = None
                         lst_embeddings.append(df_embeddings)
 
                         #### ...to clean the flow and memory treatment...
+                        print(df_embeddings)
+                        
                         del df_embeddings
 
                     df_rep = pd.concat(lst_embeddings)

@@ -47,6 +47,7 @@ PATH_CHECKPOINT_BERT_WORDS_DEF_DICT = '../data/exchange/ws353_bert_def_cambridge
 PATH_CHECKPOINT_BERT_WORDS_DEF_WN = '../data/exchange/ws353_bert_def_wn'
 
 PATH_CHECKPOINT_W2V_WORDS = '../data/exchange/ws353_w2v_words'
+PATH_CHECKPOINT_W2V_WORDS_DEF_DICT = '../data/exchange/ws353_w2v_def_cambridge'
 
 
 
@@ -339,7 +340,7 @@ if __name__ == '__main__':
     logger.info(' - pandas dataframe cleaned; first rows...')
     logger.info('\n{0}'.format(data_def.loc[0:4]))
 
-
+    '''
     rep_w2v = get_embedding_as_df(logger = None
                             , verbose = False
                             , df_input = data_def
@@ -351,6 +352,18 @@ if __name__ == '__main__':
                             , type_model = 'W2V'
                             , python_pkg = 'gensim'
                             , file_save_pickle = PATH_CHECKPOINT_W2V_WORDS)
+    '''
+    rep_w2v = get_embedding_as_df(logger = None
+                            , verbose = False
+                            , df_input = data_def.iloc[0:4]
+                            , column_to_computing = 'def_dict'
+                            , columns_to_save = ['id', 'w']
+                            , root_name_vect_cols = 'dim_'
+                            , dim_embeddings = 300
+                            , path_embeddings_model = PATH_W2V_MODEL
+                            , type_model = 'W2V'
+                            , python_pkg = 'gensim'
+                            , file_save_pickle = PATH_CHECKPOINT_W2V_WORDS_DEF_DICT)
 
 
 
