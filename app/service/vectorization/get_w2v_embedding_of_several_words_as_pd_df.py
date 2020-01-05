@@ -6,7 +6,7 @@ import pandas as pd
 import gensim
 #from gensim.models import Word2Vec
 
-from lib.py.datastructure.np_array_as_row_of_pd_df import *
+from app.lib.py.datastructure.np_array_as_row_of_pd_df import *
 
 
 def get_w2v_embedding_of_several_words_as_pd_df(logger = None
@@ -22,24 +22,30 @@ def get_w2v_embedding_of_several_words_as_pd_df(logger = None
             if logger is not None:
                 logger.info(' - computing W2V representation for input token: \'{0}\''.format(phrase_in))
 
-            lst_embed_dfs = [np_array_as_row_of_pd_df(logger = None
-                                        , np_array = embeddings_model[w] #embeddings_model.wv[w]
-                                        , pd_colnames_root = root_colnames)  for w in lst_phrase]
+
+            lst_embed_dfs = []
+            lst_words_in_vocabulary = []
+            for w in lst_phrase:
+                #### ...CHECK if word exists in vocabulary model...
+                if w in embeddings_model.vocab:
+                    lst_words_in_vocabulary.append(w)
+                    lst_embed_dfs.append(np_array_as_row_of_pd_df(logger = None
+                                            , np_array = embeddings_model[w] #embeddings_model.wv[w]
+                                            , pd_colnames_root = root_colnames))
+                else:
+                    if logger is not None:
+                        logger.warn("word out-of-vocabulary - {0} REMOVED".format(w))
 
             rep_vect = pd.concat(lst_embed_dfs)
 
             ####
             #### ...insert columns as keys...
-            rep_vect.insert(0, 'token', lst_phrase)
-            rep_vect.insert(0, 'id_token', [i for i in range(1, len(lst_phrase)+1)])
+            rep_vect.insert(0, 'token', lst_words_in_vocabulary)
+            rep_vect.insert(0, 'id_token', [i for i in range(1, len(lst_embed_dfs)+1)])
 
             ####
             #### ...reset dataframe index...
             rep_vect = rep_vect.reset_index(drop=True)
-
-            #print("----------------------------------------")
-            #print(lst_embed_dfs)
-            #print(rep_vect)
 
         else:
             raise Exception

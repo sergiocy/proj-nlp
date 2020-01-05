@@ -3,11 +3,11 @@
 import traceback
 import pandas as pd
 
-from service.vectorization.get_bert_embedding_of_several_words_as_pd_df import *
-from service.vectorization.get_w2v_embedding_of_several_words_as_pd_df import *
+from app.service.vectorization.get_bert_embedding_of_several_words_as_pd_df import *
+from app.service.vectorization.get_w2v_embedding_of_several_words_as_pd_df import *
 
 ####
-#### FUNCTION TO GET A DATASET (df_input) AND PROCESS TEXT IN ONE OF ITS COLUMNS
+#### FUNCTION TO GET A DATASET (df_input) AND PROCESS TEXT IN ONE OF ITS COLUMNS (with texts; a csv field with textual content)
 #### (column_to_computing) GETTING ITS EMBEDDINGS AS PANDAS DF
 def get_embedding_as_df(logger = None
                         , verbose = False
@@ -75,8 +75,9 @@ def get_embedding_as_df(logger = None
                         lst_embeddings.append(df_embeddings)
 
                         #### ...to clean the flow and memory treatment...
+                        print("----------------------------")
                         print(df_embeddings)
-                        
+
                         del df_embeddings
 
                     df_rep = pd.concat(lst_embeddings)
@@ -84,23 +85,6 @@ def get_embedding_as_df(logger = None
                     #df_rep = pd.DataFrame()
                     print(df_rep)
 
-
-            '''
-                #### ...insert columns to save in output...
-                #### we iter on inversed list to conserve the order of fields introduced
-                for c in reversed(columns_to_save):
-                    df_embeddings.insert(0, c, [df_input[c][iter] for i in range(len(df_embeddings))])
-
-                if logger is not None and verbose == True:
-                    logger.info(df_embeddings)
-
-                lst_embeddings.append(df_embeddings)
-
-                #### ...to clean the flow and memory treatment...
-                del df_embeddings
-
-            df_rep = pd.concat(lst_embeddings)
-            '''
 
 
             #### ...saving results as file...

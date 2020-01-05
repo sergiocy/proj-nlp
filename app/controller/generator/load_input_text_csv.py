@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from service.text.clean_phrase import clean_phrase
+from app.service.text.clean_phrase import clean_phrase
 
 
 #### READING CSV FILE INPUT

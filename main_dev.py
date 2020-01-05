@@ -13,10 +13,10 @@ import pandas as pd
 #from bert_embedding import BertEmbedding
 
 #### imports personal modules
-from lib.py.logging.create_logger import create_logger
+from app.lib.py.logging.create_logger import create_logger
 
-from controller.generator.load_input_text_csv import load_input_text_csv
-from controller.generator.get_embedding_as_df import get_embedding_as_df
+from app.controller.generator.load_input_text_csv import load_input_text_csv
+from app.controller.generator.get_embedding_as_df import get_embedding_as_df
 #from service.vectorization.get_bert_embedding_of_several_words_as_pd_df import *
 
 #from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
@@ -28,35 +28,36 @@ from controller.generator.get_embedding_as_df import get_embedding_as_df
 
 ####
 #### CSV FILES - DATA INPUT
-PATH_LOG_FILE = '../log/log.log'
-PATH_W2V_MODEL = '../../0-model/w2v/GoogleNews-vectors-negative300.bin'
-PATH_INPUT_DATA = '../../0-data/input/wordsim353/combined.csv'
+PATH_LOG_FILE = 'log/log.log'
+PATH_W2V_MODEL = '../0-model/w2v/GoogleNews-vectors-negative300.bin'
+PATH_INPUT_DATA = '../0-data/input/wordsim353/combined.csv'
 #PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions.csv'
-PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions-context.csv'
-PATH_INPUT_DATA_DEF_WN = '../../0-data/input/wordsim353/corpus_men_definitions_csv.csv'
+PATH_INPUT_DATA_DEF = '../0-data/input/wordsim353/combined-definitions-context.csv'
+PATH_INPUT_DATA_DEF_WN = '../0-data/input/wordsim353/corpus_men_definitions_csv.csv'
 
 
 ####
 #### PICKLE FILES - DATASETS PROCESSED - CHECKPOINTS PATHS...
-PATH_CHECKPOINT_INPUT = '../data/exchange/ws353_input'
-PATH_CHECKPOINT_INPUT_WORDNET = '../data/exchange/ws353_input_men_wordnet'
+PATH_CHECKPOINT_INPUT = 'data/exchange/ws353_input'
+PATH_CHECKPOINT_INPUT_WORDNET = 'data/exchange/ws353_input_men_wordnet'
 
-PATH_CHECKPOINT_BERT_WORDS = '../data/exchange/ws353_bert_words'
-PATH_CHECKPOINT_BERT_WORDS_CONTEXT = '../data/exchange/ws353_bert_words_context'
-PATH_CHECKPOINT_BERT_WORDS_DEF_DICT = '../data/exchange/ws353_bert_def_cambridge'
-PATH_CHECKPOINT_BERT_WORDS_DEF_WN = '../data/exchange/ws353_bert_def_wn'
+PATH_CHECKPOINT_BERT_WORDS = 'data/exchange/ws353_bert_words'
+PATH_CHECKPOINT_BERT_WORDS_CONTEXT = 'data/exchange/ws353_bert_words_context'
+PATH_CHECKPOINT_BERT_WORDS_DEF_DICT = 'data/exchange/ws353_bert_def_cambridge'
+PATH_CHECKPOINT_BERT_WORDS_DEF_WN = 'data/exchange/ws353_bert_def_wn'
 
-PATH_CHECKPOINT_W2V_WORDS = '../data/exchange/ws353_w2v_words'
-PATH_CHECKPOINT_W2V_WORDS_DEF_DICT = '../data/exchange/ws353_w2v_def_cambridge'
+PATH_CHECKPOINT_W2V_WORDS = 'data/exchange/ws353_w2v_words'
+PATH_CHECKPOINT_W2V_WORDS_CONTEXT = 'data/exchange/ws353_w2v_words_context'
+PATH_CHECKPOINT_W2V_WORDS_DEF_DICT = 'data/exchange/ws353_w2v_def_cambridge'
 
 
 
 ####
 #### DATA OUTPUT
-PATH_OUTPUT_BERT_DATA_DEF = '../data/output/combined-definitions'
-PATH_OUTPUT_BERT_DATA_COMPLETE = '../data/output/combined-definitions-complete'
-PATH_OUTPUT_BERT_WORD_VS_DEF_1 = '../data/output/word_vs_def_1'
-PATH_OUTPUT_BERT_WORD_VS_DEF_2 = '../data/output/word_vs_def_2'
+PATH_OUTPUT_BERT_DATA_DEF = 'data/output/combined-definitions'
+PATH_OUTPUT_BERT_DATA_COMPLETE = 'data/output/combined-definitions-complete'
+PATH_OUTPUT_BERT_WORD_VS_DEF_1 = 'data/output/word_vs_def_1'
+PATH_OUTPUT_BERT_WORD_VS_DEF_2 = 'data/output/word_vs_def_2'
 
 
 
@@ -353,9 +354,23 @@ if __name__ == '__main__':
                             , python_pkg = 'gensim'
                             , file_save_pickle = PATH_CHECKPOINT_W2V_WORDS)
     '''
+
+
     rep_w2v = get_embedding_as_df(logger = None
                             , verbose = False
-                            , df_input = data_def.iloc[0:4]
+                            , df_input = data_def
+                            , column_to_computing = 'context'
+                            , columns_to_save = ['id', 'w']
+                            , root_name_vect_cols = 'dim_'
+                            , dim_embeddings = 300
+                            , path_embeddings_model = PATH_W2V_MODEL
+                            , type_model = 'W2V'
+                            , python_pkg = 'gensim'
+                            , file_save_pickle = PATH_CHECKPOINT_W2V_WORDS_CONTEXT)
+
+    rep_w2v = get_embedding_as_df(logger = None
+                            , verbose = False
+                            , df_input = data_def
                             , column_to_computing = 'def_dict'
                             , columns_to_save = ['id', 'w']
                             , root_name_vect_cols = 'dim_'
