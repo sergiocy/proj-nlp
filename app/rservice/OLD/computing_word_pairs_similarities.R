@@ -6,48 +6,26 @@ library("data.table")
 
 
 
-
-#FILE_PY_READ_PICKLE <- "C:/sc-sync/projects/proj-nlp/app/lib/py/reader/read_pickle.py"
-FILE_PY_READ_PICKLE <- "C:/sc-sync/projects/proj-nlp/app/lib/py/reader/read_pickle.py"
-source_python(FILE_PY_READ_PICKLE)
-
-
-FILE_PKL_TO_READ_SIM <- "C:/sc-sync/projects/proj-nlp/data/exchange/ws353_input_sim"
-FILE_PKL_TO_READ_W2V_WORDS <- "C:/sc-sync/projects/proj-nlp/data/exchange/ws353_w2v_words_context"
-#FILE_W1_SIM <- "C:/sc-sync/projects/proj-nlp/data/output/w1_sim.rds"
-
+FILE_PY_READ_PICKLE <- "C:/sc-sync/projects/proj-nlp/app/service/util/read_pickle.py"
+FILE_PXL_TO_READ <- "C:/sc-sync/projects/proj-nlp/data/output/combined-definitions-complete"
+FILE_W1_SIM <- "C:/sc-sync/projects/proj-nlp/data/output/w1_sim.rds"
 
 #### read dataframe from .pkl file
-data_sim <- setDT(read_pickle_file(FILE_PKL_TO_READ_SIM))
-data_w2v_words <- setDT(read_pickle_file(FILE_PKL_TO_READ_W2V_WORDS))
+source_python(FILE_PY_READ_PICKLE)
+pickle_data <- read_pickle_file(FILE_PXL_TO_READ)
 
-head(data_sim)
-dim(data_sim)
-str(data_sim)
-colnames(data_sim)
+data <- setDT(pickle_data)
+rm(pickle_data)
 
-head(data_w2v_words)
-dim(data_w2v_words)
-str(data_w2v_words)
-colnames(data_w2v_words)
+#dim(data)
+#str(data)
+#colnames(data)
 
-
-review_cols <- c("id", "w", "id_token", "token")
 
 
 #### TODO: add R-packages in environment conda
 #### TODO: call this script from python /argument parsing
 #### TODO: add log-file
-
-
-
-
-
-
-
-
-
-
 
 
 
