@@ -1,0 +1,322 @@
+<<<<<<< HEAD:app/rservice/computing_word_pairs_similarities/computing_word_pairs_similarities.Rmd
+---
+title: "test 1: W2V vs BERT - word to word"
+output:
+  html_notebook: default
+  pdf_document: default
+---
+
+
+
+
+```{r, echo = FALSE}
+library("reticulate")
+library("data.table")
+
+path_root_proj <- "/home/sergio/sync/projects/proj-nlp/"
+path_conda_exe <- "/opt/anaconda3/condabin/conda" 
+
+# loading data
+FILE_PY_READ_PICKLE <- paste0(path_root_proj, "app/lib/py/reader/read_pickle.py")
+conda_list(conda = path_conda_exe)
+use_condaenv("nlpenv", conda = path_conda_exe)
+py_config()
+source_python(FILE_PY_READ_PICKLE)
+
+
+FILE_PKL_TO_READ_SIM <- paste0(path_root_proj, "data/exchange/ws353_input_sim")
+FILE_PKL_TO_READ_W2V_WORDS <- paste0(path_root_proj, "data/exchange/ws353_w2v_words_context")
+FILE_PKL_TO_READ_W2V_WORDS <- paste0(path_root_proj, "data/exchange/ws353_w2v_def_cambridge")
+
+
+
+
+#### read dataframe from .pkl file
+data_sim <- setDT(read_pickle_file(FILE_PKL_TO_READ_SIM))
+data_w2v_words <- setDT(read_pickle_file(FILE_PKL_TO_READ_W2V_WORDS))
+
+
+review_cols <- c("id", "w", "id_token", "token")
+
+
+```
+
+### DATA
+
+dataset with mannual annotation of similaraties between pairs of words (wordsim353);
+
+
+```{r}
+head(data_sim)
+#dim(data_sim)
+#str(data_sim)
+#colnames(data_sim)
+
+```
+
+
+and dataset with vector representations of the set of words appeared;
+
+```{r}
+head(data_w2v_words)
+#dim(data_w2v_words)
+#str(data_w2v_words)
+#colnames(data_w2v_words)
+```
+
+we select rows with equal w and token 
+
+NOTE: w2v is context-free but we could test it.
+
+
+```{r echo=FALSE}
+length(unique(data_w2v_words$w))
+
+df_vec <- subset(data_w2v_words[w == token], select = -c(id_token, token))
+head(df_vec)
+```
+
+
+```{r}
+get_vector_of_w <- function(row = 1, col_vec_start = 3, col_vec_end = 302){
+    return (sapply(col_vec_start:col_vec_end, function(d){as.numeric(df_vec[row, c(colnames(df_vec)[d]), with = FALSE])}))
+}
+
+compute_cosin <- function(a, b){
+    cos_theta <- cos( sum(a*b) / ( sqrt(sum(a * a)) * sqrt(sum(b * b)) ) )
+    #theta <- acos( sum(a*b) / ( sqrt(sum(a * a)) * sqrt(sum(b * b)) ) )
+    return (cos_theta)
+}
+
+
+vector_cosines <- sapply(1:nrow(data_sim), function(r){
+    word1 <- as.character(data_sim[r, .(w1), ])
+    word2 <- as.character(data_sim[r, .(w2), ])
+    
+    index_word1 <- which(df_vec$w == word1)
+    index_word2 <- which(df_vec$w == word2)
+    
+    rep1 <- get_vector_of_w(row = index_word1)
+    rep2 <- get_vector_of_w(row = index_word2)
+    
+    cosine <- compute_cosin(rep1, rep2)
+    print(paste0("computing words - ", word1, " and ", word2, " - ", cosine))
+    
+    return (cosine)
+})
+
+```
+
+
+
+
+```{r}
+
+#### TODO: add R-packages in environment conda
+#### TODO: call this script from python /argument parsing
+#### TODO: add log-file
+
+
+
+
+
+compute_similarity_cosin_between_vectors <- function(v1, v2, str1 = 'word1', str2 = 'def'){
+    
+    sim <- tryCatch(
+        {
+            # num <- v1*v2, but we test sapply function
+            num <- sum(sapply(1:length(v2), function(i) { v1[i]*v2[i] })) 
+            den1 <- sqrt( sum(sapply(1:length(v2), function(i) { v1[i]*v1[i] })) )
+            den2 <- sqrt( sum(sapply(1:length(v2), function(i) { v2[i]*v2[i] })) )
+            
+            return (num/(den1*den2))
+        },
+        error=function(e) {
+            message(paste0("ERROR"))
+            # Choose a return value in case of error
+            return(NA)
+        },
+        #warning=function(cond) {
+        #    
+        #},
+        finally={
+            #message(paste0("Computed similariry between '", str1, "' - '", str2))
+        }
+    )
+    
+    return(round(as.numeric(sim), 4))
+}
+
+# compute_similarity_cosin_between_vectors(c(1,0), c(0,1))
+
+
+
+####
+#### ...we select word1 and definitions (from composition of definition words) for it
+data_sim_w1 <- subset(data, select = c(w1, w1_vectorized, def1_vector_sum
+                                       #, def1_vector_avg
+                                       ))
+#length(data_sim_w1[1, , ]$def1_vector_sum)
+colnames(data_sim_w1) <- c("w", "vec_w", "vec_composed")
+
+
+####
+#### compute similarities matrix
+matrix_sim <- do.call("rbind", sapply(1:length(data_sim_w1$w)
+                                             , function(iter_on_words) {
+                                                 word = data_sim_w1$w[iter_on_words]
+                                                 # vector associated to one only word
+                                                 vec_word <- unlist(data_sim_w1[ iter_on_words, .(vec_w), ][[1]]) 
+                                                 
+                                                 # ...we compute similarity between a word an a set of composition-vectors
+                                                 vec_word_vs_composed <- sapply(1:length(data_sim_w1$vec_composed)
+                                                                                , function(i_def){
+                                                                                    vec_def <- unlist(data_sim_w1[ i_def, .(vec_composed), ][["vec_composed"]])
+                                                                                    return (compute_similarity_cosin_between_vectors(vec_word, vec_def))
+                                                                                })
+                                                 
+                                                 print(paste0("definition ", iter_on_words, " computed"))
+                                                 return(list(c(word, vec_word_vs_composed)))
+                                             })
+                            )
+matrix_sim <- as.data.table(matrix_sim)
+colnames(matrix_sim) <- c("word", sapply(1:length(data_sim_w1$w), function(i_def){paste0("comp_", data_sim_w1$w[i_def])}))
+
+#fwrite(matrix_sim, file = "")
+saveRDS(matrix_sim, FILE_W1_SIM)    
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+=======
+
+
+library("reticulate")
+library("data.table")
+
+
+
+
+
+#FILE_PY_READ_PICKLE <- "C:/sc-sync/projects/proj-nlp/app/lib/py/reader/read_pickle.py"
+FILE_PY_READ_PICKLE <- "C:/sc-sync/projects/proj-nlp/app/lib/py/reader/read_pickle.py"
+source_python(FILE_PY_READ_PICKLE)
+
+
+FILE_PKL_TO_READ_SIM <- "C:/sc-sync/projects/proj-nlp/data/exchange/ws353_input_sim"
+FILE_PKL_TO_READ_W2V_WORDS <- "C:/sc-sync/projects/proj-nlp/data/exchange/ws353_w2v_words_context"
+#FILE_W1_SIM <- "C:/sc-sync/projects/proj-nlp/data/output/w1_sim.rds"
+
+
+#### read dataframe from .pkl file
+data_sim <- setDT(read_pickle_file(FILE_PKL_TO_READ_SIM))
+data_w2v_words <- setDT(read_pickle_file(FILE_PKL_TO_READ_W2V_WORDS))
+
+head(data_sim)
+dim(data_sim)
+str(data_sim)
+colnames(data_sim)
+
+head(data_w2v_words)
+dim(data_w2v_words)
+str(data_w2v_words)
+colnames(data_w2v_words)
+
+
+review_cols <- c("id", "w", "id_token", "token")
+
+
+#### TODO: add R-packages in environment conda
+#### TODO: call this script from python /argument parsing
+#### TODO: add log-file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+compute_similarity_cosin_between_vectors <- function(v1, v2, str1 = 'word1', str2 = 'def'){
+    
+    sim <- tryCatch(
+        {
+            # num <- v1*v2, but we test sapply function
+            num <- sum(sapply(1:length(v2), function(i) { v1[i]*v2[i] })) 
+            den1 <- sqrt( sum(sapply(1:length(v2), function(i) { v1[i]*v1[i] })) )
+            den2 <- sqrt( sum(sapply(1:length(v2), function(i) { v2[i]*v2[i] })) )
+            
+            return (num/(den1*den2))
+        },
+        error=function(e) {
+            message(paste0("ERROR"))
+            # Choose a return value in case of error
+            return(NA)
+        },
+        #warning=function(cond) {
+        #    
+        #},
+        finally={
+            #message(paste0("Computed similariry between '", str1, "' - '", str2))
+        }
+    )
+    
+    return(round(as.numeric(sim), 4))
+}
+
+# compute_similarity_cosin_between_vectors(c(1,0), c(0,1))
+
+
+
+####
+#### ...we select word1 and definitions (from composition of definition words) for it
+data_sim_w1 <- subset(data, select = c(w1, w1_vectorized, def1_vector_sum
+                                       #, def1_vector_avg
+                                       ))
+#length(data_sim_w1[1, , ]$def1_vector_sum)
+colnames(data_sim_w1) <- c("w", "vec_w", "vec_composed")
+
+
+####
+#### compute similarities matrix
+matrix_sim <- do.call("rbind", sapply(1:length(data_sim_w1$w)
+                                             , function(iter_on_words) {
+                                                 word = data_sim_w1$w[iter_on_words]
+                                                 # vector associated to one only word
+                                                 vec_word <- unlist(data_sim_w1[ iter_on_words, .(vec_w), ][[1]]) 
+                                                 
+                                                 # ...we compute similarity between a word an a set of composition-vectors
+                                                 vec_word_vs_composed <- sapply(1:length(data_sim_w1$vec_composed)
+                                                                                , function(i_def){
+                                                                                    vec_def <- unlist(data_sim_w1[ i_def, .(vec_composed), ][["vec_composed"]])
+                                                                                    return (compute_similarity_cosin_between_vectors(vec_word, vec_def))
+                                                                                })
+                                                 
+                                                 print(paste0("definition ", iter_on_words, " computed"))
+                                                 return(list(c(word, vec_word_vs_composed)))
+                                             })
+                            )
+matrix_sim <- as.data.table(matrix_sim)
+colnames(matrix_sim) <- c("word", sapply(1:length(data_sim_w1$w), function(i_def){paste0("comp_", data_sim_w1$w[i_def])}))
+
+#fwrite(matrix_sim, file = "")
+saveRDS(matrix_sim, FILE_W1_SIM)    
+
+
+    
+
+
+
+
+>>>>>>> e8146b4d8ba7ef512aa5d33314066fe7eca3e58c:app/rservice/computing_word_pairs_similarities.R
