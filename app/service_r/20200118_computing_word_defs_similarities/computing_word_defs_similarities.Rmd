@@ -10,8 +10,9 @@ output:
 library("reticulate")
 library("data.table")
 
-path_root_proj <- "/home/sergio/sync/projects/proj-nlp/"
-path_conda_exe <- "/opt/anaconda3/condabin/conda" 
+#path_root_proj <- "/home/s/sync/projects/proj-nlp/"
+path_root_proj <- "C:/Users/scordoba/sync/projects/proj-nlp/"
+#path_conda_exe <- "/opt/anaconda3/condabin/conda" 
 
 # loading data
 FILE_PY_READ_PICKLE <- paste0(path_root_proj, "app/lib/py/reader/read_pickle.py")
@@ -96,6 +97,60 @@ head(w2v_def_avg)
 ```
 
 
+```{r echo = FALSE}
+df_comp <- w2v_def_sum
+head(df_comp)
+dim(df_comp)
+df_w <- data_w2v_words[, , ]
+head(df_w)
+dim(df_w)
+
+
+# ..we select words with definition...
+df_w <- df_w[df_w$w %in% df_comp$w] 
+
+
+
+get_vector_of_w <- function(df_vec, row = 1, col_vec_start = 3, col_vec_end = 302){
+    return (sapply(col_vec_start:col_vec_end, function(d){as.numeric(df_vec[row, c(colnames(df_vec)[d]), with = FALSE])}))
+}
+
+
+compute_cosin <- function(a, b){
+    cos_theta <- ( sum(a*b) / ( sqrt(sum(a * a)) * sqrt(sum(b * b)) ) )
+    #theta <- acos( sum(a*b) / ( sqrt(sum(a * a)) * sqrt(sum(b * b)) ) )
+    return (cos_theta)
+}
+
+
+#i_word <- 1 
+similarities <- lapply(1:nrow(df_w), function(i_word){
+    vec_w <- get_vector_of_w(df_w, row = i_word, col_vec_start = 3, col_vec_end = 302)
+    df_sim_one_word <- c(df_w[i_word, , ]$id, df_w[i_word, , ]$w
+                        , sapply(1:nrow(df_comp), function(i_comp){
+                                                        vec_comp <- get_vector_of_w(df_comp, row = i_comp, col_vec_start = 3, col_vec_end = 302)
+                                                        compute_cosin(vec_w, vec_comp)
+                                                    }
+                                ) 
+                        )
+    df_sim_one_word <- as.data.frame(matrix(df_sim_one_word, nrow = 1, ncol = length(df_sim_one_word)))
+    colnames(df_sim_one_word) <- c("id", "w", sapply(1:nrow(df_comp), function(i_comp){paste0("def_", df_comp[i_comp, , ]$w)}))
+    
+    print(paste0(Sys.time(), " - computed ", i_word, " word: ", df_w[i_word, , ]$w))
+    
+    return(df_sim_one_word)
+})
+
+
+similarities <- rbindlist(similarities)
+print(similarities)
+
+saveRDS(similarities, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge.rds"))
+
+#v1 <- df_w[1, 3:302] 
+#v2 <- df_comp[1, 3:302]
+#compute_cosin(v1, v2)
+```
 
 
 
@@ -103,15 +158,6 @@ head(w2v_def_avg)
 
 
 ```{r}
-get_vector_of_w <- function(row = 1, col_vec_start = 3, col_vec_end = 302){
-    return (sapply(col_vec_start:col_vec_end, function(d){as.numeric(df_vec[row, c(colnames(df_vec)[d]), with = FALSE])}))
-}
-
-compute_cosin <- function(a, b){
-    cos_theta <- cos( sum(a*b) / ( sqrt(sum(a * a)) * sqrt(sum(b * b)) ) )
-    #theta <- acos( sum(a*b) / ( sqrt(sum(a * a)) * sqrt(sum(b * b)) ) )
-    return (cos_theta)
-}
 
 
 vector_cosines <- sapply(1:nrow(data_sim), function(r){
