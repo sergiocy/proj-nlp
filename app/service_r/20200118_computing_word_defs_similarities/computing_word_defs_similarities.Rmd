@@ -153,7 +153,24 @@ saveRDS(similarities, paste0(path_root_proj, "data/exchange/20200118-test3-wToDe
 ```
 
 
+### W2V SIMILARITIES
 
+we compute the similarities matrix
+
+```{r echo = FALSE}
+df_sim <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge.rds"))
+
+head(df_sim)
+
+```
+
+we can order depends on similarities by definitions for each word
+
+```{r}
+sapply(1:nrow(df_sim), function(c){names(sort(t(df_sim[c, -c("id", "w"), with = FALSE])[ , 1], decreasing = TRUE))
+rownames(dt)
+                                    print(dt)})
+```
 
 
 
