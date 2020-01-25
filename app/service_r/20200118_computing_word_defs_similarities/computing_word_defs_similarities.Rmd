@@ -9,6 +9,7 @@ output:
 ```{r, echo = FALSE}
 library("reticulate")
 library("data.table")
+library("stringr")
 
 #path_root_proj <- "/home/s/sync/projects/proj-nlp/"
 path_root_proj <- "C:/Users/scordoba/sync/projects/proj-nlp/"
@@ -24,11 +25,15 @@ source_python(FILE_PY_READ_PICKLE)
 FILE_PKL_TO_READ_SIM <- paste0(path_root_proj, "data/exchange/ws353_input_sim")
 FILE_PKL_TO_READ_W2V_WORDS <- paste0(path_root_proj, "data/exchange/ws353_w2v_words_context")
 FILE_PKL_TO_READ_W2V_DEF <- paste0(path_root_proj, "data/exchange/ws353_w2v_def_cambridge")
+FILE_PKL_TO_READ_BERT_WORDS <- paste0(path_root_proj, "data/exchange/ws353_bert_words")
+FILE_PKL_TO_READ_BERT_DEF <- paste0(path_root_proj, "data/exchange/ws353_bert_def_cambridge")
 
 #### read dataframe from .pkl file
 data_sim <- setDT(read_pickle_file(FILE_PKL_TO_READ_SIM))
 data_w2v_words <- setDT(read_pickle_file(FILE_PKL_TO_READ_W2V_WORDS))
 data_w2v_def <- setDT(read_pickle_file(FILE_PKL_TO_READ_W2V_DEF))
+data_bert_words <- setDT(read_pickle_file(FILE_PKL_TO_READ_BERT_WORDS))
+data_bert_def <- setDT(read_pickle_file(FILE_PKL_TO_READ_BERT_DEF))
 
 review_cols <- c("id", "w", "id_token", "token")
 
@@ -59,6 +64,7 @@ NOTE: w2v is context-free but we could test it.
 length(unique(data_w2v_words$w))
 
 data_w2v_words <- subset(data_w2v_words[w == token], select = -c(id_token, token))
+head(data_w2v_words)
 ```
 
 and dataset with words and its definitions,
@@ -70,7 +76,7 @@ head(data_w2v_def, 10)
 
 ### DEFINITIONS TREATMENT
 
-Firstly, we compute sum and average of words that compound definition.
+Firstly, we compute sum and average of words that compound definition for w2v and BERT.
 
 ```{r echo = FALSE}
 data_w2v_def <- subset(data_w2v_def, select = -c(id_token, token))
@@ -87,13 +93,46 @@ for(id_w in sort(unique(data_w2v_def$id))){
   
   w2v_def_sum <- rbind(w2v_def_sum, vec_sum)
   w2v_def_avg <- rbind(w2v_def_avg, vec_avg)
+  
+  #print(paste0("word ", data_w[id_w, .(id, w), ]$id, " '", data_w[id_w, .(id, w), ]$w, "' computed"))
 }
 
 saveRDS(w2v_def_sum, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_sum.rds"))
 saveRDS(w2v_def_avg, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_avg.rds"))
 
+
+
+
+####
+#### bert
+data_bert_def <- subset(data_bert_def, select = -c(id_token, token))
+bert_vector_cols <- colnames(data_bert_def)[3:ncol(data_bert_def)]
+
+bert_def_sum <- data.frame()
+bert_def_avg <- data.frame()
+
+for(id_w in sort(unique(data_bert_def$id))){
+  data_w <- data_bert_def[id == id_w]
+  
+  vec_sum <- as.data.frame(c(unique(data_w[ , .(id, w), ]), sapply(bert_vector_cols, function(c){sum(data_w[[c]])})))
+  vec_avg <- as.data.frame(c(unique(data_w[ , .(id, w), ]), sapply(bert_vector_cols, function(c){mean(data_w[[c]])})))
+  
+  bert_def_sum <- rbind(bert_def_sum, vec_sum)
+  bert_def_avg <- rbind(bert_def_avg, vec_avg)
+  
+  #print(paste0("word ", data_w[id_w, .(id, w), ]$id, " '", data_w[id_w, .(id, w), ]$w, "' computed"))
+}
+
+saveRDS(bert_def_sum, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_sum.rds"))
+saveRDS(bert_def_avg, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_avg.rds"))
+
+
+
+
 head(w2v_def_sum)
 head(w2v_def_avg)
+head(bert_def_sum)
+head(bert_def_avg)
 ```
 
 
@@ -104,8 +143,6 @@ dim(df_comp)
 df_w <- data_w2v_words[, , ]
 head(df_w)
 dim(df_w)
-
-
 # ..we select words with definition...
 df_w <- df_w[df_w$w %in% df_comp$w] 
 
@@ -144,8 +181,7 @@ similarities <- lapply(1:nrow(df_w), function(i_word){
 
 similarities <- rbindlist(similarities)
 print(similarities)
-
-saveRDS(similarities, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge.rds"))
+saveRDS(similarities, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_sum.rds"))
 
 #v1 <- df_w[1, 3:302] 
 #v2 <- df_comp[1, 3:302]
@@ -153,7 +189,7 @@ saveRDS(similarities, paste0(path_root_proj, "data/exchange/20200118-test3-wToDe
 ```
 
 
-### W2V SIMILARITIES
+### WORD VS DEFINITIONS SIMILARITIES
 
 we compute the similarities matrix
 
@@ -166,15 +202,52 @@ head(df_sim)
 
 we can order depends on similarities by definitions for each word
 
-```{r}
-sapply(1:nrow(df_sim), function(c){names(sort(t(df_sim[c, -c("id", "w"), with = FALSE])[ , 1], decreasing = TRUE))
-rownames(dt)
-                                    print(dt)})
+```{r, echo = FALSE}
+
+####
+#### we compute two dataframes with the ranking of definitions and another with corresponding scores
+
+lst_def_ordered <- lapply(1:nrow(df_sim), function(c){sim_one_word <- data.frame(  def = names(t(df_sim[c, -c("id", "w"), with = FALSE])[ , 1]), 
+                                                                sim = t(df_sim[c, -c("id", "w"), with = FALSE])[ , 1])
+                                    setDT(sim_one_word)
+                                    setorder(sim_one_word, -sim)
+                                    
+                                    sim_one_word <- as.data.table(t(sim_one_word))
+                                    colnames(sim_one_word) <- as.character(seq(1:ncol(sim_one_word)))
+                                    
+                                    sim_one_word[1, , ]
+                                    })
+
+lst_sim_ordered <- lapply(1:nrow(df_sim), function(c){sim_one_word <- data.frame(  def = names(t(df_sim[c, -c("id", "w"), with = FALSE])[ , 1]), 
+                                                                sim = t(df_sim[c, -c("id", "w"), with = FALSE])[ , 1])
+                                    setDT(sim_one_word)
+                                    setorder(sim_one_word, -sim)
+                                    
+                                    sim_one_word <- as.data.table(t(sim_one_word))
+                                    colnames(sim_one_word) <- as.character(seq(1:ncol(sim_one_word)))
+                                    
+                                    sim_one_word[2, , ]
+                                    })
+
+dt_def_ordered <- rbindlist(lst_def_ordered)
+dt_def_ordered <- cbind(w = df_sim$w, dt_def_ordered)
+
+# remove initial prefix "def_" in definitions label 
+for(col in 1:(ncol(dt_def_ordered)-1)) { 
+    dt_def_ordered[[paste0(col)]] <- str_replace(dt_def_ordered[[paste0(col)]], "def_", "") 
+    } 
+
+
+head(dt_def_ordered)
+
+dt_sim_ordered <- rbindlist(lst_sim_ordered)
+dt_sim_ordered <- cbind(w = df_sim$w, dt_sim_ordered)
+head(dt_sim_ordered)
 ```
 
 
 
-```{r}
+```{r, echo = FALSE}
 
 
 vector_cosines <- sapply(1:nrow(data_sim), function(r){
