@@ -139,61 +139,61 @@ We compute the similarities matrix between words vector representations and defi
 
 
 ```{r, echo = FALSE}
-w2v_def_sum <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_sum.rds"))
-w2v_def_avg <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_avg.rds"))
-bert_def_sum <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_sum.rds"))
-bert_def_avg <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_avg.rds"))
-
-
-#### ...w vs def - w2v sum
-df_w <- data_w2v_words[w == token]
-df_comp <- w2v_def_sum
-# ..we select words with definition...
-df_w <- df_w[df_w$w %in% df_comp$w]
-
-sim_w_to_def_w2v_sum <- compute_similarities_matrix (
-                                df_w
-                                , df_comp
-                                , colnames(df_w)[5:ncol(df_w)]
-                                , colnames(df_comp)[2:ncol(df_comp)]
-                                , "w"  # variable to identify rows in df1 (by rows)
-                                , "w"  # variable to identify rows in df2 (by columns)
-                                , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_sum.rds"))
-
-df_comp <- w2v_def_avg
-sim_w_to_def_w2v_avg <- compute_similarities_matrix (
-                                df_w
-                                , df_comp
-                                , colnames(df_w)[5:ncol(df_w)]
-                                , colnames(df_comp)[2:ncol(df_comp)]
-                                , "w"  # variable to identify rows in df1 (by rows)
-                                , "w"  # variable to identify rows in df2 (by columns)
-                                , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_avg.rds"))
-
-
-df_w <- data_bert_words[w == token]
-df_comp <- bert_def_sum
-# ..we select words with definition...
-df_w <- df_w[df_w$w %in% df_comp$w]
-
-sim_w_to_def_bert_sum <- compute_similarities_matrix (
-                                df_w
-                                , df_comp
-                                , colnames(df_w)[5:ncol(df_w)]
-                                , colnames(df_comp)[2:ncol(df_comp)]
-                                , "w"  # variable to identify rows in df1 (by rows)
-                                , "w"  # variable to identify rows in df2 (by columns)
-                                , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_bert_similarities_w_to_def_cambridge_sum.rds"))
-
-df_comp <- bert_def_avg
-sim_w_to_def_bert_avg <- compute_similarities_matrix (
-                                df_w
-                                , df_comp
-                                , colnames(df_w)[5:ncol(df_w)]
-                                , colnames(df_comp)[2:ncol(df_comp)]
-                                , "w"  # variable to identify rows in df1 (by rows)
-                                , "w"  # variable to identify rows in df2 (by columns)
-                                 , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_bert_similarities_w_to_def_cambridge_avg.rds"))
+# w2v_def_sum <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_sum.rds"))
+# w2v_def_avg <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_avg.rds"))
+# bert_def_sum <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_sum.rds"))
+# bert_def_avg <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_avg.rds"))
+# 
+# 
+# #### ...w vs def - w2v sum
+# df_w <- data_w2v_words[w == token]
+# df_comp <- w2v_def_sum
+# # ..we select words with definition...
+# df_w <- df_w[df_w$w %in% df_comp$w]
+# 
+# sim_w_to_def_w2v_sum <- compute_similarities_matrix (
+#                                 df_w
+#                                 , df_comp
+#                                 , colnames(df_w)[5:ncol(df_w)]
+#                                 , colnames(df_comp)[2:ncol(df_comp)]
+#                                 , "w"  # variable to identify rows in df1 (by rows)
+#                                 , "w"  # variable to identify rows in df2 (by columns)
+#                                 , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_sum.rds"))
+# 
+# df_comp <- w2v_def_avg
+# sim_w_to_def_w2v_avg <- compute_similarities_matrix (
+#                                 df_w
+#                                 , df_comp
+#                                 , colnames(df_w)[5:ncol(df_w)]
+#                                 , colnames(df_comp)[2:ncol(df_comp)]
+#                                 , "w"  # variable to identify rows in df1 (by rows)
+#                                 , "w"  # variable to identify rows in df2 (by columns)
+#                                 , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_avg.rds"))
+# 
+# 
+# df_w <- data_bert_words[w == token]
+# df_comp <- bert_def_sum
+# # ..we select words with definition...
+# df_w <- df_w[df_w$w %in% df_comp$w]
+# 
+# sim_w_to_def_bert_sum <- compute_similarities_matrix (
+#                                 df_w
+#                                 , df_comp
+#                                 , colnames(df_w)[5:ncol(df_w)]
+#                                 , colnames(df_comp)[2:ncol(df_comp)]
+#                                 , "w"  # variable to identify rows in df1 (by rows)
+#                                 , "w"  # variable to identify rows in df2 (by columns)
+#                                 , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_bert_similarities_w_to_def_cambridge_sum.rds"))
+# 
+# df_comp <- bert_def_avg
+# sim_w_to_def_bert_avg <- compute_similarities_matrix (
+#                                 df_w
+#                                 , df_comp
+#                                 , colnames(df_w)[5:ncol(df_w)]
+#                                 , colnames(df_comp)[2:ncol(df_comp)]
+#                                 , "w"  # variable to identify rows in df1 (by rows)
+#                                 , "w"  # variable to identify rows in df2 (by columns)
+#                                  , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_bert_similarities_w_to_def_cambridge_avg.rds"))
 ```
 
 
