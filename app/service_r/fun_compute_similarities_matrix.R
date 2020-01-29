@@ -52,7 +52,7 @@ compute_similarities_matrix <- function (
                             , var_key2  # variable to identify rows in df2 (by columns)
                             , file_save_rds = NA) {
     
-    # df1 <- df_w ; df2 <- df_comp ; vector_col1 <- colnames(df_w)[3:302] ; vector_col2 <- colnames(df_comp)[3:302] ; var_key1 <- "w" ; var_key2 <- "w" ;  
+    # df1 <- df_w ; df2 <- df_comp ; vector_col1 <- colnames(df_w)[5:304] ; vector_col2 <- colnames(df_comp)[2:301] ; var_key1 <- "w" ; var_key2 <- "w" ;  
     
     setDT(df1)
     setDT(df2)

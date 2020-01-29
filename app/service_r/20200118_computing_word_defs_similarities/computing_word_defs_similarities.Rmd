@@ -1,8 +1,8 @@
 ---
 title: "test 3: W2V vs BERT - word to def"
 output:
-  html_notebook: default
   pdf_document: default
+  html_notebook: default
 ---
 
 
@@ -169,7 +169,7 @@ We compute the similarities matrix between words vector representations and defi
 #                                 , "w"  # variable to identify rows in df1 (by rows)
 #                                 , "w"  # variable to identify rows in df2 (by columns)
 #                                 , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_avg.rds"))
-# 
+
 # 
 # df_w <- data_bert_words[w == token]
 # df_comp <- bert_def_sum
@@ -201,18 +201,26 @@ We compute the similarities matrix between words vector representations and defi
 
 ### WORD VS DEFINITIONS SIMILARITIES
 
-we compute the similarities matrix
+we compute the similarities matrix and we get the next datsets for w2v and BERT (free-context), for sum and average as composition function,
 
 ```{r echo = FALSE}
+#path_root_proj <- "/home/s/sync/projects/proj-nlp/"
+path_root_proj <- "C:/Users/scordoba/sync/projects/proj-nlp/"
+
 df_w2v_sum <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_sum.rds"))
 df_w2v_avg <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_avg.rds"))
 df_bert_sum <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_bert_similarities_w_to_def_cambridge_sum.rds"))
 df_bert_avg <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_bert_similarities_w_to_def_cambridge_avg.rds"))
 
-
 head(df_w2v_sum)
+head(df_w2v_avg)
+head(df_bert_sum)
+head(df_bert_avg)
 
 ```
+
+NOTE: sum and average the same results???
+
 
 we can order depends on similarities by definitions for each word
 
@@ -220,46 +228,52 @@ we can order depends on similarities by definitions for each word
 
 ####
 #### we compute two dataframes with the ranking of definitions and another with corresponding scores
+#df_sim <- df_w2v_sum
+#df_sim <- df_w2v_avg
+#df_sim <- df_bert_sum
+df_sim <- df_bert_avg
 
-lst_def_ordered <- lapply(1:nrow(df_sim), function(c){sim_one_word <- data.frame(  def = names(t(df_sim[c, -c("id", "w"), with = FALSE])[ , 1]), 
-                                                                sim = t(df_sim[c, -c("id", "w"), with = FALSE])[ , 1])
-                                    setDT(sim_one_word)
-                                    setorder(sim_one_word, -sim)
-                                    
-                                    sim_one_word <- as.data.table(t(sim_one_word))
-                                    colnames(sim_one_word) <- as.character(seq(1:ncol(sim_one_word)))
-                                    
-                                    sim_one_word[1, , ]
-                                    })
 
-lst_sim_ordered <- lapply(1:nrow(df_sim), function(c){sim_one_word <- data.frame(  def = names(t(df_sim[c, -c("id", "w"), with = FALSE])[ , 1]), 
-                                                                sim = t(df_sim[c, -c("id", "w"), with = FALSE])[ , 1])
-                                    setDT(sim_one_word)
-                                    setorder(sim_one_word, -sim)
-                                    
-                                    sim_one_word <- as.data.table(t(sim_one_word))
-                                    colnames(sim_one_word) <- as.character(seq(1:ncol(sim_one_word)))
-                                    
-                                    sim_one_word[2, , ]
-                                    })
-
+lst_def_ordered <- lapply(1:nrow(df_sim), function(c){sim_one_word <- data.frame(def = names(t(df_sim[c, -c("w"), with = FALSE])[ , 1]), 
+                                                                                 sim = t(df_sim[c, -c("w"), with = FALSE])[ , 1])
+                                                        setDT(sim_one_word)
+                                                        setorder(sim_one_word, -sim)
+                                                        
+                                                        sim_one_word <- as.data.table(t(sim_one_word))
+                                                        colnames(sim_one_word) <- as.character(seq(1:ncol(sim_one_word)))
+                                                        
+                                                        sim_one_word[1, , ]
+                                                        })
 dt_def_ordered <- rbindlist(lst_def_ordered)
 dt_def_ordered <- cbind(w = df_sim$w, dt_def_ordered)
-
-# remove initial prefix "def_" in definitions label 
-for(col in 1:(ncol(dt_def_ordered)-1)) { 
-    dt_def_ordered[[paste0(col)]] <- str_replace(dt_def_ordered[[paste0(col)]], "def_", "") 
-    } 
+#head(dt_def_ordered)
 
 
-head(dt_def_ordered)
-
+lst_sim_ordered <- lapply(1:nrow(df_sim), function(c){sim_one_word <- data.frame(def = names(t(df_sim[c, -c("w"), with = FALSE])[ , 1]), 
+                                                                                 sim = t(df_sim[c, -c("w"), with = FALSE])[ , 1])
+                                                        setDT(sim_one_word)
+                                                        setorder(sim_one_word, -sim)
+                                                        
+                                                        sim_one_word <- as.data.table(t(sim_one_word))
+                                                        colnames(sim_one_word) <- as.character(seq(1:ncol(sim_one_word)))
+                                                        
+                                                        sim_one_word[2, , ]
+                                                        })
 dt_sim_ordered <- rbindlist(lst_sim_ordered)
 dt_sim_ordered <- cbind(w = df_sim$w, dt_sim_ordered)
-head(dt_sim_ordered)
+#head(dt_sim_ordered)
+
+lst_ranking <- list(dt_def_ordered, dt_sim_ordered)
+
+#saveRDS(lst_ranking, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_sum_ranking.rds"))
+#saveRDS(lst_ranking, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_avg_ranking.rds"))
+#saveRDS(lst_ranking, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_sum_ranking.rds"))
+saveRDS(lst_ranking, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_avg_ranking.rds"))
 ```
 
 
+
+### RANKING
 
 
 
