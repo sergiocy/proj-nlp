@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "test 4: W2V analysis. Ranking."
 output:
@@ -103,3 +104,110 @@ plot(seq(1:length(error)), error)
 
 
 
+=======
+---
+title: "test 4: W2V analysis. Ranking."
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+
+```{r, echo = FALSE}
+library("reticulate")
+library("data.table")
+library("stringr")
+library("ggplot2")
+
+#path_root_proj <- "/home/s/sync/projects/proj-nlp/"
+path_root_proj <- "C:/Users/scordoba/sync/projects/proj-nlp/"
+#path_conda_exe <- "/opt/anaconda3/condabin/conda" 
+
+w2v_def_avg_ranking <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_avg_ranking.rds"))
+w2v_def_sum_ranking <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_sum_ranking.rds"))
+
+w2v_def_sum <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_sum.rds"))
+w2v_def_avg <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_avg.rds"))
+```
+
+### DATA
+
+Same data that before experiments
+
+
+```{r}
+# w2v ranking using average as composition function
+head(w2v_def_avg_ranking[[1]][ , 1:4])
+```
+
+```{r}
+# w2v ranking similarities using average as composition function
+head(w2v_def_avg_ranking[[2]][ , 1:4])
+```
+
+### COMPOSITION WITH AVERAGE VS SUM
+
+```{r, echo = FALSE}
+sim_words_avg <- w2v_def_avg_ranking[[1]]
+sim_scores_avg <- w2v_def_avg_ranking[[2]]
+sim_words_sum <- w2v_def_sum_ranking[[1]]
+sim_scores_sum <- w2v_def_sum_ranking[[2]]
+
+sim_review <- data.frame(
+                    x = 2:ncol(sim_scores_avg),
+                    average = sapply(2:ncol(sim_scores_avg), function(i){mean(as.numeric(sim_scores_avg[[i]]))}),
+                    maximum_avg = sapply(2:ncol(sim_scores_avg), function(i){max(as.numeric(sim_scores_avg[[i]]))}),
+                    minimum_avg = sapply(2:ncol(sim_scores_avg), function(i){min(as.numeric(sim_scores_avg[[i]]))}),
+                    sum = sapply(2:ncol(sim_scores_sum), function(i){mean(as.numeric(sim_scores_sum[[i]]))}),
+                    maximum_sum = sapply(2:ncol(sim_scores_sum), function(i){max(as.numeric(sim_scores_sum[[i]]))}),
+                    minimum_sum = sapply(2:ncol(sim_scores_sum), function(i){min(as.numeric(sim_scores_sum[[i]]))})
+                    )
+head(sim_review)
+```
+
+NOTE: the same values????
+
+
+we review datasets compose through average and sum,
+
+```{r}
+head(w2v_def_avg)
+```
+
+
+
+```{r}
+head(w2v_def_sum)
+```
+
+
+
+We will use the average.
+
+A kmeans clustering approach as a first topology review.
+
+
+```{r}
+error <- c()
+
+for(n_clusters in 2:50){
+    model1 <- kmeans(subset(w2v_def_avg, select = -c(w)), n_clusters, iter.max = 2000, nstart = 1, algorithm = c("Hartigan-Wong"), trace=TRUE)
+    #summary(model1)
+    
+    w2v_def_avg$cluster <- model1$cluster
+    #model1$centers
+    
+    w2v_def_avg$r2 <- sapply(1:nrow(w2v_def_avg), function(r){
+                                            sum( (subset(w2v_def_avg, select = -c(w, cluster))[r, ] - model1$centers[ w2v_def_avg[ r, ]$cluster, ])^2 ) 
+                                            } )
+    
+    error <- c(error, sum(w2v_def_avg$r2))
+}
+
+plot(seq(1:length(error)), error)
+```
+
+
+
+
+>>>>>>> c1f6d30eb090456dd5db1cd92d3ef30e07111bac
