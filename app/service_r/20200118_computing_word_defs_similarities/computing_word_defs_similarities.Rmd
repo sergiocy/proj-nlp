@@ -1,0 +1,280 @@
+---
+title: "test 3: W2V vs BERT - word to def"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+
+```{r, echo = FALSE}
+library("reticulate")
+library("data.table")
+library("stringr")
+source("../fun_compute_composition.R")
+source("../fun_compute_similarities_matrix.R")
+
+#path_root_proj <- "/home/s/sync/projects/proj-nlp/"
+path_root_proj <- "C:/Users/scordoba/sync/projects/proj-nlp/"
+#path_conda_exe <- "/opt/anaconda3/condabin/conda" 
+
+# loading data
+FILE_PY_READ_PICKLE <- paste0(path_root_proj, "app/lib/py/reader/read_pickle.py")
+#conda_list(conda = path_conda_exe)
+#use_condaenv("nlpenv", conda = path_conda_exe)
+#py_config()
+source_python(FILE_PY_READ_PICKLE)
+
+FILE_PKL_TO_READ_SIM <- paste0(path_root_proj, "data/exchange/ws353_input_sim")
+FILE_PKL_TO_READ_W2V_WORDS <- paste0(path_root_proj, "data/exchange/ws353_w2v_words_context")
+FILE_PKL_TO_READ_W2V_DEF <- paste0(path_root_proj, "data/exchange/ws353_w2v_def_cambridge")
+FILE_PKL_TO_READ_BERT_WORDS <- paste0(path_root_proj, "data/exchange/ws353_bert_words")
+FILE_PKL_TO_READ_BERT_DEF <- paste0(path_root_proj, "data/exchange/ws353_bert_def_cambridge")
+
+#### read dataframe from .pkl file
+data_sim <- setDT(read_pickle_file(FILE_PKL_TO_READ_SIM))
+data_w2v_words <- setDT(read_pickle_file(FILE_PKL_TO_READ_W2V_WORDS))
+data_w2v_def <- setDT(read_pickle_file(FILE_PKL_TO_READ_W2V_DEF))
+data_bert_words <- setDT(read_pickle_file(FILE_PKL_TO_READ_BERT_WORDS))
+data_bert_def <- setDT(read_pickle_file(FILE_PKL_TO_READ_BERT_DEF))
+
+review_cols <- c("id", "w", "id_token", "token")
+
+```
+
+### DATA
+
+dataset with mannual annotation of similaraties between pairs of words (wordsim353);
+
+
+```{r}
+head(data_sim)
+```
+
+
+dataset with vector representations of the set of words appeared;
+
+```{r}
+head(data_w2v_words)
+```
+
+we select rows with equal w and token 
+
+NOTE: w2v is context-free but we could test it.
+
+
+```{r echo=FALSE}
+length(unique(data_w2v_words$w))
+
+data_w2v_words <- subset(data_w2v_words[w == token], select = -c(id_token, token))
+head(data_w2v_words)
+```
+
+and dataset with words and its definitions,
+
+```{r echo = FALSE}
+head(data_w2v_def, 10)
+```
+
+
+### DEFINITIONS COMPOSITION (SUM AND AVERAGE)
+
+Firstly, we compute sum and average of componentes words of each definition for w2v and BERT.
+
+```{r echo = FALSE}
+# data_w2v_def <- subset(data_w2v_def, select = -c(id_token, token))
+# w2v_vector_cols <- colnames(data_w2v_def)[3:ncol(data_w2v_def)]
+# 
+# w2v_def_sum <- compute_vector_representation_composition(data_w2v_def 
+#                                           , "w" 
+#                                           , w2v_vector_cols 
+#                                           , type = "sum"
+#                                           , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_sum.rds"))
+# 
+# w2v_def_avg <- compute_vector_representation_composition(data_w2v_def 
+#                                           , "w" 
+#                                           , w2v_vector_cols 
+#                                           , type = "avg"
+#                                           , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_avg.rds"))
+# 
+# ####
+# #### bert
+# data_bert_def <- subset(data_bert_def, select = -c(id_token, token))
+# bert_vector_cols <- colnames(data_bert_def)[3:ncol(data_bert_def)]
+# 
+# bert_def_sum <- compute_vector_representation_composition(data_bert_def 
+#                                           , "w" 
+#                                           , bert_vector_cols
+#                                           , type = "sum"
+#                                           , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_sum.rds"))
+# 
+# bert_def_avg <- compute_vector_representation_composition(data_bert_def 
+#                                           , "w" 
+#                                           , bert_vector_cols 
+#                                           , type = "avg"
+#                                           , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_avg.rds"))
+
+```
+
+```{r}
+head(w2v_def_sum)
+```
+```{r}
+head(w2v_def_avg)
+```
+
+```{r}
+head(bert_def_sum)
+```
+
+```{r}
+head(bert_def_avg)
+```
+
+
+In this way, finally we have the vector representation of each word and the vector representation of the composition (sum and average) of the words that build the definitions.
+
+We compute the similarities matrix between words vector representations and definitions vector representations.
+
+
+
+
+```{r, echo = FALSE}
+# w2v_def_sum <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_sum.rds"))
+# w2v_def_avg <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_avg.rds"))
+# bert_def_sum <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_sum.rds"))
+# bert_def_avg <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_avg.rds"))
+# 
+# 
+# #### ...w vs def - w2v sum
+# df_w <- data_w2v_words[w == token]
+# df_comp <- w2v_def_sum
+# # ..we select words with definition...
+# df_w <- df_w[df_w$w %in% df_comp$w]
+# 
+# sim_w_to_def_w2v_sum <- compute_similarities_matrix (
+#                                 df_w
+#                                 , df_comp
+#                                 , colnames(df_w)[5:ncol(df_w)]
+#                                 , colnames(df_comp)[2:ncol(df_comp)]
+#                                 , "w"  # variable to identify rows in df1 (by rows)
+#                                 , "w"  # variable to identify rows in df2 (by columns)
+#                                 , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_sum.rds"))
+# 
+# df_comp <- w2v_def_avg
+# sim_w_to_def_w2v_avg <- compute_similarities_matrix (
+#                                 df_w
+#                                 , df_comp
+#                                 , colnames(df_w)[5:ncol(df_w)]
+#                                 , colnames(df_comp)[2:ncol(df_comp)]
+#                                 , "w"  # variable to identify rows in df1 (by rows)
+#                                 , "w"  # variable to identify rows in df2 (by columns)
+#                                 , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_avg.rds"))
+
+# 
+# df_w <- data_bert_words[w == token]
+# df_comp <- bert_def_sum
+# # ..we select words with definition...
+# df_w <- df_w[df_w$w %in% df_comp$w]
+# 
+# sim_w_to_def_bert_sum <- compute_similarities_matrix (
+#                                 df_w
+#                                 , df_comp
+#                                 , colnames(df_w)[5:ncol(df_w)]
+#                                 , colnames(df_comp)[2:ncol(df_comp)]
+#                                 , "w"  # variable to identify rows in df1 (by rows)
+#                                 , "w"  # variable to identify rows in df2 (by columns)
+#                                 , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_bert_similarities_w_to_def_cambridge_sum.rds"))
+# 
+# df_comp <- bert_def_avg
+# sim_w_to_def_bert_avg <- compute_similarities_matrix (
+#                                 df_w
+#                                 , df_comp
+#                                 , colnames(df_w)[5:ncol(df_w)]
+#                                 , colnames(df_comp)[2:ncol(df_comp)]
+#                                 , "w"  # variable to identify rows in df1 (by rows)
+#                                 , "w"  # variable to identify rows in df2 (by columns)
+#                                  , file_save_rds = paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_bert_similarities_w_to_def_cambridge_avg.rds"))
+```
+
+
+
+
+### WORD VS DEFINITIONS SIMILARITIES
+
+we compute the similarities matrix and we get the next datsets for w2v and BERT (free-context), for sum and average as composition function,
+
+```{r echo = FALSE}
+#path_root_proj <- "/home/s/sync/projects/proj-nlp/"
+path_root_proj <- "C:/Users/scordoba/sync/projects/proj-nlp/"
+
+df_w2v_sum <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_sum.rds"))
+df_w2v_avg <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_w2v_similarities_w_to_def_cambridge_avg.rds"))
+df_bert_sum <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_bert_similarities_w_to_def_cambridge_sum.rds"))
+df_bert_avg <- readRDS(paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/ws353_bert_similarities_w_to_def_cambridge_avg.rds"))
+
+head(df_w2v_sum)
+head(df_w2v_avg)
+head(df_bert_sum)
+head(df_bert_avg)
+
+```
+
+NOTE: sum and average the same results???
+
+
+we can order depends on similarities by definitions for each word
+
+```{r, echo = FALSE}
+
+####
+#### we compute two dataframes with the ranking of definitions and another with corresponding scores
+#df_sim <- df_w2v_sum
+#df_sim <- df_w2v_avg
+#df_sim <- df_bert_sum
+df_sim <- df_bert_avg
+
+
+lst_def_ordered <- lapply(1:nrow(df_sim), function(c){sim_one_word <- data.frame(def = names(t(df_sim[c, -c("w"), with = FALSE])[ , 1]), 
+                                                                                 sim = t(df_sim[c, -c("w"), with = FALSE])[ , 1])
+                                                        setDT(sim_one_word)
+                                                        setorder(sim_one_word, -sim)
+                                                        
+                                                        sim_one_word <- as.data.table(t(sim_one_word))
+                                                        colnames(sim_one_word) <- as.character(seq(1:ncol(sim_one_word)))
+                                                        
+                                                        sim_one_word[1, , ]
+                                                        })
+dt_def_ordered <- rbindlist(lst_def_ordered)
+dt_def_ordered <- cbind(w = df_sim$w, dt_def_ordered)
+#head(dt_def_ordered)
+
+
+lst_sim_ordered <- lapply(1:nrow(df_sim), function(c){sim_one_word <- data.frame(def = names(t(df_sim[c, -c("w"), with = FALSE])[ , 1]), 
+                                                                                 sim = t(df_sim[c, -c("w"), with = FALSE])[ , 1])
+                                                        setDT(sim_one_word)
+                                                        setorder(sim_one_word, -sim)
+                                                        
+                                                        sim_one_word <- as.data.table(t(sim_one_word))
+                                                        colnames(sim_one_word) <- as.character(seq(1:ncol(sim_one_word)))
+                                                        
+                                                        sim_one_word[2, , ]
+                                                        })
+dt_sim_ordered <- rbindlist(lst_sim_ordered)
+dt_sim_ordered <- cbind(w = df_sim$w, dt_sim_ordered)
+#head(dt_sim_ordered)
+
+lst_ranking <- list(dt_def_ordered, dt_sim_ordered)
+
+#saveRDS(lst_ranking, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_sum_ranking.rds"))
+#saveRDS(lst_ranking, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/w2v_def_avg_ranking.rds"))
+#saveRDS(lst_ranking, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_sum_ranking.rds"))
+saveRDS(lst_ranking, paste0(path_root_proj, "data/exchange/20200118-test3-wToDef/bert_def_avg_ranking.rds"))
+```
+
+
+
+### RANKING
+
+
+
+
