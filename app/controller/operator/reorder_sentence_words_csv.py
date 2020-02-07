@@ -7,6 +7,8 @@ from nltk.parse import CoreNLPParser
 
 
 
+
+
 #### READING dataframe with phrases in one of its columns nd reorder to apply vector composition in this order 
 def reorder_sentence_words_csv(logger = None
                                , df_input = None
