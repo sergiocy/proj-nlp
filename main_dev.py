@@ -15,8 +15,10 @@ import pandas as pd
 #### imports personal modules
 from app.lib.py.logging.create_logger import create_logger
 
-from app.controller.generator.load_input_text_csv import load_input_text_csv
+from app.controller.reader.load_input_text_csv import load_input_text_csv
 from app.controller.generator.get_embedding_as_df import get_embedding_as_df
+from app.controller.api import run_pipeline
+from app.controller.operator.reorder_sentence_words_csv import reorder_sentence_words_csv
 #from service.vectorization.get_bert_embedding_of_several_words_as_pd_df import *
 
 #from service.text.reader.read_csv import read_csv_and_add_or_change_colnames
@@ -62,6 +64,7 @@ PATH_OUTPUT_BERT_WORD_VS_DEF_2 = 'data/output/word_vs_def_2'
 
 
 
+CONFIG_PIPE_FILE_TEST = 'config/pipeline/config_pipe_test.ini'
 
 
 
@@ -74,7 +77,23 @@ if __name__ == '__main__':
     logger.info(' - starting execution')
 
 
+    ####
+    #### ...dev api (run flow from config)...
+    #run_pipeline(logger = logger, config_pipe_file = CONFIG_PIPE_FILE_TEST)
 
+
+    ####
+    #### ...dev syntactical parsing...
+    df = pd.read_pickle(PATH_CHECKPOINT_W2V_WORDS_DEF_DICT)
+    df = df[df['id'].isin([1])]
+
+    print(df)
+    
+    reorder_sentence_words_csv(logger = logger
+                               , df_input = df
+                               , col_words_sentence = 'token'
+                               , type_order = 'syntactic')
+    
 
     '''
     ##################################
