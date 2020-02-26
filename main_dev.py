@@ -88,12 +88,34 @@ if __name__ == '__main__':
     df = df[df['id'].isin([1])]
 
     print(df)
-    
+
+    #### TODO: code to up standford server API
+    #### ...up syntactical parsin standford API..
+    #java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer \
+    #-preload tokenize,ssplit,pos,lemma,ner,parse,depparse \
+    #-status_port 9000 -port 9000 -timeout 15000 &
+    '''
+    from nltk.parse.corenlp import CoreNLPServer
+
+    # The server needs to know the location of the following files:
+    #   - stanford-corenlp-X.X.X.jar
+    #   - stanford-corenlp-X.X.X-models.jar
+    STANFORD = os.path.join("models", "stanford-corenlp-full-2018-02-27")
+
+    # Create the server
+    server = CoreNLPServer(
+       os.path.join(STANFORD, "stanford-corenlp-3.9.1.jar"),
+       os.path.join(STANFORD, "stanford-corenlp-3.9.1-models.jar"),
+    )
+    # Start the server in the background
+    server.start()
+    '''
+
     reorder_sentence_words_csv(logger = logger
                                , df_input = df
                                , col_words_sentence = 'token'
                                , type_order = 'syntactic')
-    
+
 
     '''
     ##################################
