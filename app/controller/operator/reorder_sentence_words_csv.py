@@ -39,9 +39,11 @@ def reorder_sentence_words_csv(logger = None
             print(sentence)
 
             parser = CoreNLPParser(url='http://localhost:9000')
-            #p = list(parser.parse(sentence))
+
+            p = list(parser.parse(sentence))
             #print(type(p))
-            #print(p)
+            print(p)
+
             #print(sentence)
 
             for tree in parser.parse(sentence):
