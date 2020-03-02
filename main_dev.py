@@ -85,9 +85,9 @@ if __name__ == '__main__':
     ####
     #### ...dev syntactical parsing...
     df = pd.read_pickle(PATH_CHECKPOINT_W2V_WORDS_DEF_DICT)
-    df = df[df['id'].isin([1])]
+    #df = df[df['id'].isin([1])]
 
-    print(df)
+    #print(df)
 
     #### TODO: code to up standford server API
     #### ...up syntactical parsin standford API..
@@ -112,10 +112,14 @@ if __name__ == '__main__':
     '''
 
     reorder_sentence_words_csv(logger = logger
-                               , df_input = df
+                               , df_input = df[df['id'].isin([1])]
                                , col_words_sentence = 'token'
                                , type_order = 'syntactic')
 
+    #reorder_sentence_words_csv(logger = logger
+    #                           , df_input = df[df['id'].isin([2])]
+    #                           , col_words_sentence = 'token'
+    #                           , type_order = 'syntactic')
 
     '''
     ##################################

@@ -35,11 +35,21 @@ def reorder_sentence_words_csv(logger = None
 
             print(sentence)
 
+            #### TODO: code to up standford server API
+            #### ...up syntactical parsin standford API..
+            #java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer \
+            #-preload tokenize,ssplit,pos,lemma,ner,parse,depparse \
+            #-status_port 9000 -port 9000 -timeout 15000 &
+
             #### ...psrsing sentence and get tree as string...
             parser = CoreNLPParser(url='http://localhost:9000')
             #p = list(parser.parse(sentence))
-            p = list(parser.parse(sentence))
+            p = list(parser.parse(sentence))[0]
             #### ...and we get the first syntactical tree (i'm not sure if we will have cases with several syntactical parse-trees)
+
+            print(p)
+            print('*********************')
+            print('*********************')
             #p = p[0]
             str_tree = str(p)
 
@@ -62,6 +72,13 @@ def reorder_sentence_words_csv(logger = None
 
 
 
+            ################3
+            #### ...working on regex...
+            
+            #for 
+            #####################
+
+
             #### ...we take pairs of values with start position less than end position...
             #lst_pos_start_tree = [lst_pos_start_tree[i] for i in range(0, lst_pos_start_tree) if int(lst_pos_start_tree[i]) < int(lst_pos_end_tree[i])]
             
@@ -76,6 +93,8 @@ def reorder_sentence_words_csv(logger = None
                 print(str_tree[ int(lst_pos_start_tree[i]) : (int(lst_pos_end_tree[i]) + len_end_tree_pattern)])
                 #print(str_tree[])
                 #print(str_tree[])
+
+
 
             '''
             if len(lst_pos_start_tree) != len(lst_pos_start_tree):
@@ -132,18 +151,6 @@ def reorder_sentence_words_csv(logger = None
                     print(subtree.label())
                     print(subtree.leaves())
             
-
-                #for layer_depth in range(0, len(tree)):
-                #    #print(tree[layer_depth])
-                #    print(len(tree[layer_depth]))
-                #    print(type(tree[layer_depth]))
-                #    print('-------------------')
-                    #for a in range(0, len(tree)):
-                    #    print(tree[layer_depth][0])
-
-            #for tree in rd_parser.parse(sent):
-            #    print(tree)
-
 
         elif type_order == 'direct':
             sentence = sentence
