@@ -114,7 +114,9 @@ if __name__ == '__main__':
     reorder_sentence_words_csv(logger = logger
                                , df_input = df[df['id'].isin([1])]
                                , col_words_sentence = 'token'
-                               , type_order = 'syntactic')
+                               , type_order = 'syntactic'
+                               , use_stanford_parser = True
+                               , verbose = True)
 
     #reorder_sentence_words_csv(logger = logger
     #                           , df_input = df[df['id'].isin([2])]
