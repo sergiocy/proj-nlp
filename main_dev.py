@@ -31,12 +31,12 @@ from app.controller.operator.reorder_sentence_words_csv import reorder_sentence_
 ####
 #### CSV FILES - DATA INPUT
 PATH_LOG_FILE = 'log/log.log'
-PATH_W2V_MODEL = '../0-model/w2v/GoogleNews-vectors-negative300.bin'
-PATH_INPUT_DATA = '../0-data/input/wordsim353/combined.csv'
-#PATH_INPUT_DATA_DEF = '../../0-data/input/wordsim353/combined-definitions.csv'
-PATH_INPUT_DATA_DEF = '../0-data/input/wordsim353/combined-definitions-context.csv'
-PATH_INPUT_DATA_DEF_WN = '../0-data/input/wordsim353/corpus_men_definitions_csv.csv'
-PATH_INPUT_SIM_SCORES = '../0-data/input/wordsim353/combined.csv'
+PATH_W2V_MODEL = '../00model/w2v/GoogleNews-vectors-negative300.bin'
+PATH_INPUT_DATA = '../00data/input/wordsim353/combined.csv'
+#PATH_INPUT_DATA_DEF = '../../00data/input/wordsim353/combined-definitions.csv'
+PATH_INPUT_DATA_DEF = '../00data/input/wordsim353/combined-definitions-context.csv'
+PATH_INPUT_DATA_DEF_WN = '../00data/input/wordsim353/corpus_men_definitions_csv.csv'
+PATH_INPUT_SIM_SCORES = '../00data/input/wordsim353/combined.csv'
 
 
 ####
@@ -111,10 +111,19 @@ if __name__ == '__main__':
     server.start()
     '''
 
-    reorder_sentence_words_csv(logger = logger
-                               , df_input = df[df['id'].isin([1])]
+    df = df[df['id'].isin([1, 2, 3, 4, 5, 6, 7])]
+    print(df)
+
+    df_output = reorder_sentence_words_csv(logger = logger
+                               , df_input = df
                                , col_words_sentence = 'token'
-                               , type_order = 'syntactic')
+                               , col_partition = 'w'
+                               , col_words_sentence_reordered = 'token_reordered'
+                               , type_order = 'syntactic'
+                               , use_stanford_parser = True
+                               , verbose = True)
+
+    print(df_output.head(50))
 
     #reorder_sentence_words_csv(logger = logger
     #                           , df_input = df[df['id'].isin([2])]

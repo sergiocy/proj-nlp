@@ -2,12 +2,13 @@
 
 import pandas as pd
 import numpy as np
-import re
+#import re
 #import nltk
 from nltk.parse import CoreNLPParser
 import nltk.parse.api
 #import nltk
 
+from app.service.text.reorder_syntactic_tokenized_sentence import * 
 
 
 
@@ -16,162 +17,63 @@ import nltk.parse.api
 def reorder_sentence_words_csv(logger = None
                                , df_input = None
                                , col_words_sentence = None
-                               , type_order = 'syntactic'):
-
-
+                               , col_partition = None
+                               , col_words_sentence_reordered = None
+                               , type_order = 'syntactic'
+                               , use_stanford_parser = True
+                               , verbose = True):
 
 
     try:
-        logger.info('reordering words in csv phrases')
 
-        sentence = df_input[col_words_sentence].array
-        
+        lst_ordered_words = list()
 
-        if type_order == 'syntactic':
+        for part in df_input[col_partition].unique():
+            df_part = df_input[df_input[col_partition]==part]
 
-
-            #sentence = " ".join(sentence)
+            sentence = df_part[col_words_sentence].array
             sentence = list(sentence)
 
-            print(sentence)
-
-            #### TODO: code to up standford server API
-            #### ...up syntactical parsin standford API..
-            #java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer \
-            #-preload tokenize,ssplit,pos,lemma,ner,parse,depparse \
-            #-status_port 9000 -port 9000 -timeout 15000 &
-
-            #### ...psrsing sentence and get tree as string...
-            parser = CoreNLPParser(url='http://localhost:9000')
-            #p = list(parser.parse(sentence))
-            p = list(parser.parse(sentence))[0]
-            #### ...and we get the first syntactical tree (i'm not sure if we will have cases with several syntactical parse-trees)
-
-            print(p)
-            print('*********************')
-            print('*********************')
-            #p = p[0]
-            str_tree = str(p)
-
-            print(str_tree)
-
-            #### ...get start and end of trees...
-            start_tree_pattern = re.compile("\[Tree\(") #+ len('[Tree(')
-            len_start_tree_pattern = len('[Tree(')
-            end_tree_pattern = re.compile("\)\]")
-            len_end_tree_pattern = len(')]')
-
-            lst_pos_start_tree = [i_pos_start.start() for i_pos_start in start_tree_pattern.finditer(str_tree)]
-            lst_pos_end_tree = [i_pos_end.start() + len_end_tree_pattern for i_pos_end in end_tree_pattern.finditer(str_tree)]
-            lst_pos_end_tree.reverse()
+            if logger is not None:
+                logger.info('reordering words in csv phrases')
+                logger.info('input phrase: {}'.format(sentence))
             
 
-            print(lst_pos_start_tree)
-            print(lst_pos_end_tree)
-            print(len(str_tree))
+            if type_order == 'syntactic':
 
+                #### TODO: code to up standford server API
+                #### ...up syntactical parsin standford API..
+                #java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer \
+                #-preload tokenize,ssplit,pos,lemma,ner,parse,depparse \
+                #-status_port 9000 -port 9000 -timeout 15000 &
 
+                sentence = reorder_syntactic_tokenized_sentence(logger = logger
+                                                    , lst_sentence = sentence
+                                                    , use_stanford_parser = True
+                                                    , verbose = verbose)
 
-            ################3
-            #### ...working on regex...
-            
-            #for 
-            #####################
+            elif type_order == 'direct':
+                sentence = sentence
 
-
-            #### ...we take pairs of values with start position less than end position...
-            #lst_pos_start_tree = [lst_pos_start_tree[i] for i in range(0, lst_pos_start_tree) if int(lst_pos_start_tree[i]) < int(lst_pos_end_tree[i])]
-            
-            #print(lst_pos_start_tree)
-            #print(lst_pos_end_tree)
-
-            print('***************')
-
-            for i in range(len(lst_pos_start_tree)):
-                print(i)
-                print(int(lst_pos_start_tree[i]))
-                print(str_tree[ int(lst_pos_start_tree[i]) : (int(lst_pos_end_tree[i]) + len_end_tree_pattern)])
-                #print(str_tree[])
-                #print(str_tree[])
-
-
-
-            '''
-            if len(lst_pos_start_tree) != len(lst_pos_start_tree):
-                print("start and end of brackets inconsistent")
-                raise Exception
+            elif type_order == 'reverse':
+                sentence.reverse()
 
             else:
+                logger.info('this type_order not exist')
+                raise Exception
 
-                for pos_start_tree in lst_pos_start_tree:
-                    str_subtree = str_tree[pos_start_tree]
-
-            #str_sub_tree = str_tree[i_start_tree_pattern:i_end_tree_pattern]
-
-            #print(str_sub_tree)
-
-            #for m in p.finditer(str_tree):
-            #    print(m.start(), m.group())
-            #    print(str_tree[m.start():len(str_tree)])
-
-            #start = str_tree.find('\[Tree\(')
-            #end = s.find('ZZZ', start)
-            #s[start:end]
-            #print(str_tree[start:len(str_tree)])
-
-            
-            for i in p:
-                print(i)
-                print(type(i))
-            '''
+            #### ...we build the output as list of phrases with reordered words...
+            lst_ordered_words = lst_ordered_words + sentence
 
 
-            
-            print('------')
-            print('------')
-
-            for tree in parser.parse(sentence):
-                
-                print(tree)
-                print(tree.label())
-                print(tree.leaves())
-                print(type(tree))
-                print('-------------------')
-                print(tree[0])
-                print(len(tree[0]))
-                
-                print('-------------------')
-                print(tree[0,0])
-                print('-------------------')
-                print(tree[0,1])
-
-                print('-------------------')
-                for subtree in tree.subtrees():
-                    print(subtree)
-                    print(subtree.label())
-                    print(subtree.leaves())
-            
-
-        elif type_order == 'direct':
-            sentence = sentence
-            print(sentence)
-
-        elif type_order == 'reverse':
-            sentence = list(sentence)
-            sentence.reverse()
-
-            sentence = np.asarray(sentence)
-            print(sentence)
-
-        else:
-            logger.info('this type_order not exist')
-            raise Exception
+        #### ...we add to input dataset as new column...
+        df_input[col_words_sentence_reordered] = np.asarray(lst_ordered_words)
 
 
     except Exception:
         if logger is not None:
             logger.exception("ERROR reading csv")
-
         raise Exception
 
-    #return df
+
+    return df_input
