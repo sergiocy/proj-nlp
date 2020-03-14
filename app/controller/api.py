@@ -3,16 +3,16 @@
 import logging
 import configparser
 
-from .controller.reader.load_input_text_csv import load_input_text_csv
-from .controller.generator.get_embeddings_as_df import get_embeddings_as_df
-from .controller.operator.reorder_sentence_words_csv import reorder_sentence_words_csv
+from .reader.load_input_text_csv import load_input_text_csv
+from .generator.get_embedding_as_df import get_embedding_as_df
+from .operator.reorder_sentence_words_csv import reorder_sentence_words_csv
 
 
 
 
 def run_pipeline(logger = None
                 , config_pipe_file = None):
-    
+
     try:
         print('running flow')
         print('config file {}'.format(config_pipe_file))
@@ -32,7 +32,7 @@ def run_pipeline(logger = None
             print(sec.split('.'))
             sec = sec.split('.')[1]
 
-            
+
 
 
     except Exception as e:
@@ -45,8 +45,8 @@ def run_load_input_text_csv():
 
 def run_get_embeddings_as_df():
     print('executing load_input_text_csv')
-    
+
 
 
 if __name__ == "__main__":
-    print('using selector.py') 
+    print('using selector.py')

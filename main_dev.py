@@ -111,7 +111,7 @@ if __name__ == '__main__':
     server.start()
     '''
 
-    df = df[df['id'].isin([1, 2, 3, 4, 5, 6, 7])]
+    df = df[df['id'].isin([1])]
     print(df)
 
     df_output = reorder_sentence_words_csv(logger = logger
@@ -123,7 +123,7 @@ if __name__ == '__main__':
                                , use_stanford_parser = True
                                , verbose = True)
 
-    print(df_output.head(50))
+    #print(df_output.head(50))
 
     #reorder_sentence_words_csv(logger = logger
     #                           , df_input = df[df['id'].isin([2])]

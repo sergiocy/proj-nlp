@@ -8,7 +8,8 @@ from nltk.parse import CoreNLPParser
 import nltk.parse.api
 #import nltk
 
-from app.service.text.reorder_syntactic_tokenized_sentence import * 
+from app.service.text.reorder_syntactic_tokenized_sentence import *
+from app.service.text.reorder_syntactic_tokenized_sentence_regex import *
 
 
 
@@ -37,20 +38,25 @@ def reorder_sentence_words_csv(logger = None
             if logger is not None:
                 logger.info('reordering words in csv phrases')
                 logger.info('input phrase: {}'.format(sentence))
-            
+
 
             if type_order == 'syntactic':
 
                 #### TODO: code to up standford server API
                 #### ...up syntactical parsin standford API..
-                #java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer \
-                #-preload tokenize,ssplit,pos,lemma,ner,parse,depparse \
+                #java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer
+                #-preload tokenize,ssplit,pos,lemma,ner,parse,depparse
                 #-status_port 9000 -port 9000 -timeout 15000 &
 
-                sentence = reorder_syntactic_tokenized_sentence(logger = logger
+                #sentence = reorder_syntactic_tokenized_sentence(logger = logger
+                #                                    , lst_sentence = sentence
+                #                                    , use_stanford_parser = True
+                #                                    , verbose = verbose)
+
+                sentence = reorder_syntactic_tokenized_sentence_regex(logger = logger
                                                     , lst_sentence = sentence
                                                     , use_stanford_parser = True
-                                                    , verbose = verbose)
+                                                    , verbose = False)
 
             elif type_order == 'direct':
                 sentence = sentence
