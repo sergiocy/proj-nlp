@@ -31,7 +31,7 @@ def reorder_syntactic_tokenized_sentence_regex(logger = None
         print('nested structure : {}'.format(str_structure))
 
         lst_structure = list(str_structure)
-        print(lst_structure)
+        #print(lst_structure)
 
         #patron = re.compile(r'\bfoo\b')
         #lst_start_nest_pos = start_nest.search(str_structure)
@@ -41,8 +41,8 @@ def reorder_syntactic_tokenized_sentence_regex(logger = None
         lst_bool_start_nest_pos = [True if lst_structure[i_chr] == start_nest else False for i_chr in range(len(lst_structure))]
         lst_bool_end_nest_pos = [True if lst_structure[i_chr] == end_nest else False for i_chr in range(len(lst_structure))]
 
-        print(lst_bool_start_nest_pos)
-        print(lst_bool_end_nest_pos)
+        #print(lst_bool_start_nest_pos)
+        #print(lst_bool_end_nest_pos)
 
 
         print('****************')
@@ -65,16 +65,25 @@ def reorder_syntactic_tokenized_sentence_regex(logger = None
 
         #### ...run on start parenthesis matched...
         for i_start in range(len(lst_bool_start_nest_pos)):
+            print('*** character {}'.format(lst_structure[i_start]))
 
             if lst_bool_start_nest_pos[i_start]:
-                current_start_pos = i
-                current_layer_x = current_layer_x + 1
+                print('*** start parenthesis found: {}'.format(lst_structure[i_start]))
+                current_start_pos = i_start
+                current_layer_depth = current_layer_depth + 1
 
-                for i_end in range(i+1, len(lst_bool_start_nest_pos)):
-                    i_start_next
+                for i_end in range(i_start+1, len(lst_bool_start_nest_pos)):
+                    print('*** searching end parenthesis found: {}'.format(lst_structure[i_end]))
+                    if lst_bool_start_nest_pos[i_end]:
+                        break
+                    if lst_bool_end_nest_pos[i_end]:
+                        current_end_pos = i_end
+                        break
 
-
-
+                if current_end_pos > 0:
+                    print('**** nested parenthesis found!! ****')
+                    print('start pos: {0} - end pos: {1} - expresion: {2}'.format(current_start_pos, current_end_pos, ''.join(lst_structure[current_start_pos:current_end_pos])))
+                    break
 
 
         print('\n #############################')
@@ -84,7 +93,6 @@ def reorder_syntactic_tokenized_sentence_regex(logger = None
 
 
     try:
-
         #### ...to control words that we used...
         lst_sentence_ctrl = list(lst_sentence)
         #### ...to store output...
@@ -97,13 +105,24 @@ def reorder_syntactic_tokenized_sentence_regex(logger = None
             if logger is not None:
                 logger.warn('we need you up standford nlp parser')
 
+
+
+        ####
+        ####
+        lst_root_trees = []
+        for tree in parser.parse(sentence_reordered):
+            lst_root_trees.append(tree)
+        #### ...if would have a list of trees, we would pick the first...
+        root_tree = lst_root_trees[0]
+        print(root_tree)
+
+
+
         #### ...we apply parsing...
         p = list(parser.parse(sentence_reordered))
         #### ...just in case.... as string to treat with regex...
         str_tree = str(p)
         parse_nested_structure_with_regex(str_tree)
-
-
 
 
 
