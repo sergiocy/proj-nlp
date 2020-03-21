@@ -47,14 +47,14 @@ def reorder_sentence_words_csv(logger = None
                 # java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -preload tokenize,ssplit,pos,lemma,ner,parse,depparse -status_port 9000 -port 9000 -timeout 15000 &
 
                 #sentence = reorder_syntactic_tokenized_sentence(logger = logger
-                #                                    , lst_sentence = sentence
-                #                                    , use_stanford_parser = True
-                #                                    , verbose = verbose)
+                #                                                , lst_sentence = sentence
+                #                                                , use_stanford_parser = True
+                #                                                , verbose = verbose)
 
                 sentence = reorder_syntactic_tokenized_sentence_regex(logger = logger
-                                                    , lst_sentence = sentence
-                                                    , use_stanford_parser = True
-                                                    , verbose = False)
+                                                                        , lst_sentence = sentence
+                                                                        , use_stanford_parser = True
+                                                                        , verbose = False)
 
             elif type_order == 'direct':
                 sentence = sentence
