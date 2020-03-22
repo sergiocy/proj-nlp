@@ -29,7 +29,6 @@ def reorder_syntactic_tokenized_sentence_regex(logger = None
                                             , start_nest = '['
                                             , end_nest = ']'):
 
-        print('\n #############################')
         if logger is not None:
             logger.info(' ******** input nested structure : {}'.format(str_structure))
 
@@ -117,14 +116,26 @@ def reorder_syntactic_tokenized_sentence_regex(logger = None
         ####
         ######## STEP 3: set father node/tree (setting its indexes layer_x and layer_depth)
 
+        #### ...we define the substructures length; with this we can get which structure contains which...
+        df_nested_structure['substring_length'] = df_nested_structure['pos_char_end'] - df_nested_structure['pos_char_start']
+
+        #### ...we get, for each nested-strucuture found, the structure shorter containining it...
+        for i_nest, row in df_nested_structure.iterrows():
+            pos_start = df_nested_structure.iloc[i_nest]['pos_char_start']
+            pos_end = df_nested_structure.iloc[i_nest]['pos_char_end']
+
+            df_nest_aux = df_nested_structure[(df_nested_structure['pos_char_start'] < pos_start) & (df_nested_structure['pos_char_end'] > pos_end)]
+            df_nest_aux = df_nest_aux[df_nest_aux['substring_length'] == df_nest_aux['substring_length'].min()]
+
+            if len(df_nest_aux) > 0:
+                df_nested_structure.loc[i_nest, 'father_layer_x'] = df_nest_aux.iloc[0]['layer_x']
+                df_nested_structure.loc[i_nest, 'father_layer_depth'] = df_nest_aux.iloc[0]['layer_depth']
 
 
+        df_nested_structure = df_nested_structure.drop('substring_length', axis = 1)
 
-        print(df_nested_structure)
+        return df_nested_structure
 
-        print('\n #############################')
-
-        #return str_structure, df_nested_structure
 
 
 
@@ -158,7 +169,9 @@ def reorder_syntactic_tokenized_sentence_regex(logger = None
         p = list(parser.parse(sentence_reordered))
         #### ...just in case.... as string to treat with regex...
         str_tree = str(p)
-        parse_nested_structure_with_regex(str_tree, logger = logger, verbose = True)
+        df_tree_structure = parse_nested_structure_with_regex(str_tree, logger = logger, verbose = True)
+
+        print(df_tree_structure)
 
 
 
