@@ -10,6 +10,7 @@ config/model/*
 #### jupyter
 */.ipynb_checkpoints/
 */*.ipynb
+*.ipynb
 
 #### pycharm 
 */**/.idea/
