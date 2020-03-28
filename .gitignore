@@ -8,7 +8,7 @@ config/model/bert/*.*
 config/model/*
 
 #### jupyter
-*/.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
 */*.ipynb
 *.ipynb
 
