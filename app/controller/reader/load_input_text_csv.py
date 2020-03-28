@@ -10,7 +10,7 @@ def load_input_text_csv(logger = None
                         , new_colnames = None
                         , file_input = None
                         , has_header = True
-                        , sep = ';'
+                        , sep_in = ';'
                         , encoding = 'utf-8'
                         , has_complete_rows = True
                         , cols_to_clean = None
@@ -21,7 +21,9 @@ def load_input_text_csv(logger = None
                         , logging_tokens_cleaning = False
                         , insert_id_column = False
                         , inserted_id_column_name = 'id'
-                        , file_save_pickle = None):
+                        , file_save_pickle = None
+                        , file_save_gz = None
+                        , sep_out = '|'):
 
     try:
         if logger is not None:
@@ -30,13 +32,13 @@ def load_input_text_csv(logger = None
 
         #### ...read csv file and define header...
         if has_header:
-            df = pd.read_csv(file_input, sep=sep, encoding=encoding)
+            df = pd.read_csv(file_input, sep=sep_in, encoding=encoding)
             if new_colnames is not None:
                 df.columns = new_colnames
             if has_complete_rows:
                 df = df.dropna()
         else:
-            df = pd.read_csv(file_input, sep=sep, encoding=encoding, header=None)
+            df = pd.read_csv(file_input, sep=sep_in, encoding=encoding, header=None)
             if new_colnames is None and logger is not None:
                 logger.warn(" - dataframe without header")
             else:
@@ -66,6 +68,8 @@ def load_input_text_csv(logger = None
         #### ...saving results as file...
         if file_save_pickle is not None:
             df.to_pickle(file_save_pickle)
+        if file_save_gz is not None:
+            df.to_csv(file_save_gz, sep=sep_out, header=True, index=False, compression='gzip')
 
 
         if logger is not None:

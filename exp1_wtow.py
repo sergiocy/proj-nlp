@@ -31,23 +31,34 @@ from app.controller.api import run_pipeline
 from app.controller.operator.reorder_sentence_words_csv import reorder_sentence_words_csv
 
 # +
+####
+#### ...execution files...
+PATH_LOG_FILE = 'log/log.log'
+
+####
+#### ...models...
+PATH_W2V_MODEL = '../00model/w2v/GoogleNews-vectors-negative300.bin'
 
 ####
 #### CSV FILES - DATA INPUT
-PATH_LOG_FILE = 'log/log.log'
-PATH_W2V_MODEL = '../00model/w2v/GoogleNews-vectors-negative300.bin'
 PATH_INPUT_DATA = '../00data/input/wordsim353/combined.csv'
 #PATH_INPUT_DATA_DEF = '../../00data/input/wordsim353/combined-definitions.csv'
 PATH_INPUT_DATA_DEF = '../00data/input/wordsim353/combined-definitions-context.csv'
 PATH_INPUT_DATA_DEF_WN = '../00data/input/wordsim353/corpus_men_definitions_csv.csv'
 PATH_INPUT_SIM_SCORES = '../00data/input/wordsim353/combined.csv'
 
-
 ####
+#### data files during execution / checkpoints
+PATH_CHECKPOINT_INPUT_SIM_PKL = '../00data/nlp/tmp/ws353_input_sim'
+PATH_CHECKPOINT_INPUT_SIM_GZ = '../00data/nlp/tmp/ws353_input_sim.csv.gz'
+
+
+
+#######################################3
 #### PICKLE FILES - DATASETS PROCESSED - CHECKPOINTS PATHS...
 PATH_CHECKPOINT_INPUT = 'data/exchange/ws353_input'
 PATH_CHECKPOINT_INPUT_WORDNET = 'data/exchange/ws353_input_men_wordnet'
-PATH_CHECKPOINT_INPUT_SIM = 'data/exchange/ws353_input_sim'
+
 
 PATH_CHECKPOINT_BERT_WORDS = 'data/exchange/ws353_bert_words'
 PATH_CHECKPOINT_BERT_WORDS_CONTEXT = 'data/exchange/ws353_bert_words_context'
@@ -74,19 +85,24 @@ CONFIG_PIPE_FILE_TEST = 'config/pipeline/config_pipe_test.ini'
 
 
 
+# +
+start = time.time()
 
-os.getcwd()
+os.remove(PATH_LOG_FILE)
+logger = create_logger(PATH_LOG_FILE)
+logger.info(' - starting execution')
+# -
 
 
-def compute_embeddings():
-    
-    #################################################
-    #### COMPUTING BERT-VECTORS OF WORDS-DEFINITION FROM WORDNET
-    data_def = load_input_text_csv(logger = logger
+
+# ## loading data
+
+
+data = load_input_text_csv(logger = logger
                             , new_colnames = ['w1', 'w2', 'score']
                             , file_input = PATH_INPUT_SIM_SCORES
                             , has_header = True
-                            , sep = ','
+                            , sep_in = ','
                             , encoding = 'utf-8'
                             , has_complete_rows = True
                             , cols_to_clean = ['w1', 'w2']
@@ -97,8 +113,18 @@ def compute_embeddings():
                             , logging_tokens_cleaning = False
                             , insert_id_column = False
                             #, inserted_id_column_name = 'id0'
-                            , file_save_pickle = PATH_CHECKPOINT_INPUT_SIM)
-    #### ...we add id for each row...
-    logger.info(' - pandas dataframe cleaned; first rows...')
-    logger.info('\n{0}'.format(data_def.loc[0:4]))
-    #data_def = pd.read_pickle(PATH_CHECKPOINT_INPUT_WORDNET)
+                            , file_save_pickle = None
+                            , file_save_gz = PATH_CHECKPOINT_INPUT_SIM_GZ
+                            , sep_out = '|')
+
+data.head()
+print(data.shape)
+
+
+
+
+
+if logger is not None:
+    logger.info('Process finished after {}'.format(time.time() - start))
+else:
+    print('Process finished after {}'.format(time.time() - start))
