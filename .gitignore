@@ -2,7 +2,6 @@
 .git/*
 
 log/*.log
-data/*
 test/jupyter/*
 config/model/*.bin
 config/model/bert/*.*
