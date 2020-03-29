@@ -19,7 +19,9 @@ def get_embedding_as_df(logger = None
                         , path_embeddings_model = None
                         , type_model = 'BERT'
                         , python_pkg = 'bert-embeddings'
-                        , file_save_pickle = None):
+                        , file_save_pickle = None
+                        , file_save_gz = None
+                        , sep_out = '|'):
 
     try:
         if column_to_computing is not None and df_input is not None:
@@ -75,9 +77,6 @@ def get_embedding_as_df(logger = None
                         lst_embeddings.append(df_embeddings)
 
                         #### ...to clean the flow and memory treatment...
-                        print("----------------------------")
-                        print(df_embeddings)
-
                         del df_embeddings
 
                     df_rep = pd.concat(lst_embeddings)
@@ -92,6 +91,10 @@ def get_embedding_as_df(logger = None
                 df_rep.to_pickle(file_save_pickle)
                 if logger is not None:
                     logger.info(" - data saved in file pickle {0}".format(file_save_pickle))
+            if file_save_gz is not None:
+                df_rep.to_csv(file_save_gz, sep=sep_out, header=True, index=False, compression='gzip')
+                if logger is not None:
+                    logger.info(" - data saved in gz file {0}".format(file_save_gz))
 
 
         else:

@@ -38,6 +38,7 @@ def compute_embeddings():
 
 
 
+
     rep_w2v = get_embedding_as_df(logger = None
                             , verbose = False
                             , df_input = data_def

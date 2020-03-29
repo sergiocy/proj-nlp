@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.4.1
+#       jupytext_version: 1.3.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -51,6 +51,7 @@ PATH_INPUT_SIM_SCORES = '../00data/input/wordsim353/combined.csv'
 #### data files during execution / checkpoints
 PATH_CHECKPOINT_INPUT_SIM_PKL = '../00data/nlp/tmp/ws353_input_sim'
 PATH_CHECKPOINT_INPUT_SIM_GZ = '../00data/nlp/tmp/ws353_input_sim.csv.gz'
+PATH_CHECKPOINT_W2V_WORDS = '../00data/nlp/tmp/ws353_w2v_words.csv.gz'
 
 
 
@@ -59,8 +60,6 @@ PATH_CHECKPOINT_INPUT_SIM_GZ = '../00data/nlp/tmp/ws353_input_sim.csv.gz'
 PATH_CHECKPOINT_INPUT = 'data/exchange/ws353_input'
 PATH_CHECKPOINT_INPUT_WORDNET = 'data/exchange/ws353_input_men_wordnet'
 
-
-PATH_CHECKPOINT_BERT_WORDS = 'data/exchange/ws353_bert_words'
 PATH_CHECKPOINT_BERT_WORDS_CONTEXT = 'data/exchange/ws353_bert_words_context'
 PATH_CHECKPOINT_BERT_WORDS_DEF_DICT = 'data/exchange/ws353_bert_def_cambridge'
 PATH_CHECKPOINT_BERT_WORDS_DEF_WN = 'data/exchange/ws353_bert_def_wn'
@@ -117,8 +116,12 @@ data = load_input_text_csv(logger = logger
                             , file_save_gz = PATH_CHECKPOINT_INPUT_SIM_GZ
                             , sep_out = '|')
 
-data.head()
 print(data.shape)
+data.head()
+
+
+
+
 
 
 

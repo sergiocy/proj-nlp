@@ -1,4 +1,0 @@
-
-
-def pipe_selector():
-    
