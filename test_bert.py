@@ -30,6 +30,9 @@ from bert.tokenization import bert_tokenization
 
 
 
+
+
+
 # +
 # See BERT paper: https://arxiv.org/pdf/1810.04805.pdf
 # And BERT implementation convert_single_example() at https://github.com/google-research/bert/blob/master/run_classifier.py
@@ -65,11 +68,12 @@ def get_ids(tokens, tokenizer, max_seq_length):
 
 
 
-max_seq_length = 1
+max_seq_length = 128
 str_test = 'to like someone very much and have sexual feelings for them'
-str_test = 'someone'
+#str_test = 'someone'
 module_hub_url = "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1"
 
+str_test = 'to like someone very much and have very hungry at morning'
 
 
 
