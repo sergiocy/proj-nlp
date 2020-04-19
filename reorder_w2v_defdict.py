@@ -40,10 +40,14 @@ PATH_CHECKPOINT_W2V_WORDS_DEFINITION = '../00data/nlp/tmp/ws353_w2v_words_def_di
 
 #### READING dataframe with phrases in one of its columns nd reorder to apply vector composition in this order
 def reorder_sentence_words_csv(logger = None
-                               , df_input = None
-                               , col_words_sentence = None
+                               , df_input = None # input dataset with words and its definition as column way in dataframe
+                               , cols_input_to_save = None # list with columns to save from input dataset
+                               , cols_vector = None # colnames where is the vector representetations...
+                               , col_words_sentence = None # column with sentence words
+                               , col_id_words_sentence = None # column with ids of words sentence
                                , col_partition = None
-                               , col_words_sentence_reordered = None
+                               , col_words_sentence_reordered = None # column with reordered words as new column in dataframe 
+                               , col_id_words_sentence_reordered = None # column with reordered words ids as new column in dataframe 
                                , type_order = 'syntactic'
                                , use_stanford_parser = True
                                , verbose = True):
@@ -51,19 +55,38 @@ def reorder_sentence_words_csv(logger = None
 
     try:
 
-        lst_ordered_words = list()
+        #lst_ordered_words = list()
 
         for part in df_input[col_partition].unique():
+            #################################
+            #### ...select partition associated with one word...
             df_part = df_input[df_input[col_partition]==part]
 
+            ####
+            #### ...we get words sentence and words ids as lists... 
             sentence = df_part[col_words_sentence].array
             sentence = list(sentence)
+            id_token = list(df_part[col_id_words_sentence].array)
+            
+            print(sentence)
+            print(id_token)
+            
+            ####
+            #### ...paired input lists with tokens and its ids to reorder both later...
+            paired_token = list(zip(sentence, id_token))
+            
+            
 
             if logger is not None:
                 logger.info('reordering words in csv phrases')
                 logger.info('input phrase: {}'.format(sentence))
 
-
+            
+            
+            #################################
+            #### ...reorder sentene words loaded in "sentence" variable as list of tokens...
+            #### ...we implement different ways to reorder: 
+            #### direct (no-reorder), reverse (reading from right to left), following syntactic structure
             if type_order == 'syntactic':
                 
                 pass
@@ -87,18 +110,59 @@ def reorder_sentence_words_csv(logger = None
 
             elif type_order == 'reverse':
                 sentence.reverse()
+                print(sentence)
 
             else:
                 logger.info('this type_order not exist')
                 raise Exception
 
+               
+            
+            
+            #################################
             #### ...we build the output as list of phrases with reordered words...
-            lst_ordered_words = lst_ordered_words + sentence
+            lst_reordered_token = sentence
+            lst_reordered_id_token = list()
 
+            for reordered_token in lst_reordered_token:
+                for i_pair in range(len(paired_token)):
+                    if reordered_token == paired_token[i_pair][0]:
+                        lst_reordered_id_token = lst_reordered_id_token + [paired_token[i_pair][1]]
+                        del(paired_token[i_pair])
+                        break
+            
+            print(lst_reordered_token)
+            print(lst_reordered_id_token)
+        
+        
+        
+            #################################
+            #### ...we add to input dataset as new column...
+            print('adding new columns')
+            #df_input[col_words_sentence_reordered] = np.asarray(lst_reordered_token)
+            #df_input[col_id_words_sentence_reordered] = np.asarray(lst_reordered_id_token)
 
-        #### ...we add to input dataset as new column...
-        print('adding new columns')
-        df_input[col_words_sentence_reordered] = np.asarray(lst_ordered_words)
+            ####
+            #### ...generate dataset as input dataframe with reordered words, ids and vectors... 
+            df_reordered = pd.DataFrame(data = df_part[cols_input_to_save])
+            df_reordered[col_id_words_sentence_reordered] = np.asarray(lst_reordered_id_token)
+            df_reordered[col_words_sentence_reordered] = np.asarray(lst_reordered_token)
+
+            #print(df_reordered)
+            #print(df_part)
+
+            #### ...add vectors...
+            #df_reordered = df_reordered.merge(df_part[cols_vector], left_on=[col_id_words_sentence_reordered, col_words_sentence_reordered]
+            #                           , right_on=[col_id_words_sentence, col_words_sentence])
+
+            df_reordered = pd.merge(df_reordered#.reset_index(drop = True)
+                                    , df_part#[[cols_vector]]#.reset_index(drop = True)
+                                    , left_on=[col_id_words_sentence_reordered, col_words_sentence_reordered]
+                                    , right_on=[col_id_words_sentence, col_words_sentence]
+                                    , how = 'left'
+                                    , suffixes = ('', '_y'))
+
+            print(df_reordered)
 
 
     except Exception:
@@ -143,9 +207,13 @@ w2v_def.head(12)
 # +
 w2v_def_reordered = reorder_sentence_words_csv(logger = None #logger
                            , df_input = w2v_def
+                           , cols_input_to_save = ['id', 'w']
+                           , cols_vector = w2v_vector_colnames
                            , col_words_sentence = 'token'
+                           , col_id_words_sentence = 'id_token'
                            , col_partition = 'w'
                            , col_words_sentence_reordered = 'token_reordered'#['id_token_reordered', 'token_reordered']
+                           , col_id_words_sentence_reordered = 'id_token_reordered'
                            , type_order = 'reverse'
                            , use_stanford_parser = True
                            , verbose = True)
@@ -158,43 +226,9 @@ w2v_def_reordered
 
 
 
-# +
-list1 = ["c", "b", "d", "a"]
-list2 = [2, 3, 1, 4]
-
-zipped_lists = zip(list1, list2)
-print(zipped_lists)
-#print(list(zipped_lists))
-
-sorted_pairs = sorted(zipped_lists)
-print(list(sorted_pairs))
-tuples = zip(*sorted_pairs)
-print(tuples)
-list1, list2 = [list(tuple) for tuple in  tuples]
-print(list1)
-print(list2)
 
 
-print ('#######')
-print(zip(*zipped_lists))
-
-
-
-# +
-X = ["a", "b", "c", "d", "e", "f", "g", "h", "i"]
-Y = [ 0,   1,   1,    0,   1,   2,   2,   0,   1]
-
-paired_lists = zip(Y,X)
-#print(paired_lists(0))
-
-Z = [x for _,x in sorted(paired_lists)]
-print(Z)  # ["a", "d", "h", "b", "c", "e", "i", "f", "g"]
-
-
-#Y = [ 1,   1, 1,   2,   2, 1, 0, 0, 0]
-
-Z = [x for _,x in zip(*paired_lists)]
-print(Z)  
+ 
 
 # +
 token = ['i', 'love', 'you', 'with', 'too', 'love']
@@ -218,8 +252,12 @@ for reordered_token in lst_reordered_token:
                        
 paired_reordered_token = list(zip(lst_reordered_token, lst_reordered_id_token))
 
+paired_reordered_token = list(zip(lst_reordered_token, lst_reordered_id_token))
 print(lst_reordered_token)
-paired_reordered_token
+print(lst_reordered_id_token)
+
+#print(lst_reordered_token)
+#paired_reordered_token
 # -
 
 
