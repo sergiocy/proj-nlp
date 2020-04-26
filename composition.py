@@ -39,9 +39,14 @@ PATH_CHECKPOINT_BERT_WORDS_DEFINITION_REORDERED_REVERSE = '../00data/nlp/tmp/ws3
 PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_SUM = '../00data/nlp/tmp/ws353_w2v_composed_direct_words_def_dict_sum.csv.gz'
 PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_AVG = '../00data/nlp/tmp/ws353_w2v_composed_direct_words_def_dict_avg.csv.gz'
 PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_AVG_SEQ = '../00data/nlp/tmp/ws353_w2v_composed_direct_words_def_dict_avg_seq.csv.gz'
+PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_REVERSE_AVG_SEQ = '../00data/nlp/tmp/ws353_w2v_composed_reverse_words_def_dict_avg_seq.csv.gz'
+PATH_CHECKPOINT_BERT_WORDS_DEFINITION_COMPOSED_DIRECT_SUM = '../00data/nlp/tmp/ws353_bert_composed_direct_words_def_dict_sum.csv.gz'
+PATH_CHECKPOINT_BERT_WORDS_DEFINITION_COMPOSED_DIRECT_AVG = '../00data/nlp/tmp/ws353_bert_composed_direct_words_def_dict_avg.csv.gz'
+PATH_CHECKPOINT_BERT_WORDS_DEFINITION_COMPOSED_DIRECT_AVG_SEQ = '../00data/nlp/tmp/ws353_bert_composed_direct_words_def_dict_avg_seq.csv.gz'
+PATH_CHECKPOINT_BERT_WORDS_DEFINITION_COMPOSED_REVERSE_AVG_SEQ = '../00data/nlp/tmp/ws353_bert_composed_reverse_words_def_dict_avg_seq.csv.gz'
+
+
 # -
-
-
 def compound_vector_words_csv(logger = None
                                , df_input = None # input dataset with words and its definition as column way in dataframe
                                , cols_input_to_save = None # list with columns to save from input dataset
@@ -68,7 +73,7 @@ def compound_vector_words_csv(logger = None
         for part in elements_partition:
             #################################
             #### ...select partition associated with one word...
-            df_part = df_input[df_input[col_partition]==part]
+            df_part = df_input[df_input[col_partition]==part].reset_index(drop=True)
             
             if logger is not None:
                 logger.info('reordering words in csv phrases')
@@ -157,6 +162,11 @@ def compound_vector_words_csv(logger = None
 
             lst_df_partition_output.append(df_partition_output)
             
+            ####
+            #### ...clean iteration...
+            del(df_part)
+            del(df_partition_output)
+            
         
         ####
         #### ...build output dataframe...
@@ -208,7 +218,7 @@ w2v_vector_colnames = ['dim_{0}'.format(i) for i in range(1, w2v_vector_dimensio
 
 
 #### ...we get a few words to dev...
-w2v_def = w2v_def[w2v_def.id.isin([1,2,3,4])]
+#w2v_def = w2v_def[w2v_def.id.isin([425, 426, 428])]
 
 w2v_def.head(12)
 # +
@@ -219,7 +229,7 @@ w2v_composed_def_dict_sum = compound_vector_words_csv(logger = None
                                , cols_vector_representation = w2v_vector_colnames # list with columns with vector representation
                                , vector_dimension = 300
                                , type_computation = 'sum'
-                               , file_save_gz = None # file to save output
+                               , file_save_gz = PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_SUM # file to save output
                                , sep_out = '|' # field separator in output data file
                                , verbose = True)
 
@@ -234,7 +244,7 @@ w2v_composed_def_dict_avg = compound_vector_words_csv(logger = None
                                , cols_vector_representation = w2v_vector_colnames # list with columns with vector representation
                                , vector_dimension = 300
                                , type_computation = 'avg'
-                               , file_save_gz = None # file to save output
+                               , file_save_gz = PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_AVG # file to save output
                                , sep_out = '|' # field separator in output data file
                                , verbose = True)
 
@@ -247,26 +257,167 @@ w2v_composed_def_dict_avg_sequence = compound_vector_words_csv(logger = None
                                , cols_vector_representation = w2v_vector_colnames # list with columns with vector representation
                                , vector_dimension = 300
                                , type_computation = 'avg_sequence'
-                               , file_save_gz = None # file to save output
+                               , file_save_gz = PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_AVG_SEQ # file to save output
                                , sep_out = '|' # field separator in output data file
                                , verbose = True)
 
 w2v_composed_def_dict_avg_sequence
+# -
+# ### reverse order
+#
+# in reverse order we only compute the average_sequence type of computing. Only has sense for this.
+
+
+# +
+#start = time.time()
+#os.remove(PATH_LOG_FILE)
+#logger = create_logger(PATH_LOG_FILE)
+#logger.info(' - starting execution')
+
+
+#### LOAD DATASET
+#### ...pairs of words with mannual similarities...
+w2v_def = pd.read_csv(PATH_CHECKPOINT_W2V_WORDS_DEFINITION_REORDERED_REVERSE, sep='|', header=0, compression='gzip')
+
+####
+#### DEFINE VECTOR REPRESENTATION COLNAMES
+w2v_vector_dimension = 300
+#### ...get colnames with vector elements...
+w2v_vector_colnames = ['dim_{0}'.format(i) for i in range(1, w2v_vector_dimension + 1)]
+
+
+#### ...we get a few words to dev...
+#w2v_def = w2v_def[w2v_def.id.isin([425, 426, 428])]
+
+w2v_def.head(12)
+
+
+# +
+w2v_composed_def_dict_reverse_avg_sequence = compound_vector_words_csv(logger = None
+                               , df_input = w2v_def # input dataset with words and its definition as column way in dataframe
+                               , cols_input_to_save = ['id', 'w'] # list with columns to save from input dataset
+                               , col_partition = 'id'
+                               , cols_vector_representation = w2v_vector_colnames # list with columns with vector representation
+                               , vector_dimension = 300
+                               , type_computation = 'avg_sequence'
+                               , file_save_gz = PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_REVERSE_AVG_SEQ # file to save output
+                               , sep_out = '|' # field separator in output data file
+                               , verbose = True)
+
+w2v_composed_def_dict_reverse_avg_sequence
+# -
+# ## LOAD BERT dictionary definitions reordered
+# ### direct order
+#
+# in direct order we compute the three operations
+
+# +
+#start = time.time()
+#os.remove(PATH_LOG_FILE)
+#logger = create_logger(PATH_LOG_FILE)
+#logger.info(' - starting execution')
+
+
+#### LOAD DATASET
+#### ...pairs of words with mannual similarities...
+bert_def = pd.read_csv(PATH_CHECKPOINT_BERT_WORDS_DEFINITION_REORDERED_DIRECT, sep='|', header=0, compression='gzip')
+
+####
+#### DEFINE VECTOR REPRESENTATION COLNAMES
+bert_vector_dimension = 768
+#### ...get colnames with vector elements...
+bert_vector_colnames = ['dim_{0}'.format(i) for i in range(1, bert_vector_dimension + 1)]
+
+
+#### ...we get a few words to dev...
+#bert_def = bert_def[bert_def.id.isin([1,2,3])]
+
+bert_def.head(12)
 # -
 
 
 
 
 
+# +
+bert_composed_def_dict_sum = compound_vector_words_csv(logger = None
+                               , df_input = bert_def # input dataset with words and its definition as column way in dataframe
+                               , cols_input_to_save = ['id', 'w'] # list with columns to save from input dataset
+                               , col_partition = 'id'
+                               , cols_vector_representation = bert_vector_colnames # list with columns with vector representation
+                               , vector_dimension = 768
+                               , type_computation = 'sum'
+                               , file_save_gz = PATH_CHECKPOINT_BERT_WORDS_DEFINITION_COMPOSED_DIRECT_SUM # file to save output
+                               , sep_out = '|' # field separator in output data file
+                               , verbose = True)
+
+bert_composed_def_dict_sum
 
 
+# +
+bert_composed_def_dict_avg = compound_vector_words_csv(logger = None
+                               , df_input = bert_def # input dataset with words and its definition as column way in dataframe
+                               , cols_input_to_save = ['id', 'w'] # list with columns to save from input dataset
+                               , col_partition = 'id'
+                               , cols_vector_representation = bert_vector_colnames # list with columns with vector representation
+                               , vector_dimension = 768
+                               , type_computation = 'avg'
+                               , file_save_gz = PATH_CHECKPOINT_BERT_WORDS_DEFINITION_COMPOSED_DIRECT_AVG # file to save output
+                               , sep_out = '|' # field separator in output data file
+                               , verbose = True)
+
+bert_composed_def_dict_avg
+# +
+bert_composed_def_dict_avg_sequence = compound_vector_words_csv(logger = None
+                               , df_input = bert_def # input dataset with words and its definition as column way in dataframe
+                               , cols_input_to_save = ['id', 'w'] # list with columns to save from input dataset
+                               , col_partition = 'id'
+                               , cols_vector_representation = bert_vector_colnames # list with columns with vector representation
+                               , vector_dimension = 768
+                               , type_computation = 'avg_sequence'
+                               , file_save_gz = PATH_CHECKPOINT_BERT_WORDS_DEFINITION_COMPOSED_DIRECT_AVG_SEQ # file to save output
+                               , sep_out = '|' # field separator in output data file
+                               , verbose = True)
+
+bert_composed_def_dict_avg_sequence
+# -
+# ### direct order
+#
+# in direct order we compute the three operations
+
+# +
+#start = time.time()
+#os.remove(PATH_LOG_FILE)
+#logger = create_logger(PATH_LOG_FILE)
+#logger.info(' - starting execution')
 
 
+#### LOAD DATASET
+#### ...pairs of words with mannual similarities...
+bert_def = pd.read_csv(PATH_CHECKPOINT_BERT_WORDS_DEFINITION_REORDERED_REVERSE, sep='|', header=0, compression='gzip')
+
+####
+#### DEFINE VECTOR REPRESENTATION COLNAMES
+bert_vector_dimension = 768
+#### ...get colnames with vector elements...
+bert_vector_colnames = ['dim_{0}'.format(i) for i in range(1, bert_vector_dimension + 1)]
 
 
+#### ...we get a few words to dev...
+#bert_def = bert_def[bert_def.id.isin([1,2,3])]
 
+bert_def.head(12)
 
+# +
+bert_composed_def_dict_reverse_avg_sequence = compound_vector_words_csv(logger = None
+                               , df_input = bert_def # input dataset with words and its definition as column way in dataframe
+                               , cols_input_to_save = ['id', 'w'] # list with columns to save from input dataset
+                               , col_partition = 'id'
+                               , cols_vector_representation = bert_vector_colnames # list with columns with vector representation
+                               , vector_dimension = 768
+                               , type_computation = 'avg_sequence'
+                               , file_save_gz = PATH_CHECKPOINT_BERT_WORDS_DEFINITION_COMPOSED_REVERSE_AVG_SEQ # file to save output
+                               , sep_out = '|' # field separator in output data file
+                               , verbose = True)
 
-
-
-
+bert_composed_def_dict_reverse_avg_sequence
