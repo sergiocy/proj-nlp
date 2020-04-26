@@ -310,7 +310,6 @@ w2v_composed_def_dict_reverse_avg_sequence
 # ### direct order
 #
 # in direct order we compute the three operations
-
 # +
 #start = time.time()
 #os.remove(PATH_LOG_FILE)
@@ -334,6 +333,9 @@ bert_vector_colnames = ['dim_{0}'.format(i) for i in range(1, bert_vector_dimens
 
 bert_def.head(12)
 # -
+
+
+
 
 
 
