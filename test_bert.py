@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.4.1
+#       jupytext_version: 1.4.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -18,11 +18,15 @@ import numpy as np
 
 import tensorflow_hub as hub
 import tensorflow as tf
-from tensorflow.keras.models import Model 
+from tensorflow.keras.models import Model
 import bert
 
 from bert.tokenization import bert_tokenization
 # -
+
+
+
+
 
 
 
@@ -68,6 +72,7 @@ def get_ids(tokens, tokenizer, max_seq_length):
 
 
 
+
 max_seq_length = 128
 str_test = 'to like someone very much and have sexual feelings for them'
 #str_test = 'someone'
@@ -83,7 +88,7 @@ str_test = 'to like someone very much and have very hungry at morning'
 # +
 input_word_ids = tf.keras.layers.Input(shape=(max_seq_length,), dtype=tf.int32, name="input_word_ids")
 input_mask = tf.keras.layers.Input(shape=(max_seq_length,), dtype=tf.int32, name="input_mask")
-segment_ids = tf.keras.layers.Input(shape=(max_seq_length,), dtype=tf.int32, name="segment_ids") 
+segment_ids = tf.keras.layers.Input(shape=(max_seq_length,), dtype=tf.int32, name="segment_ids")
 
 bert_layer = hub.KerasLayer(module_hub_url, trainable=True)
 #bert_layer = hub.KerasLayer("C:/sc/sync/projects/00model/bert/uncased_new", trainable=True)
@@ -95,6 +100,7 @@ do_lower_case = bert_layer.resolved_object.do_lower_case.numpy()
 model = Model(inputs=[input_word_ids, input_mask, segment_ids], outputs=[pooled_output, sequence_output])
 tokenizer = bert_tokenization.FullTokenizer(vocab_file, do_lower_case)
 # -
+
 
 
 
