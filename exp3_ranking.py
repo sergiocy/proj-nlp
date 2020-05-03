@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.4.2
+#       jupytext_version: 1.4.1
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -21,6 +21,7 @@ import numpy as np
 from numpy import array, dot, arccos, clip 
 from numpy.linalg import norm 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 #from app.lib.py.logging.create_logger import create_logger
@@ -59,23 +60,107 @@ PATH_RANKING_BERT_DEF_REVERSE_POOLED_WORDS = '../00data/nlp/tmp/ranking/ws353_ra
 #### GLOBAL VARIABLES
 w2v_vr_dim = 300
 bert_vr_dim = 768
+
+w2v_pos_colnames = ['pos_{0}'.format(i) for i in range(1, 428)] 
+bert_pos_colnames = ['pos_{0}'.format(i) for i in range(1, 424)] 
 # +
 #start = time.time()
 #os.remove(PATH_LOG_FILE)
 #logger = create_logger(PATH_LOG_FILE)
 #logger.info(' - starting execution')
 # -
-# ## W2V VS BERT - ranking - DIRECT order - composition using POOLED
-
-df_sim = pd.read_csv(PATH_SIM_BERT_DEF_REVERSE_POOLED, sep='|', header=0, compression='gzip')
-#### ...we get a few words to dev...
-#df_sim = df_sim[df_sim.id.isin([1, 2, 3])]
-df_sim.head()
 
 
+# ## W2V - better composition function
 
-df_ranking_scores.to_csv(PATH_RANKING_BERT_DEF_REVERSE_POOLED_SCORES, sep='|', header=True, index=False, compression='gzip')
-df_ranking_words.to_csv(PATH_RANKING_BERT_DEF_REVERSE_POOLED_WORDS, sep='|', header=True, index=False, compression='gzip')
+# +
+####
+#### ...
+df_scores = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_SUM_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_SUM_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_w2v_direct_sum = list()
+for c in w2v_pos_colnames:
+    lst_count_w2v_direct_sum.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
+
+# +
+####
+#### ...
+df_scores = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_AVG_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_AVG_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_w2v_direct_avg = list()
+for c in w2v_pos_colnames:
+    lst_count_w2v_direct_avg.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
+
+### ...plot...
+plt.figure(figsize=(16, 10))
+#plt.plot(range(1, len(w2v_pos_colnames)+1), lst_count_w2v_direct_sum, label = 'w2v composition sum')
+#plt.plot(range(1, len(bert_pos_colnames)+1), lst_count_bert_direct_sum, label = 'BERT composition sum')
+plt.plot(range(1, 50), lst_count_w2v_direct_sum[0:49], label = 'w2v composition sum')
+plt.plot(range(1, 50), lst_count_w2v_direct_avg[0:49], label = 'w2v composition avg')
+plt.legend()
+plt.title('ranking using SUM as composition function')
+plt.show()
+
+# ## W2V VS BERT - ranking - DIRECT order - composition SUM
+
+# +
+####
+#### ...
+df_scores = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_SUM_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_SUM_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_w2v_direct_sum = list()
+for c in w2v_pos_colnames:
+    lst_count_w2v_direct_sum.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
+
+# +
+df_scores = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_SUM_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_SUM_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_bert_direct_sum = list()
+for c in bert_pos_colnames:
+    lst_count_bert_direct_sum.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
+
+
+
+### ...plot...
+plt.figure(figsize=(16, 10))
+#plt.plot(range(1, len(w2v_pos_colnames)+1), lst_count_w2v_direct_sum, label = 'w2v composition sum')
+#plt.plot(range(1, len(bert_pos_colnames)+1), lst_count_bert_direct_sum, label = 'BERT composition sum')
+plt.plot(range(1, 50), lst_count_w2v_direct_sum[0:49], label = 'w2v composition sum')
+plt.plot(range(1, 50), lst_count_bert_direct_sum[0:49], label = 'BERT composition sum')
+plt.legend()
+plt.title('ranking using SUM as composition function')
+plt.show()
+
+
+
 
 
 

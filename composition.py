@@ -218,7 +218,7 @@ w2v_vector_colnames = ['dim_{0}'.format(i) for i in range(1, w2v_vector_dimensio
 
 
 #### ...we get a few words to dev...
-#w2v_def = w2v_def[w2v_def.id.isin([425, 426, 428])]
+w2v_def = w2v_def[w2v_def.id.isin([1,2,3])]
 
 w2v_def.head(12)
 # +
@@ -229,12 +229,17 @@ w2v_composed_def_dict_sum = compound_vector_words_csv(logger = None
                                , cols_vector_representation = w2v_vector_colnames # list with columns with vector representation
                                , vector_dimension = 300
                                , type_computation = 'sum'
-                               , file_save_gz = PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_SUM # file to save output
+                               , file_save_gz =  PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_SUM # file to save output
                                , sep_out = '|' # field separator in output data file
                                , verbose = True)
 
 w2v_composed_def_dict_sum
+# -
 
+
+#### ...check output...
+df = pd.read_csv(PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_SUM, sep='|', header=0, compression='gzip')
+df.head()
 
 # +
 w2v_composed_def_dict_avg = compound_vector_words_csv(logger = None
@@ -249,6 +254,10 @@ w2v_composed_def_dict_avg = compound_vector_words_csv(logger = None
                                , verbose = True)
 
 w2v_composed_def_dict_avg
+# -
+df = pd.read_csv(PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_AVG, sep='|', header=0, compression='gzip')
+df.head()
+
 # +
 w2v_composed_def_dict_avg_sequence = compound_vector_words_csv(logger = None
                                , df_input = w2v_def # input dataset with words and its definition as column way in dataframe
@@ -263,6 +272,8 @@ w2v_composed_def_dict_avg_sequence = compound_vector_words_csv(logger = None
 
 w2v_composed_def_dict_avg_sequence
 # -
+
+
 # ### reverse order
 #
 # in reverse order we only compute the average_sequence type of computing. Only has sense for this.

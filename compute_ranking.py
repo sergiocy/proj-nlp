@@ -79,7 +79,6 @@ bert_vr_dim = 768
 #logger = create_logger(PATH_LOG_FILE)
 #logger.info(' - starting execution')
 # -
-
 def get_ranking_words_and_scores(df_sim
                                 , cols_to_save = ['id', 'w']):
 

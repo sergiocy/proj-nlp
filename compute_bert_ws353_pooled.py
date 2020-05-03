@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.4.2
+#       jupytext_version: 1.4.1
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -341,7 +341,8 @@ df_output.to_csv(PATH_CHECKPOINT_BERT_WORDS_DEFINITION_POOLED_REVERSE
 
 
 
-
+bert_def = pd.read_csv(PATH_CHECKPOINT_BERT_WORDS_DEFINITION_POOLED_DIRECT, sep='|', header=0, compression='gzip')
+bert_def.head()
 
 
 

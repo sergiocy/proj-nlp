@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.4.2
+#       jupytext_version: 1.4.1
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -322,7 +322,8 @@ sns.distplot(df_pairs['cos_bert_context']
              #kde_kws={'linewidth': 4}
              , label = 'bert_context'
             )
-
+plt.xlabel('cos')
+plt.show()
 # -
 
 

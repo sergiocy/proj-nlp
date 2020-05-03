@@ -30,6 +30,7 @@ import pandas as pd
 #### ...execution files...
 PATH_LOG_FILE = 'log/log.log'
 
+
 ####
 #### INPUT FILES
 PATH_W2V_WORDS = '../00data/nlp/tmp/ws353_w2v_words.csv.gz'
@@ -96,13 +97,18 @@ def compute_similarities_matrix(df_reference # define rows
 
         similarities_word_def = list(row_word[cols_reference_to_save])
         vec_rep_word = np.asarray(row_word[cols_vector])
+        #print('************************************')
+        #print(vec_rep_word[0:5])
 
         for index_composition, row_composition in df_second.iterrows():
 
             vec_rep_composition = np.asarray(row_composition[cols_vector])
+            #print(vec_rep_composition[0:5])
             similarities_word_def.append(compute_similarity_cosin(vec_rep_word, vec_rep_composition)[1])
+            #print(compute_similarity_cosin(vec_rep_word, vec_rep_composition)[1])
 
         df_similarities.loc[index_word] = similarities_word_def
+        #print(df_similarities)
 
     return df_similarities      
 # -
@@ -118,7 +124,7 @@ w2v_words = pd.read_csv(PATH_W2V_WORDS, sep='|', header=0, compression='gzip')
 w2v_words = w2v_words.drop(['id_token', 'token'], axis = 1)
 
 #### ...we get a few words to dev...
-#w2v_words = w2v_words[w2v_words.id.isin([1, 2, 3])]
+#w2v_words = w2v_words[w2v_words.id.isin([1])]
 
 w2v_words.head()
 # -
@@ -329,8 +335,10 @@ sim_bert_reverse_pooled.to_csv(PATH_SIM_BERT_DEF_REVERSE_POOLED, sep='|', header
 
 
 
+PATH_W2V_WORDS_CONTEXT = '../00data/nlp/tmp/ws353_w2v_words_context.csv.gz'
+PATH_BERT_WORDS_CONTEXT = '../00data/nlp/tmp/ws353_bert_words_context.csv.gz'
 
-
-
+df = pd.read_csv(PATH_BERT_WORDS_CONTEXT, sep='|', header=0, compression='gzip')
+df.head()
 
 
