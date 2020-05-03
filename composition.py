@@ -311,10 +311,10 @@ w2v_composed_def_dict_reverse_avg_sequence
 #
 # in direct order we compute the three operations
 # +
-#start = time.time()
-#os.remove(PATH_LOG_FILE)
-#logger = create_logger(PATH_LOG_FILE)
-#logger.info(' - starting execution')
+# start = time.time()
+# os.remove(PATH_LOG_FILE)
+# logger = create_logger(PATH_LOG_FILE)
+# logger.info(' - starting execution')
 
 
 #### LOAD DATASET
@@ -328,8 +328,8 @@ bert_vector_dimension = 768
 bert_vector_colnames = ['dim_{0}'.format(i) for i in range(1, bert_vector_dimension + 1)]
 
 
-#### ...we get a few words to dev...
-#bert_def = bert_def[bert_def.id.isin([1,2,3])]
+# ### ...we get a few words to dev...
+# bert_def = bert_def[bert_def.id.isin([1,2,3])]
 
 bert_def.head(12)
 # -
@@ -383,9 +383,9 @@ bert_composed_def_dict_avg_sequence = compound_vector_words_csv(logger = None
 
 bert_composed_def_dict_avg_sequence
 # -
-# ### direct order
+# ### reverse order
 #
-# in direct order we compute the three operations
+# in reverse order we compute the three operations
 
 # +
 #start = time.time()
