@@ -69,8 +69,6 @@ bert_pos_colnames = ['pos_{0}'.format(i) for i in range(1, 424)]
 #logger = create_logger(PATH_LOG_FILE)
 #logger.info(' - starting execution')
 # -
-
-
 # ## W2V - better composition function
 
 # +
@@ -89,6 +87,8 @@ for c in w2v_pos_colnames:
 
 df_scores.head()
 
+df_words.head()
+
 # +
 ####
 #### ...
@@ -105,35 +105,42 @@ for c in w2v_pos_colnames:
 
 df_scores.head()
 
-### ...plot...
-plt.figure(figsize=(16, 10))
-#plt.plot(range(1, len(w2v_pos_colnames)+1), lst_count_w2v_direct_sum, label = 'w2v composition sum')
-#plt.plot(range(1, len(bert_pos_colnames)+1), lst_count_bert_direct_sum, label = 'BERT composition sum')
-plt.plot(range(1, 50), lst_count_w2v_direct_sum[0:49], label = 'w2v composition sum')
-plt.plot(range(1, 50), lst_count_w2v_direct_avg[0:49], label = 'w2v composition avg')
-plt.legend()
-plt.title('ranking using SUM as composition function')
-plt.show()
-
-# ## W2V VS BERT - ranking - DIRECT order - composition SUM
-
 # +
 ####
 #### ...
-df_scores = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_SUM_SCORES, sep='|', header=0, compression='gzip')
-df_words = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_SUM_WORDS, sep='|', header=0, compression='gzip')
+df_scores = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_AVG_SEQ_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_AVG_SEQ_WORDS, sep='|', header=0, compression='gzip')
 
 #df_scores.head()
 #df_words.head()
 
-lst_count_w2v_direct_sum = list()
+lst_count_w2v_direct_avg_seq = list()
 for c in w2v_pos_colnames:
-    lst_count_w2v_direct_sum.append(len(df_words[df_words['w'] == df_words[c]]))
+    lst_count_w2v_direct_avg_seq.append(len(df_words[df_words['w'] == df_words[c]]))
 # -
 
 df_scores.head()
 
+### ...plot...
+plt.figure(figsize=(16, 10))
+#plt.plot(range(1, len(w2v_pos_colnames)+1), lst_count_w2v_direct_sum, label = 'w2v composition sum')
+#plt.plot(range(1, len(bert_pos_colnames)+1), lst_count_bert_direct_sum, label = 'BERT composition sum')
+plt.plot(range(1, 31), lst_count_w2v_direct_sum[0:30], label = 'sum')
+plt.plot(range(1, 31), lst_count_w2v_direct_avg[0:30], label = 'avg')
+plt.plot(range(1, 31), lst_count_w2v_direct_avg_seq[0:30], label = 'avg-sequence')
+plt.legend()
+plt.title('W2V')
+plt.show()
+
+#
+
+
+
+# ## BERT - better composition function
+
 # +
+####
+#### ...
 df_scores = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_SUM_SCORES, sep='|', header=0, compression='gzip')
 df_words = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_SUM_WORDS, sep='|', header=0, compression='gzip')
 
@@ -147,16 +154,162 @@ for c in bert_pos_colnames:
 
 df_scores.head()
 
+# +
+df_scores = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_AVG_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_AVG_WORDS, sep='|', header=0, compression='gzip')
 
+#df_scores.head()
+#df_words.head()
+
+lst_count_bert_direct_avg = list()
+for c in bert_pos_colnames:
+    lst_count_bert_direct_avg.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
+# +
+df_scores = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_AVG_SEQ_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_AVG_SEQ_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_bert_direct_avg_seq = list()
+for c in bert_pos_colnames:
+    lst_count_bert_direct_avg_seq.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+
+df_scores.head()
+
+# +
+df_scores = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_POOLED_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_POOLED_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_bert_direct_pooled = list()
+for c in bert_pos_colnames:
+    lst_count_bert_direct_pooled.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
 
 ### ...plot...
 plt.figure(figsize=(16, 10))
 #plt.plot(range(1, len(w2v_pos_colnames)+1), lst_count_w2v_direct_sum, label = 'w2v composition sum')
 #plt.plot(range(1, len(bert_pos_colnames)+1), lst_count_bert_direct_sum, label = 'BERT composition sum')
-plt.plot(range(1, 50), lst_count_w2v_direct_sum[0:49], label = 'w2v composition sum')
-plt.plot(range(1, 50), lst_count_bert_direct_sum[0:49], label = 'BERT composition sum')
+plt.plot(range(1, 31), lst_count_bert_direct_sum[0:30], label = 'sum')
+plt.plot(range(1, 31), lst_count_bert_direct_avg[0:30], label = 'avg')
+plt.plot(range(1, 31), lst_count_bert_direct_avg_seq[0:30], label = 'avg-sequence')
+plt.plot(range(1, 31), lst_count_bert_direct_pooled[0:30], label = 'pooled')
 plt.legend()
-plt.title('ranking using SUM as composition function')
+plt.title('BERT')
+plt.show()
+
+
+
+
+
+# ## w2v - influence order - direct VS reverse
+
+# +
+####
+#### ...
+df_scores = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_AVG_SEQ_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_W2V_DEF_DIRECT_AVG_SEQ_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_w2v_direct_avg_seq = list()
+for c in w2v_pos_colnames:
+    lst_count_w2v_direct_avg_seq.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
+
+df_words.head()
+
+
+
+
+# +
+####
+#### ...
+df_scores = pd.read_csv(PATH_RANKING_W2V_DEF_REVERSE_AVG_SEQ_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_W2V_DEF_REVERSE_AVG_SEQ_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_w2v_reverse_avg_seq = list()
+for c in w2v_pos_colnames:
+    lst_count_w2v_reverse_avg_seq.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
+
+### ...plot...
+plt.figure(figsize=(16, 10))
+#plt.plot(range(1, len(w2v_pos_colnames)+1), lst_count_w2v_direct_sum, label = 'w2v composition sum')
+#plt.plot(range(1, len(bert_pos_colnames)+1), lst_count_bert_direct_sum, label = 'BERT composition sum')
+plt.plot(range(1, 31), lst_count_w2v_direct_avg_seq[0:30], label = 'direct')
+plt.plot(range(1, 31), lst_count_w2v_reverse_avg_seq[0:30], label = 'reverse')
+plt.legend()
+plt.title('W2V')
+plt.show()
+
+
+
+# ## BERT - influence order - direct VS reverse
+
+# +
+####
+#### ...
+df_scores = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_AVG_SEQ_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_AVG_SEQ_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_bert_direct_avg_seq = list()
+for c in bert_pos_colnames:
+    lst_count_bert_direct_avg_seq.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
+
+df_words.head()
+
+
+
+
+# +
+####
+#### ...
+df_scores = pd.read_csv(PATH_RANKING_BERT_DEF_REVERSE_AVG_SEQ_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_BERT_DEF_REVERSE_AVG_SEQ_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_bert_reverse_avg_seq = list()
+for c in bert_pos_colnames:
+    lst_count_bert_reverse_avg_seq.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
+
+### ...plot...
+plt.figure(figsize=(16, 10))
+#plt.plot(range(1, len(w2v_pos_colnames)+1), lst_count_w2v_direct_sum, label = 'w2v composition sum')
+#plt.plot(range(1, len(bert_pos_colnames)+1), lst_count_bert_direct_sum, label = 'BERT composition sum')
+plt.plot(range(1, 31), lst_count_bert_direct_avg_seq[0:30], label = 'direct')
+plt.plot(range(1, 31), lst_count_bert_reverse_avg_seq[0:30], label = 'reverse')
+plt.legend()
+plt.title('BERT - avg-sequence')
 plt.show()
 
 
@@ -165,5 +318,51 @@ plt.show()
 
 
 
+# ## BERT - influence order - direct VS reverse
+
+# +
+####
+#### ...
+df_scores = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_POOLED_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_BERT_DEF_DIRECT_POOLED_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_bert_direct_pooled = list()
+for c in bert_pos_colnames:
+    lst_count_bert_direct_pooled.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
+
+df_words.head()
 
 
+
+
+# +
+####
+#### ...
+df_scores = pd.read_csv(PATH_RANKING_BERT_DEF_REVERSE_POOLED_SCORES, sep='|', header=0, compression='gzip')
+df_words = pd.read_csv(PATH_RANKING_BERT_DEF_REVERSE_POOLED_WORDS, sep='|', header=0, compression='gzip')
+
+#df_scores.head()
+#df_words.head()
+
+lst_count_bert_reverse_pooled = list()
+for c in bert_pos_colnames:
+    lst_count_bert_reverse_pooled.append(len(df_words[df_words['w'] == df_words[c]]))
+# -
+
+df_scores.head()
+
+### ...plot...
+plt.figure(figsize=(16, 10))
+#plt.plot(range(1, len(w2v_pos_colnames)+1), lst_count_w2v_direct_sum, label = 'w2v composition sum')
+#plt.plot(range(1, len(bert_pos_colnames)+1), lst_count_bert_direct_sum, label = 'BERT composition sum')
+plt.plot(range(1, 31), lst_count_bert_direct_pooled[0:30], label = 'direct')
+plt.plot(range(1, 31), lst_count_bert_reverse_pooled[0:30], label = 'reverse')
+plt.legend()
+plt.title('BERT - pooled')
+plt.show()
