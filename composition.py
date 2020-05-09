@@ -229,17 +229,17 @@ w2v_composed_def_dict_sum = compound_vector_words_csv(logger = None
                                , cols_vector_representation = w2v_vector_colnames # list with columns with vector representation
                                , vector_dimension = 300
                                , type_computation = 'sum'
-                               , file_save_gz =  PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_SUM # file to save output
+                               , file_save_gz = # PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_SUM # file to save output
                                , sep_out = '|' # field separator in output data file
                                , verbose = True)
 
 w2v_composed_def_dict_sum
-# -
 
 
+# +
 #### ...check output...
-df = pd.read_csv(PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_SUM, sep='|', header=0, compression='gzip')
-df.head()
+#df = pd.read_csv(PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_SUM, sep='|', header=0, compression='gzip')
+#df.head()
 
 # +
 w2v_composed_def_dict_avg = compound_vector_words_csv(logger = None
@@ -249,7 +249,7 @@ w2v_composed_def_dict_avg = compound_vector_words_csv(logger = None
                                , cols_vector_representation = w2v_vector_colnames # list with columns with vector representation
                                , vector_dimension = 300
                                , type_computation = 'avg'
-                               , file_save_gz = PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_AVG # file to save output
+                               , file_save_gz = # PATH_CHECKPOINT_W2V_WORDS_DEFINITION_COMPOSED_DIRECT_AVG # file to save output
                                , sep_out = '|' # field separator in output data file
                                , verbose = True)
 
@@ -272,8 +272,6 @@ w2v_composed_def_dict_avg_sequence = compound_vector_words_csv(logger = None
 
 w2v_composed_def_dict_avg_sequence
 # -
-
-
 # ### reverse order
 #
 # in reverse order we only compute the average_sequence type of computing. Only has sense for this.
