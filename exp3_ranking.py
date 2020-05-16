@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.4.1
+#       jupytext_version: 1.4.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -129,6 +129,7 @@ plt.plot(range(1, 31), lst_count_w2v_direct_sum[0:30], label = 'sum')
 plt.plot(range(1, 31), lst_count_w2v_direct_avg[0:30], label = 'avg')
 plt.plot(range(1, 31), lst_count_w2v_direct_avg_seq[0:30], label = 'avg-sequence')
 plt.legend()
+plt.ylim(0, 140)
 plt.title('W2V')
 plt.show()
 
@@ -205,6 +206,7 @@ plt.plot(range(1, 31), lst_count_bert_direct_avg[0:30], label = 'avg')
 plt.plot(range(1, 31), lst_count_bert_direct_avg_seq[0:30], label = 'avg-sequence')
 plt.plot(range(1, 31), lst_count_bert_direct_pooled[0:30], label = 'pooled')
 plt.legend()
+plt.ylim(0, 140)
 plt.title('BERT')
 plt.show()
 
@@ -258,6 +260,7 @@ plt.figure(figsize=(16, 10))
 plt.plot(range(1, 31), lst_count_w2v_direct_avg_seq[0:30], label = 'direct')
 plt.plot(range(1, 31), lst_count_w2v_reverse_avg_seq[0:30], label = 'reverse')
 plt.legend()
+plt.ylim(0, 140)
 plt.title('W2V')
 plt.show()
 
@@ -309,6 +312,7 @@ plt.figure(figsize=(16, 10))
 plt.plot(range(1, 31), lst_count_bert_direct_avg_seq[0:30], label = 'direct')
 plt.plot(range(1, 31), lst_count_bert_reverse_avg_seq[0:30], label = 'reverse')
 plt.legend()
+plt.ylim(0, 140)
 plt.title('BERT - avg-sequence')
 plt.show()
 
@@ -364,5 +368,8 @@ plt.figure(figsize=(16, 10))
 plt.plot(range(1, 31), lst_count_bert_direct_pooled[0:30], label = 'direct')
 plt.plot(range(1, 31), lst_count_bert_reverse_pooled[0:30], label = 'reverse')
 plt.legend()
+plt.ylim(0, 140)
 plt.title('BERT - pooled')
 plt.show()
+
+
