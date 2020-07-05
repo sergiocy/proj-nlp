@@ -1,3 +1,3 @@
-[submodule "app/lib"]
-	path = app/lib
+[submodule "wembapi/lib"]
+	path = wembapi/lib
 	url = https://github.com/sergiocy/lib.git
