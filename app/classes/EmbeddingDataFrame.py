@@ -14,8 +14,13 @@ class EmbeddingDataFrame:
 
 
     #### constructor
-    def __init__(self, filepath=None, logger=None, build=False
-                 #### parameters if build=True
+    def __init__(self
+                # parameters if build=False ; a matrix with embeddings is readen
+                , filepath=None
+                , logger=None
+                , build=False
+                 # parameters if build=True ; a matrix with embeddings is builded
+                 # from csv with text pieces
                  , colname_text=None
                  , filepath_prepared_text=None
                  , filepath_embeddings=None

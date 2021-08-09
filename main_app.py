@@ -19,7 +19,7 @@ if __name__ == "__main__":
     #### get config parameters
     obj_config = InputArguments(PATH_CONFIG, type_config_json = False)
     param_config = obj_config.get_input_arguments()
-    
+
     parser = argparse.ArgumentParser()
     #parser.add_argument('--process', type=str, nargs='+', default=param_config.get('process'))
     parser.add_argument('--process', type=str, default=param_config.get('process'))

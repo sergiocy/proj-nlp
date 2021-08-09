@@ -7,8 +7,8 @@ import time
 #### OLD imports
 # from controller.selector import process_selection
 # from controller.InputArguments import InputArguments
-from app.lib.py.local.remove_file_if_exists import remove_file_if_exists
-from app.lib.py.logging.create_logger import create_logger
+from app.lib.py.management.file.remove_file_if_exists import remove_file_if_exists
+from app.lib.py.management.logging.create_logger import create_logger
 from app.classes.EmbeddingDataFrame import EmbeddingDataFrame
 
 
@@ -31,10 +31,12 @@ if __name__ == "__main__":
     print(PATH_EMBEDDING_CSV_FILE)
     print(PATH_SENTENCES_CSV_FILE)
 
+    # prepare logger
     start = time.time()
     remove_file_if_exists(PATH_LOG_FILE)
     logger = create_logger(PATH_LOG_FILE)
     logger.info(' - starting execution')
+
 
     obj_emb = EmbeddingDataFrame(logger=logger
                                  , filepath=PATH_SENTENCES_CSV_FILE
